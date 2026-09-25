@@ -1,0 +1,51 @@
+# rewrite_status: rewritten
+#title: People born in Lisbon without articles on ptwiki but with articles on other Wikipedias
+# People born in Lisbon that don't have an article on Portuguese Wikipedia
+# but do have an article on other Wikipedias.
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  schema: <http://schema.org/>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+PREFIX  wikibase: <http://wikiba.se/ontology#>
+
+SELECT DISTINCT  ?person ?personLabel
+WHERE
+  { ?person  wdt:P31  wd:Q5 .
+    ?person (wdt:P19|wdt:P20)/(wdt:P131)* wd:Q597
+    MINUS
+      { ?ptArticle  schema:about   ?person ;
+                  schema:isPartOf  <https://pt.wikipedia.org/>
+      }
+    ?anyArticle  schema:about  ?person .
+    ?anyArticle schema:isPartOf/wikibase:wikiGroup "wikipedia"
+    OPTIONAL
+      { ?person  rdfs:label  ?person__label_value
+        FILTER ( lang(?person__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?person  rdfs:label  ?person__label_value
+        FILTER ( lang(?person__label_value) = "pt" )
+      }
+    OPTIONAL
+      { ?person  rdfs:label  ?person__label_value
+        FILTER ( lang(?person__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?person  rdfs:label  ?person__label_value
+        FILTER ( lang(?person__label_value) = "mul" )
+      }
+    BIND(if(bound(?person__label_value), ?person__label_value, if(( isURI(?person) && strstarts(str(?person), "http://www.wikidata.org/entity/") ), strafter(str(?person), "entity/"), str(?person))) AS ?personLabel)
+  }
+
+# Original query:
+# #title: People born in Lisbon without articles on ptwiki but with articles on other Wikipedias
+# # People born in Lisbon that don't have an article on Portuguese Wikipedia
+# # but do have an article on other Wikipedias.
+# SELECT DISTINCT ?person ?personLabel WHERE
+# {
+#   ?person wdt:P31 wd:Q5. # Instance of human
+#   ?person (wdt:P19|wdt:P20)/wdt:P131* wd:Q597. # Born or died in Lisbon (or anywhere within)
+#   MINUS { ?ptArticle schema:about ?person; schema:isPartOf <https://pt.wikipedia.org/>. } # No article on pt.wiki
+#   ?anyArticle schema:about ?person; schema:isPartOf/wikibase:wikiGroup "wikipedia". # Do have (some) Wikipedia article
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],pt,en,mul". }
+# }

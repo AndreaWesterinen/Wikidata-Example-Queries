@@ -1,0 +1,37 @@
+# rewrite_status: rewritten
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?subject ?subjectLabel ?gallery
+WHERE
+  { ?subject  wdt:P31   wd:Q5 ;
+              wdt:P935  ?gallery
+    FILTER NOT EXISTS { ?subject  wdt:P18  ?x }
+    OPTIONAL
+      { ?subject  rdfs:label  ?subject__label_value
+        FILTER ( lang(?subject__label_value) = "fr" )
+      }
+    OPTIONAL
+      { ?subject  rdfs:label  ?subject__label_value
+        FILTER ( lang(?subject__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?subject  rdfs:label  ?subject__label_value
+        FILTER ( lang(?subject__label_value) = "mul" )
+      }
+    BIND(if(bound(?subject__label_value), ?subject__label_value, if(( isURI(?subject) && strstarts(str(?subject), "http://www.wikidata.org/entity/") ), strafter(str(?subject), "entity/"), str(?subject))) AS ?subjectLabel)
+    FILTER regex(str(?subject), "Q211", "i")
+  }
+LIMIT   100
+
+# Original query:
+# SELECT ?subject ?subjectLabel ?gallery
+# WHERE {
+#     ?subject wdt:P31 wd:Q5 .
+#     ?subject wdt:P935 ?gallery.
+#     FILTER NOT EXISTS { ?subject wdt:P18 ?x }
+#     SERVICE wikibase:label { bd:serviceParam wikibase:language "fr,en" }
+#     FILTER regex(str(?subject), "Q211", "i")
+# }
+# LIMIT 100

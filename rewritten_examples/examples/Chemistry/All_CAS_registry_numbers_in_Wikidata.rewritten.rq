@@ -1,0 +1,29 @@
+# rewrite_status: rewritten
+#title: All CAS registry numbers in Wikidata
+
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT DISTINCT  ?compound ?compoundLabel ?cas
+WHERE
+  { ?compound  wdt:P231  ?cas
+    OPTIONAL
+      { ?compound  rdfs:label  ?compound__label_value
+        FILTER ( lang(?compound__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?compound  rdfs:label  ?compound__label_value
+        FILTER ( lang(?compound__label_value) = "mul" )
+      }
+    BIND(if(bound(?compound__label_value), ?compound__label_value, if(( isURI(?compound) && strstarts(str(?compound), "http://www.wikidata.org/entity/") ), strafter(str(?compound), "entity/"), str(?compound))) AS ?compoundLabel)
+  }
+
+# Original query:
+# #title: All CAS registry numbers in Wikidata
+#
+# SELECT DISTINCT ?compound ?compoundLabel ?cas
+# WHERE
+# {
+#   ?compound wdt:P231 ?cas .
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "en". }
+# }

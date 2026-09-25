@@ -1,0 +1,75 @@
+# rewrite_status: rewritten
+#title: Most Used Properties for Hospitals in Wikidata
+#defaultView:BubbleChart
+
+# This query retrieves the most frequently used properties for items that are instances of a hospital (Q16917).
+# It counts how many times each property is used and displays the results in descending order.
+# The visualization is set to a Bubble Chart to provide a visual representation of property usage.
+
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?property ?propertyLabel ?count
+WHERE
+  { { SELECT  (IRI(replace(str(?prop), "http://www.wikidata.org/prop/direct/", "http://www.wikidata.org/entity/")) AS ?property) (count(*) AS ?count)
+      WHERE
+        { ?item  wdt:P31  wd:Q16917 ;
+                 ?prop    ?value
+          FILTER strstarts(str(?prop), str(wdt:))
+        }
+      GROUP BY ?prop
+      ORDER BY DESC(?count)
+    }
+    BIND(if(bound(?property), ?property, "unbound") AS ?property__label_subject)
+    OPTIONAL
+      { ?property__label_subject
+                  rdfs:label  ?property__label_value
+        FILTER ( lang(?property__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?property__label_subject
+                  rdfs:label  ?property__label_value
+        FILTER ( lang(?property__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?property__label_subject
+                  rdfs:label  ?property__label_value
+        FILTER ( lang(?property__label_value) = "mul" )
+      }
+    BIND(if(bound(?property__label_value), ?property__label_value, if(( isURI(?property) && strstarts(str(?property), "http://www.wikidata.org/entity/") ), strafter(str(?property), "entity/"), str(?property))) AS ?propertyLabel)
+  }
+ORDER BY DESC(?count)
+LIMIT   1000
+
+# Original query:
+# #title: Most Used Properties for Hospitals in Wikidata
+# #defaultView:BubbleChart
+#
+# # This query retrieves the most frequently used properties for items that are instances of a hospital (Q16917).
+# # It counts how many times each property is used and displays the results in descending order.
+# # The visualization is set to a Bubble Chart to provide a visual representation of property usage.
+#
+# SELECT ?property ?propertyLabel ?count
+# WHERE {
+#   # Subquery to calculate the count of each property used by hospital items
+#   {
+#     SELECT 
+#       (IRI(REPLACE(STR(?prop), "http://www.wikidata.org/prop/direct/", "http://www.wikidata.org/entity/")) AS ?property)  # Convert direct property to property entity
+#       (COUNT(*) AS ?count)  # Count the number of occurrences for each property
+#     WHERE {
+#       ?item wdt:P31 wd:Q16917 .  # Select items that are instances of a hospital
+#       ?item ?prop ?value .        # Retrieve all properties and their values for these items
+#       FILTER(STRSTARTS(STR(?prop), STR(wdt:))) .  # Ensure only direct properties (wdt:) are considered
+#     }
+#     GROUP BY ?prop  # Group results by property to aggregate counts
+#     ORDER BY DESC(?count)  # Order properties by count in descending order
+#   }
+#   
+#   # Retrieve human-readable labels for the properties
+#   SERVICE wikibase:label { 
+#     bd:serviceParam wikibase:language "[AUTO_LANGUAGE],en".  # Fetch labels in the user's language or English
+#   }
+# }
+# ORDER BY DESC(?count)  # Final ordering of the results by count
+# LIMIT 1000

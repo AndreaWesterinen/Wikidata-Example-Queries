@@ -1,0 +1,57 @@
+# rewrite_status: rewritten
+#title: Birth places of German poets
+#defaultView:Map{"hide": ["?coord"]}
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?subj ?subjLabel ?place ?placeLabel ?coord ?birthyear
+WHERE
+  { ?subj   wdt:P106  wd:Q49757 ;
+            wdt:P19   ?place .
+    ?place  wdt:P17   wd:Q183 ;
+            wdt:P625  ?coord
+    OPTIONAL
+      { ?subj  wdt:P569  ?dob }
+    BIND(year(?dob) AS ?birthyear)
+    OPTIONAL
+      { ?subj  rdfs:label  ?subj__label_value
+        FILTER ( lang(?subj__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?subj  rdfs:label  ?subj__label_value
+        FILTER ( lang(?subj__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?subj  rdfs:label  ?subj__label_value
+        FILTER ( lang(?subj__label_value) = "en" )
+      }
+    BIND(if(bound(?subj__label_value), ?subj__label_value, if(( isURI(?subj) && strstarts(str(?subj), "http://www.wikidata.org/entity/") ), strafter(str(?subj), "entity/"), str(?subj))) AS ?subjLabel)
+    OPTIONAL
+      { ?place  rdfs:label  ?place__label_value
+        FILTER ( lang(?place__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?place  rdfs:label  ?place__label_value
+        FILTER ( lang(?place__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?place  rdfs:label  ?place__label_value
+        FILTER ( lang(?place__label_value) = "en" )
+      }
+    BIND(if(bound(?place__label_value), ?place__label_value, if(( isURI(?place) && strstarts(str(?place), "http://www.wikidata.org/entity/") ), strafter(str(?place), "entity/"), str(?place))) AS ?placeLabel)
+  }
+
+# Original query:
+# #title: Birth places of German poets
+# #defaultView:Map{"hide": ["?coord"]}
+# SELECT ?subj ?subjLabel ?place ?placeLabel ?coord ?birthyear
+# WHERE {
+#    ?subj wdt:P106 wd:Q49757 .
+#    ?subj wdt:P19 ?place .
+#    ?place wdt:P17 wd:Q183 .
+#    ?place wdt:P625 ?coord .
+#    OPTIONAL { ?subj wdt:P569 ?dob }
+#    BIND(YEAR(?dob) as ?birthyear)
+# SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" }
+# }

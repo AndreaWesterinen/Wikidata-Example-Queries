@@ -1,0 +1,47 @@
+# rewrite_status: rewritten
+#title: Map of Libraries in Canada
+# Canadian libraries on a map (must have coordinates!)
+#defaultView:Map
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?library ?libraryLabel ?coords
+WHERE
+  { ?library wdt:P31/(wdt:P279)* wd:Q7075 .
+    ?library  wdt:P17   wd:Q16 ;
+              wdt:P625  ?coords
+    BIND(if(bound(?library), ?library, "unbound") AS ?library__label_subject)
+    OPTIONAL
+      { ?library__label_subject
+                  rdfs:label  ?library__label_value
+        FILTER ( lang(?library__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?library__label_subject
+                  rdfs:label  ?library__label_value
+        FILTER ( lang(?library__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?library__label_subject
+                  rdfs:label  ?library__label_value
+        FILTER ( lang(?library__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?library__label_subject
+                  rdfs:label  ?library__label_value
+        FILTER ( lang(?library__label_value) = "fr" )
+      }
+    BIND(if(bound(?library__label_value), ?library__label_value, if(( isURI(?library) && strstarts(str(?library), "http://www.wikidata.org/entity/") ), strafter(str(?library), "entity/"), str(?library))) AS ?libraryLabel)
+  }
+
+# Original query:
+# #title: Map of Libraries in Canada
+# # Canadian libraries on a map (must have coordinates!)
+# #defaultView:Map
+# SELECT ?library ?libraryLabel ?coords WHERE {
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en,fr". }
+#   ?library (wdt:P31/wdt:P279*) wd:Q7075.
+#   ?library wdt:P17 wd:Q16.
+#   ?library wdt:P625 ?coords.
+# }

@@ -1,0 +1,61 @@
+# rewrite_status: rewritten
+#title: Business listed on NYSE and NASDAQ along with their ticker symbols
+# Business listed on NYSE and NASDAQ along with their ticker symbols
+PREFIX  p:    <http://www.wikidata.org/prop/>
+PREFIX  pq:   <http://www.wikidata.org/prop/qualifier/>
+PREFIX  ps:   <http://www.wikidata.org/prop/statement/>
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+
+SELECT DISTINCT  ?id ?idLabel ?exchangesLabel ?ticker
+WHERE
+  { ?id  p:P414  ?exchange
+    VALUES ?exchanges { wd:Q13677 wd:Q82059 }
+    ?exchange  ps:P414  ?exchanges ;
+              pq:P249  ?ticker
+    BIND(if(bound(?id), ?id, "unbound") AS ?id__label_subject)
+    OPTIONAL
+      { ?id__label_subject
+                  rdfs:label  ?id__label_value
+        FILTER ( lang(?id__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?id__label_subject
+                  rdfs:label  ?id__label_value
+        FILTER ( lang(?id__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?id__label_subject
+                  rdfs:label  ?id__label_value
+        FILTER ( lang(?id__label_value) = "en" )
+      }
+    BIND(if(bound(?id__label_value), ?id__label_value, if(( isURI(?id) && strstarts(str(?id), "http://www.wikidata.org/entity/") ), strafter(str(?id), "entity/"), str(?id))) AS ?idLabel)
+    BIND(if(bound(?exchanges), ?exchanges, "unbound") AS ?exchanges__label_subject)
+    OPTIONAL
+      { ?exchanges__label_subject
+                  rdfs:label  ?exchanges__label_value
+        FILTER ( lang(?exchanges__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?exchanges__label_subject
+                  rdfs:label  ?exchanges__label_value
+        FILTER ( lang(?exchanges__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?exchanges__label_subject
+                  rdfs:label  ?exchanges__label_value
+        FILTER ( lang(?exchanges__label_value) = "en" )
+      }
+    BIND(if(bound(?exchanges__label_value), ?exchanges__label_value, if(( isURI(?exchanges) && strstarts(str(?exchanges), "http://www.wikidata.org/entity/") ), strafter(str(?exchanges), "entity/"), str(?exchanges))) AS ?exchangesLabel)
+  }
+
+# Original query:
+# #title: Business listed on NYSE and NASDAQ along with their ticker symbols
+# # Business listed on NYSE and NASDAQ along with their ticker symbols
+# SELECT DISTINCT ?id ?idLabel ?exchangesLabel ?ticker WHERE {
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en". }
+#   ?id p:P414 ?exchange.
+#   VALUES ?exchanges { wd:Q13677 wd:Q82059 }
+#   ?exchange ps:P414 ?exchanges;
+#     pq:P249 ?ticker.
+# }

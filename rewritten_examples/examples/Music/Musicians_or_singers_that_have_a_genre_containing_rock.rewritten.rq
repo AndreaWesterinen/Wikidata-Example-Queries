@@ -1,0 +1,47 @@
+# rewrite_status: rewritten
+#title: Musicians or singers that have a genre containing 'rock'
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+PREFIX  wikibase: <http://wikiba.se/ontology#>
+
+SELECT DISTINCT  ?human ?humanLabel
+WHERE
+  { VALUES ?professions { wd:Q177220 wd:Q639669 }
+    ?human  wdt:P31              wd:Q5 ;
+            wdt:P106             ?professions ;
+            wdt:P136             ?genre ;
+            wikibase:statements  ?statementcount .
+    ?genre  rdfs:label           ?genreLabel
+    FILTER contains(?genreLabel, "rock")
+    FILTER ( ?statementcount > 50 )
+    OPTIONAL
+      { ?human  rdfs:label  ?human__label_value
+        FILTER ( lang(?human__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?human  rdfs:label  ?human__label_value
+        FILTER ( lang(?human__label_value) = "mul" )
+      }
+    BIND(if(bound(?human__label_value), ?human__label_value, if(( isURI(?human) && strstarts(str(?human), "http://www.wikidata.org/entity/") ), strafter(str(?human), "entity/"), str(?human))) AS ?humanLabel)
+  }
+ORDER BY ?humanLabel
+LIMIT   50
+
+# Original query:
+# #title: Musicians or singers that have a genre containing 'rock'
+# SELECT DISTINCT ?human ?humanLabel
+# WHERE
+# {
+#     VALUES ?professions {wd:Q177220 wd:Q639669}
+#     ?human wdt:P31 wd:Q5 .
+#     ?human wdt:P106 ?professions .
+#     ?human wdt:P136 ?genre .
+#     ?human wikibase:statements ?statementcount .
+#     ?genre rdfs:label ?genreLabel .
+#     FILTER CONTAINS(?genreLabel, "rock") .
+#     FILTER (?statementcount > 50 ) .
+#     SERVICE wikibase:label { bd:serviceParam wikibase:language "en" }
+# }
+# ORDER BY ?humanLabel
+# LIMIT 50

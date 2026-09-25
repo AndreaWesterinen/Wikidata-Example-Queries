@@ -1,0 +1,48 @@
+# rewrite_status: rewritten
+PREFIX wd: <http://www.wikidata.org/entity/>
+PREFIX wdt: <http://www.wikidata.org/prop/direct/>
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  schema: <http://schema.org/>
+PREFIX  wikibase: <http://wikiba.se/ontology#>
+
+WITH %result AS {
+?item wdt:P31 wd:Q13442814.
+}
+SELECT  ?item ?itemLabel ?itemDescription ?linkCount
+WHERE
+  { { SELECT ?item WHERE { INCLUDE %result } limit 100 }?item  wikibase:sitelinks  ?linkCount
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "mul" )
+      }
+    BIND(if(bound(?item__label_value), ?item__label_value, if(( isURI(?item) && strstarts(str(?item), "http://www.wikidata.org/entity/") ), strafter(str(?item), "entity/"), str(?item))) AS ?itemLabel)
+    OPTIONAL
+      { ?item  schema:description  ?item__description_value
+        FILTER ( lang(?item__description_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?item  schema:description  ?item__description_value
+        FILTER ( lang(?item__description_value) = "en" )
+      }
+    BIND(?item__description_value AS ?itemDescription)
+  }
+ORDER BY DESC(?linkCount)
+
+# Original query:
+# select ?item ?itemLabel ?itemDescription ?linkCount with {
+#   select ?item where {
+#     ?item wdt:P31 wd:Q13442814.
+#   } limit 100
+# } as %result where {
+#   include %result
+#   ?item wikibase:sitelinks ?linkCount.
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],en". }
+# } order by desc(?linkCount)

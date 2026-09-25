@@ -1,0 +1,51 @@
+# rewrite_status: rewritten
+#title: Properties grouped by their parent property
+# TODO: should display links and numeric ids
+#defaultView:Tree
+PREFIX  rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+PREFIX  wikibase: <http://wikiba.se/ontology#>
+
+SELECT  ?property2 ?property2Label ?property1 ?property1Label
+WHERE
+  { ?property1  rdf:type  wikibase:Property ;
+              wdt:P1647  ?property2
+    OPTIONAL
+      { ?property2  rdfs:label  ?property2__label_value
+        FILTER ( lang(?property2__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?property2  rdfs:label  ?property2__label_value
+        FILTER ( lang(?property2__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?property2  rdfs:label  ?property2__label_value
+        FILTER ( lang(?property2__label_value) = "en" )
+      }
+    BIND(if(bound(?property2__label_value), ?property2__label_value, if(( isURI(?property2) && strstarts(str(?property2), "http://www.wikidata.org/entity/") ), strafter(str(?property2), "entity/"), str(?property2))) AS ?property2Label)
+    OPTIONAL
+      { ?property1  rdfs:label  ?property1__label_value
+        FILTER ( lang(?property1__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?property1  rdfs:label  ?property1__label_value
+        FILTER ( lang(?property1__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?property1  rdfs:label  ?property1__label_value
+        FILTER ( lang(?property1__label_value) = "en" )
+      }
+    BIND(if(bound(?property1__label_value), ?property1__label_value, if(( isURI(?property1) && strstarts(str(?property1), "http://www.wikidata.org/entity/") ), strafter(str(?property1), "entity/"), str(?property1))) AS ?property1Label)
+  }
+
+# Original query:
+# #title: Properties grouped by their parent property
+# # TODO: should display links and numeric ids
+# #defaultView:Tree
+# SELECT ?property2 ?property2Label ?property1 ?property1Label WHERE {
+#   ?property1 rdf:type wikibase:Property. # not replaceable with wikibase:Item, wikibase:Statement, wikibase:Reference at WDQS
+#                                          # https://www.mediawiki.org/wiki/Wikibase/Indexing/RDF_Dump_Format#WDQS_data_differences
+#   ?property1 wdt:P1647 ?property2.
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en". }
+# }

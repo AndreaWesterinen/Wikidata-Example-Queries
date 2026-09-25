@@ -1,0 +1,48 @@
+# rewrite_status: rewritten
+#defaultView:Graph
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?char ?charLabel ?group ?groupLabel ("7FFF00" AS ?rgb)
+WHERE
+  { ?group  wdt:P31    wd:Q14514600 ;
+            wdt:P1080  wd:Q931597 .
+    ?char   wdt:P463   ?group
+    OPTIONAL
+      { ?char  rdfs:label  ?char__label_value
+        FILTER ( lang(?char__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?char  rdfs:label  ?char__label_value
+        FILTER ( lang(?char__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?char  rdfs:label  ?char__label_value
+        FILTER ( lang(?char__label_value) = "mul" )
+      }
+    BIND(if(bound(?char__label_value), ?char__label_value, if(( isURI(?char) && strstarts(str(?char), "http://www.wikidata.org/entity/") ), strafter(str(?char), "entity/"), str(?char))) AS ?charLabel)
+    OPTIONAL
+      { ?group  rdfs:label  ?group__label_value
+        FILTER ( lang(?group__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?group  rdfs:label  ?group__label_value
+        FILTER ( lang(?group__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?group  rdfs:label  ?group__label_value
+        FILTER ( lang(?group__label_value) = "mul" )
+      }
+    BIND(if(bound(?group__label_value), ?group__label_value, if(( isURI(?group) && strstarts(str(?group), "http://www.wikidata.org/entity/") ), strafter(str(?group), "entity/"), str(?group))) AS ?groupLabel)
+  }
+
+# Original query:
+# #defaultView:Graph
+# SELECT ?char ?charLabel ?group ?groupLabel ("7FFF00" as ?rgb)
+# WHERE {
+# 	?group wdt:P31 wd:Q14514600 ;  # group of fictional characters
+#           wdt:P1080 wd:Q931597.  # from Marvel universe
+#  ?char wdt:P463 ?group # member of group
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],en".}
+# }

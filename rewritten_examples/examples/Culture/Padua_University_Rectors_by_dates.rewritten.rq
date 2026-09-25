@@ -1,0 +1,47 @@
+# rewrite_status: rewritten
+#title: Padua University Rectors by dates
+PREFIX  p:    <http://www.wikidata.org/prop/>
+PREFIX  pq:   <http://www.wikidata.org/prop/qualifier/>
+PREFIX  ps:   <http://www.wikidata.org/prop/statement/>
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+
+SELECT  ?rettore ?rettoreLabel ?starttime ?endtime
+WHERE
+  { ?rettore  p:P106   _:b0 .
+    _:b0      ps:P106  wd:Q212071 ;
+              pq:P642  wd:Q193510 ;
+              pq:P580  ?starttime ;
+              pq:P582  ?endtime
+    BIND(if(bound(?rettore), ?rettore, "unbound") AS ?rettore__label_subject)
+    OPTIONAL
+      { ?rettore__label_subject
+                  rdfs:label  ?rettore__label_value
+        FILTER ( lang(?rettore__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?rettore__label_subject
+                  rdfs:label  ?rettore__label_value
+        FILTER ( lang(?rettore__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?rettore__label_subject
+                  rdfs:label  ?rettore__label_value
+        FILTER ( lang(?rettore__label_value) = "en" )
+      }
+    BIND(if(bound(?rettore__label_value), ?rettore__label_value, if(( isURI(?rettore) && strstarts(str(?rettore), "http://www.wikidata.org/entity/") ), strafter(str(?rettore), "entity/"), str(?rettore))) AS ?rettoreLabel)
+  }
+ORDER BY ?starttime
+
+# Original query:
+# #title: Padua University Rectors by dates
+# SELECT ?rettore ?rettoreLabel ?starttime ?endtime WHERE {
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en". }
+#   ?rettore p:P106 [
+#     ps:P106 wd:Q212071; # is a Rector
+#     pq:P642 wd:Q193510; # of Padua Univerity
+#     pq:P580 ?starttime;
+#     pq:P582 ?endtime
+#   ].
+# }
+# ORDER BY ?starttime

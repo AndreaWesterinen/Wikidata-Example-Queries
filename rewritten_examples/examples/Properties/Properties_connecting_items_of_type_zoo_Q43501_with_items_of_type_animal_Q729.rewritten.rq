@@ -1,0 +1,39 @@
+# rewrite_status: rewritten
+#title: Properties connecting items of type Zoo (Q43501)
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+PREFIX  wikibase: <http://wikiba.se/ontology#>
+
+SELECT  ?p ?pLabel (count(*) AS ?count)
+WHERE
+  { ?s  ?pd                   ?o .
+    ?p  wikibase:directClaim  ?pd .
+    ?s wdt:P31/(wdt:P279)* wd:Q729 .
+    ?o wdt:P31/(wdt:P279)* wd:Q43501
+    OPTIONAL
+      { ?p  rdfs:label  ?p__label_value
+        FILTER ( lang(?p__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?p  rdfs:label  ?p__label_value
+        FILTER ( lang(?p__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?p  rdfs:label  ?p__label_value
+        FILTER ( lang(?p__label_value) = "en" )
+      }
+    BIND(if(bound(?p__label_value), ?p__label_value, if(( isURI(?p) && strstarts(str(?p), "http://www.wikidata.org/entity/") ), strafter(str(?p), "entity/"), str(?p))) AS ?pLabel)
+  }
+GROUP BY ?p ?pLabel
+ORDER BY DESC(?count)
+
+# Original query:
+# #title: Properties connecting items of type Zoo (Q43501)
+# SELECT ?p ?pLabel (count (*) as ?count) {
+#   ?s ?pd ?o .
+#   ?p wikibase:directClaim ?pd .
+#   ?s wdt:P31/wdt:P279* wd:Q729 .
+#   ?o wdt:P31/wdt:P279* wd:Q43501 .
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en". }
+# } GROUP BY ?p ?pLabel ORDER BY desc(?count)

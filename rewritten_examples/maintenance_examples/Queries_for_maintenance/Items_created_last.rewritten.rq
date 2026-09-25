@@ -1,0 +1,34 @@
+# rewrite_status: rewritten
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+PREFIX  xsd:  <http://www.w3.org/2001/XMLSchema#>
+
+SELECT  ?item ?itemLabel
+WHERE
+  { ?item  wdt:P31  wd:Q39715
+    BIND(xsd:integer(strafter(str(?item), "Q")) AS ?id)
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "mul" )
+      }
+    BIND(if(bound(?item__label_value), ?item__label_value, if(( isURI(?item) && strstarts(str(?item), "http://www.wikidata.org/entity/") ), strafter(str(?item), "entity/"), str(?item))) AS ?itemLabel)
+  }
+ORDER BY DESC(?id)
+LIMIT   10
+
+# Original query:
+# select ?item ?itemLabel
+# where {
+#   # restrict to some class, or select otherwise
+#   # (does not work with results too large!)
+#   ?item wdt:P31 wd:Q39715 .
+#   bind(xsd:integer(strafter(str(?item), 'Q')) as ?id)
+#   service wikibase:label { bd:serviceParam wikibase:language "en" .}
+# }
+# order by desc(?id )
+# limit 10

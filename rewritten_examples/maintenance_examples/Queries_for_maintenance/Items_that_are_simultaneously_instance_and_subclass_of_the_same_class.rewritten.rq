@@ -1,0 +1,40 @@
+# rewrite_status: rewritten
+#added before 2016-10
+
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?thingLabel ?classLabel ?thing ?class
+WHERE
+  { ?thing  wdt:P31   ?class ;
+            wdt:P279  ?class
+    OPTIONAL
+      { ?thing  rdfs:label  ?thing__label_value
+        FILTER ( lang(?thing__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?thing  rdfs:label  ?thing__label_value
+        FILTER ( lang(?thing__label_value) = "mul" )
+      }
+    BIND(if(bound(?thing__label_value), ?thing__label_value, if(( isURI(?thing) && strstarts(str(?thing), "http://www.wikidata.org/entity/") ), strafter(str(?thing), "entity/"), str(?thing))) AS ?thingLabel)
+    OPTIONAL
+      { ?class  rdfs:label  ?class__label_value
+        FILTER ( lang(?class__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?class  rdfs:label  ?class__label_value
+        FILTER ( lang(?class__label_value) = "mul" )
+      }
+    BIND(if(bound(?class__label_value), ?class__label_value, if(( isURI(?class) && strstarts(str(?class), "http://www.wikidata.org/entity/") ), strafter(str(?class), "entity/"), str(?class))) AS ?classLabel)
+  }
+
+# Original query:
+# #added before 2016-10
+#
+# SELECT ?thingLabel ?classLabel ?thing ?class
+# WHERE
+# {
+# 	?thing wdt:P31 ?class.
+# 	?thing wdt:P279 ?class.
+# 	SERVICE wikibase:label { bd:serviceParam wikibase:language "en" }
+# }

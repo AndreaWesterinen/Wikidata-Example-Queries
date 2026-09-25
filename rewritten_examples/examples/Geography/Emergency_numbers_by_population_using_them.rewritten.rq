@@ -1,0 +1,60 @@
+# rewrite_status: rewritten
+#title: Emergency numbers by total population using them
+#defaultView:BubbleChart
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?emergencyNumber ?emergencyNumberLabel ?tel ?population ?countries
+WHERE
+  { ?emergencyNumber
+              wdt:P31  wd:Q694554
+    OPTIONAL
+      { SELECT  ?emergencyNumber (COUNT(?state) AS ?countries) (SUM(?pop) AS ?population)
+        WHERE
+          { ?state  wdt:P2852  ?emergencyNumber
+            OPTIONAL
+              { ?state  wdt:P1082  ?pop }
+            ?state wdt:P31/(wdt:P279)* wd:Q6256
+          }
+        GROUP BY ?emergencyNumber
+      }
+    OPTIONAL
+      { ?emergencyNumber
+                  wdt:P1329  ?tel
+      }
+    OPTIONAL
+      { ?emergencyNumber
+                  rdfs:label  ?emergencyNumber__label_value
+        FILTER ( lang(?emergencyNumber__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?emergencyNumber
+                  rdfs:label  ?emergencyNumber__label_value
+        FILTER ( lang(?emergencyNumber__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?emergencyNumber
+                  rdfs:label  ?emergencyNumber__label_value
+        FILTER ( lang(?emergencyNumber__label_value) = "en" )
+      }
+    BIND(if(bound(?emergencyNumber__label_value), ?emergencyNumber__label_value, if(( isURI(?emergencyNumber) && strstarts(str(?emergencyNumber), "http://www.wikidata.org/entity/") ), strafter(str(?emergencyNumber), "entity/"), str(?emergencyNumber))) AS ?emergencyNumberLabel)
+  }
+ORDER BY DESC(?population)
+
+# Original query:
+# #title: Emergency numbers by total population using them
+# #defaultView:BubbleChart
+# SELECT ?emergencyNumber ?emergencyNumberLabel ?tel ?population ?countries
+# WHERE
+# {
+#  ?emergencyNumber wdt:P31 wd:Q694554 .
+#   OPTIONAL{SELECT ?emergencyNumber (COUNT(?state) as ?countries) (SUM(?pop) as ?population) WHERE {
+#     ?state wdt:P2852 ?emergencyNumber .
+#     OPTIONAL{?state wdt:P1082 ?pop} .
+#     ?state wdt:P31/wdt:P279* wd:Q6256
+#   } GROUP BY ?emergencyNumber } .
+#   OPTIONAL{?emergencyNumber wdt:P1329 ?tel }
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" }
+# }
+# ORDER BY DESC(?population)

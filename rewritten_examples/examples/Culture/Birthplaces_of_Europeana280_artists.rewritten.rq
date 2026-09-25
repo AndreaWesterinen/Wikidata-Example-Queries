@@ -1,0 +1,63 @@
+# rewrite_status: rewritten
+#title: Birthplaces of Europeana280 artists
+#defaultView:Map
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?creator ?creatorLabel ?placebirthLabel ?geoloc
+WHERE
+  { ?item wdt:P31/(wdt:P279)* wd:Q838948 .
+    ?item     wdt:P608  wd:Q20980830 ;
+              wdt:P170  ?creator .
+    ?creator  wdt:P19   ?placebirth .
+    ?placebirth  wdt:P625  ?geoloc
+    OPTIONAL
+      { ?creator  rdfs:label  ?creator__label_value
+        FILTER ( lang(?creator__label_value) = "fr" )
+      }
+    OPTIONAL
+      { ?creator  rdfs:label  ?creator__label_value
+        FILTER ( lang(?creator__label_value) = "es" )
+      }
+    OPTIONAL
+      { ?creator  rdfs:label  ?creator__label_value
+        FILTER ( lang(?creator__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?creator  rdfs:label  ?creator__label_value
+        FILTER ( lang(?creator__label_value) = "mul" )
+      }
+    BIND(if(bound(?creator__label_value), ?creator__label_value, if(( isURI(?creator) && strstarts(str(?creator), "http://www.wikidata.org/entity/") ), strafter(str(?creator), "entity/"), str(?creator))) AS ?creatorLabel)
+    OPTIONAL
+      { ?placebirth  rdfs:label  ?placebirth__label_value
+        FILTER ( lang(?placebirth__label_value) = "fr" )
+      }
+    OPTIONAL
+      { ?placebirth  rdfs:label  ?placebirth__label_value
+        FILTER ( lang(?placebirth__label_value) = "es" )
+      }
+    OPTIONAL
+      { ?placebirth  rdfs:label  ?placebirth__label_value
+        FILTER ( lang(?placebirth__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?placebirth  rdfs:label  ?placebirth__label_value
+        FILTER ( lang(?placebirth__label_value) = "mul" )
+      }
+    BIND(if(bound(?placebirth__label_value), ?placebirth__label_value, if(( isURI(?placebirth) && strstarts(str(?placebirth), "http://www.wikidata.org/entity/") ), strafter(str(?placebirth), "entity/"), str(?placebirth))) AS ?placebirthLabel)
+  }
+
+# Original query:
+# #title: Birthplaces of Europeana280 artists
+# #defaultView:Map
+# SELECT ?creator ?creatorLabel ?placebirthLabel ?geoloc where {
+#   ?item wdt:P31/wdt:P279* wd:Q838948 . # work and sub-class
+#   ?item wdt:P608 wd:Q20980830 . # of project Europeana 280
+#   ?item wdt:P170 ?creator . # creator
+#   ?creator wdt:P19 ?placebirth . # place of birth
+#   ?placebirth wdt:P625 ?geoloc . # geographical coordinates
+#   SERVICE wikibase:label {
+#        bd:serviceParam wikibase:language "fr,es,en" .
+#     }
+# }

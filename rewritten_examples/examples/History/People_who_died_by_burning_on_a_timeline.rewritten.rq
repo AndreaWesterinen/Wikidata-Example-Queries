@@ -1,0 +1,40 @@
+# rewrite_status: rewritten
+#title: People who died by burning - on a timeline
+#defaultView:Timeline
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?person ?personLabel ?date
+WHERE
+  { ?person  wdt:P31   wd:Q5 ;
+             wdt:P509  wd:Q468455 ;
+             wdt:P570  ?date
+    OPTIONAL
+      { ?person  rdfs:label  ?person__label_value
+        FILTER ( lang(?person__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?person  rdfs:label  ?person__label_value
+        FILTER ( lang(?person__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?person  rdfs:label  ?person__label_value
+        FILTER ( lang(?person__label_value) = "en" )
+      }
+    BIND(if(bound(?person__label_value), ?person__label_value, if(( isURI(?person) && strstarts(str(?person), "http://www.wikidata.org/entity/") ), strafter(str(?person), "entity/"), str(?person))) AS ?personLabel)
+  }
+ORDER BY ?date
+
+# Original query:
+# #title: People who died by burning - on a timeline
+# #defaultView:Timeline
+# SELECT ?person ?personLabel ?date
+# WHERE
+# {
+#   ?person wdt:P31 wd:Q5;
+#           wdt:P509 wd:Q468455;
+#           wdt:P570 ?date.
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en". }
+# }
+# ORDER BY ?date

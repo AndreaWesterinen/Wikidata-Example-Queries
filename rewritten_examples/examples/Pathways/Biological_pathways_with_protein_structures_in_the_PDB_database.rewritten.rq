@@ -1,0 +1,47 @@
+# rewrite_status: rewritten
+#title: Biological pathways with protein structures in the PDB database
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?pathway ?pathwayLabel ?WikiPathways ?Reactome (COUNT(DISTINCT ?protein) AS ?count)
+WHERE
+  { VALUES ?pathwayType { wd:Q4915012 wd:Q2996394 }
+    ?pathway  wdt:P31  ?pathwayType
+      { ?pathway wdt:P527/wdt:P688 ?protein }
+    UNION
+      { ?pathway  wdt:P527  ?protein }
+    ?protein  wdt:P638  ?PDBID
+    OPTIONAL
+      { ?pathway  wdt:P2410  ?WikiPathways }
+    OPTIONAL
+      { ?pathway  wdt:P3937  ?Reactome }
+    OPTIONAL
+      { ?pathway  rdfs:label  ?pathway__label_value
+        FILTER ( lang(?pathway__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?pathway  rdfs:label  ?pathway__label_value
+        FILTER ( lang(?pathway__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?pathway  rdfs:label  ?pathway__label_value
+        FILTER ( lang(?pathway__label_value) = "en" )
+      }
+    BIND(if(bound(?pathway__label_value), ?pathway__label_value, if(( isURI(?pathway) && strstarts(str(?pathway), "http://www.wikidata.org/entity/") ), strafter(str(?pathway), "entity/"), str(?pathway))) AS ?pathwayLabel)
+  }
+GROUP BY ?pathway ?pathwayLabel ?WikiPathways ?Reactome
+ORDER BY DESC(?count)
+
+# Original query:
+# #title: Biological pathways with protein structures in the PDB database
+# SELECT ?pathway ?pathwayLabel ?WikiPathways ?Reactome (COUNT(DISTINCT ?protein) as ?count) WHERE {
+#   VALUES ?pathwayType { wd:Q4915012 wd:Q2996394 }
+#   ?pathway wdt:P31 ?pathwayType .
+#   { ?pathway wdt:P527/wdt:P688 ?protein . } UNION { ?pathway wdt:P527 ?protein . }
+#   ?protein wdt:P638 ?PDBID .
+#   OPTIONAL { ?pathway wdt:P2410 ?WikiPathways }
+#   OPTIONAL { ?pathway wdt:P3937 ?Reactome }
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en". }
+# } GROUP BY ?pathway ?pathwayLabel ?WikiPathways ?Reactome
+#   ORDER BY DESC(?count)

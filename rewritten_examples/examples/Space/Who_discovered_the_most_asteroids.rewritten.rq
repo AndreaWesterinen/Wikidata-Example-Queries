@@ -1,0 +1,56 @@
+# rewrite_status: rewritten
+#title: Who discovered the most asteroids?
+PREFIX wd: <http://www.wikidata.org/entity/>
+PREFIX wdt: <http://www.wikidata.org/prop/direct/>
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+WITH %i AS {
+{ SELECT ?discoverer (COUNT(?asteroid) AS ?count)
+  WHERE {
+    ?asteroid wdt:P31 wd:Q3863;
+      wdt:P61 ?discoverer .
+  }
+  GROUP BY ?discoverer
+  ORDER BY DESC(?count)
+  LIMIT 20 }
+}
+SELECT  ?discoverer ?discovererLabel ?count
+WHERE
+  { { SELECT ?discoverer ?count WHERE { INCLUDE %i } }BIND(if(bound(?discoverer), ?discoverer, "unbound") AS ?discoverer__label_subject)
+    OPTIONAL
+      { ?discoverer__label_subject
+                  rdfs:label  ?discoverer__label_value
+        FILTER ( lang(?discoverer__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?discoverer__label_subject
+                  rdfs:label  ?discoverer__label_value
+        FILTER ( lang(?discoverer__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?discoverer__label_subject
+                  rdfs:label  ?discoverer__label_value
+        FILTER ( lang(?discoverer__label_value) = "en" )
+      }
+    BIND(if(bound(?discoverer__label_value), ?discoverer__label_value, if(( isURI(?discoverer) && strstarts(str(?discoverer), "http://www.wikidata.org/entity/") ), strafter(str(?discoverer), "entity/"), str(?discoverer))) AS ?discovererLabel)
+  }
+ORDER BY DESC(?count)
+
+# Original query:
+# #title: Who discovered the most asteroids?
+# SELECT ?discoverer ?discovererLabel ?count
+# WITH {
+#   SELECT ?discoverer (COUNT(?asteroid) AS ?count)
+#   WHERE {
+#     ?asteroid wdt:P31 wd:Q3863;
+#       wdt:P61 ?discoverer .
+#   }
+#   GROUP BY ?discoverer
+#   ORDER BY DESC(?count)
+#   LIMIT 20
+# } AS %i
+# WHERE {
+#   INCLUDE %i
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" . }
+# }
+# ORDER BY DESC(?count)

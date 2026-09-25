@@ -1,0 +1,40 @@
+# rewrite_status: rewritten
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?lcs ?lcsLabel
+WHERE
+  { ?lcs ^(wdt:P279)* wd:Q32815 .
+    ?lcs ^(wdt:P279)* wd:Q34627 .
+    ?lcs ^(wdt:P279)* wd:Q16970 .
+    ?lcs ^(wdt:P279)* wd:Q16560
+    FILTER NOT EXISTS { ?sublcs ^(wdt:P279)* wd:Q32815 .
+                        ?sublcs ^(wdt:P279)* wd:Q34627 .
+                        ?sublcs ^(wdt:P279)* wd:Q16970 .
+                        ?sublcs ^(wdt:P279)* wd:Q16560 .
+                        ?sublcs  wdt:P279  ?lcs
+                      }
+    OPTIONAL
+      { ?lcs  rdfs:label  ?lcs__label_value
+        FILTER ( lang(?lcs__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?lcs  rdfs:label  ?lcs__label_value
+        FILTER ( lang(?lcs__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?lcs  rdfs:label  ?lcs__label_value
+        FILTER ( lang(?lcs__label_value) = "mul" )
+      }
+    BIND(if(bound(?lcs__label_value), ?lcs__label_value, if(( isURI(?lcs) && strstarts(str(?lcs), "http://www.wikidata.org/entity/") ), strafter(str(?lcs), "entity/"), str(?lcs))) AS ?lcsLabel)
+  }
+
+# Original query:
+# SELECT ?lcs ?lcsLabel WHERE {
+#     ?lcs ^wdt:P279* wd:Q32815, wd:Q34627, wd:Q16970, wd:Q16560 .
+#     filter not exists {
+#     ?sublcs ^wdt:P279* wd:Q32815, wd:Q34627, wd:Q16970, wd:Q16560 ;
+#           wdt:P279 ?lcs . }
+#     SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE], en" . }
+#   }

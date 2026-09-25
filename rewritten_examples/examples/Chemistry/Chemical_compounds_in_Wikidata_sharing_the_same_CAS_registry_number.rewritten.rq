@@ -1,0 +1,38 @@
+# rewrite_status: rewritten
+#title: Chemical compounds in Wikidata sharing the same CAS registry number
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT DISTINCT  ?cas ?compound1 ?compound1Label ?compound2 ?compound2Label
+WHERE
+  { ?compound1  wdt:P231  ?cas .
+    ?compound2  wdt:P231  ?cas
+    FILTER ( ?compound1 != ?compound2 )
+    OPTIONAL
+      { ?compound1  rdfs:label  ?compound1__label_value
+        FILTER ( lang(?compound1__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?compound1  rdfs:label  ?compound1__label_value
+        FILTER ( lang(?compound1__label_value) = "mul" )
+      }
+    BIND(if(bound(?compound1__label_value), ?compound1__label_value, if(( isURI(?compound1) && strstarts(str(?compound1), "http://www.wikidata.org/entity/") ), strafter(str(?compound1), "entity/"), str(?compound1))) AS ?compound1Label)
+    OPTIONAL
+      { ?compound2  rdfs:label  ?compound2__label_value
+        FILTER ( lang(?compound2__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?compound2  rdfs:label  ?compound2__label_value
+        FILTER ( lang(?compound2__label_value) = "mul" )
+      }
+    BIND(if(bound(?compound2__label_value), ?compound2__label_value, if(( isURI(?compound2) && strstarts(str(?compound2), "http://www.wikidata.org/entity/") ), strafter(str(?compound2), "entity/"), str(?compound2))) AS ?compound2Label)
+  }
+
+# Original query:
+# #title: Chemical compounds in Wikidata sharing the same CAS registry number
+# SELECT DISTINCT ?cas ?compound1 ?compound1Label ?compound2 ?compound2Label WHERE {
+#   ?compound1 wdt:P231 ?cas .
+#   ?compound2 wdt:P231 ?cas .
+#   FILTER (?compound1 != ?compound2)
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "en". }
+# }

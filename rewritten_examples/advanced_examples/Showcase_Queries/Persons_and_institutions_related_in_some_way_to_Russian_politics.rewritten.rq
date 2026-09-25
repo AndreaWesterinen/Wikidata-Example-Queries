@@ -1,0 +1,40 @@
+# rewrite_status: rewritten
+# Added 2022-03
+# people and institutions that have the affiliation attribute assigned to Russia 
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  schema: <http://schema.org/>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?item ?itemLabel ?itemDescription
+WHERE
+  { ?item  wdt:P1416  wd:Q159
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "mul" )
+      }
+    BIND(if(bound(?item__label_value), ?item__label_value, if(( isURI(?item) && strstarts(str(?item), "http://www.wikidata.org/entity/") ), strafter(str(?item), "entity/"), str(?item))) AS ?itemLabel)
+    OPTIONAL
+      { ?item  schema:description  ?item__description_value
+        FILTER ( lang(?item__description_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?item  schema:description  ?item__description_value
+        FILTER ( lang(?item__description_value) = "en" )
+      }
+    BIND(?item__description_value AS ?itemDescription)
+  }
+LIMIT   100
+
+# Original query:
+# # Added 2022-03
+# # people and institutions that have the affiliation attribute assigned to Russia 
+# select ?item ?itemLabel ?itemDescription where { ?item wdt:P1416 wd:Q159. SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],en". } } limit 100

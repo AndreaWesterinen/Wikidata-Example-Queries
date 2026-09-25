@@ -1,0 +1,38 @@
+# rewrite_status: rewritten
+#title: List of pharmaceutical drugs with picture
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?moleculeLabel ?formule ?picture ?molecule
+WHERE
+  { ?molecule  wdt:P31  wd:Q12140 ;
+              wdt:P274  ?formule ;
+              wdt:P117  ?picture
+    OPTIONAL
+      { ?molecule  rdfs:label  ?molecule__label_value
+        FILTER ( lang(?molecule__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?molecule  rdfs:label  ?molecule__label_value
+        FILTER ( lang(?molecule__label_value) = "de" )
+      }
+    OPTIONAL
+      { ?molecule  rdfs:label  ?molecule__label_value
+        FILTER ( lang(?molecule__label_value) = "mul" )
+      }
+    BIND(if(bound(?molecule__label_value), ?molecule__label_value, if(( isURI(?molecule) && strstarts(str(?molecule), "http://www.wikidata.org/entity/") ), strafter(str(?molecule), "entity/"), str(?molecule))) AS ?moleculeLabel)
+  }
+ORDER BY ?moleculeLabel
+
+# Original query:
+# #title: List of pharmaceutical drugs with picture
+# SELECT ?moleculeLabel ?formule ?picture ?molecule
+# WHERE
+# {
+#   ?molecule wdt:P31 wd:Q12140 ;
+#             wdt:P274 ?formule ;
+#             wdt:P117 ?picture
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "en, de" . }
+# }
+# ORDER BY ?moleculeLabel

@@ -1,0 +1,56 @@
+# rewrite_status: rewritten
+#title: Books by a given Author including genres and date of first publication
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT DISTINCT  ?book ?bookLabel ?authorLabel (GROUP_CONCAT(?genre_label) AS ?genres) (MIN(?publicationDate) AS ?firstPublication)
+WHERE
+  { ?author  rdfs:label  "Ernest Hemingway"@en .
+    ?book    wdt:P50     ?author
+    OPTIONAL
+      { ?book   wdt:P136    ?genre .
+        ?genre  rdfs:label  ?genre_label
+        FILTER ( lang(?genre_label) = "en" )
+      }
+    OPTIONAL
+      { ?book  wdt:P577  ?publicationDate }
+    OPTIONAL
+      { ?book  rdfs:label  ?book__label_value
+        FILTER ( lang(?book__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?book  rdfs:label  ?book__label_value
+        FILTER ( lang(?book__label_value) = "mul" )
+      }
+    BIND(if(bound(?book__label_value), ?book__label_value, if(( isURI(?book) && strstarts(str(?book), "http://www.wikidata.org/entity/") ), strafter(str(?book), "entity/"), str(?book))) AS ?bookLabel)
+    OPTIONAL
+      { ?author  rdfs:label  ?author__label_value
+        FILTER ( lang(?author__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?author  rdfs:label  ?author__label_value
+        FILTER ( lang(?author__label_value) = "mul" )
+      }
+    BIND(if(bound(?author__label_value), ?author__label_value, if(( isURI(?author) && strstarts(str(?author), "http://www.wikidata.org/entity/") ), strafter(str(?author), "entity/"), str(?author))) AS ?authorLabel)
+  }
+GROUP BY ?book ?bookLabel ?authorLabel
+
+# Original query:
+# #title: Books by a given Author including genres and date of first publication
+#  SELECT DISTINCT ?book ?bookLabel ?authorLabel (GROUP_CONCAT(?genre_label) as ?genres) (MIN(?publicationDate) as ?firstPublication)
+# WHERE
+# {
+#   ?author rdfs:label "Ernest Hemingway"@en .
+#   ?book wdt:P50 ?author .
+#   OPTIONAL {
+#     ?book wdt:P136 ?genre .
+#     ?genre rdfs:label ?genre_label FILTER (lang(?genre_label) = "en").
+#   }
+#
+#   OPTIONAL {
+#     ?book wdt:P577 ?publicationDate .
+#   }
+#   SERVICE wikibase:label {
+#     bd:serviceParam wikibase:language "en" .
+#   }
+# } GROUP BY ?book ?bookLabel ?authorLabel

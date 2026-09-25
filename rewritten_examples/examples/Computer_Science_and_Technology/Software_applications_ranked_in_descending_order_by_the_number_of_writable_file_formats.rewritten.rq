@@ -1,0 +1,42 @@
+# rewrite_status: rewritten
+#title: Software applications ranked in descending order by the number of writable file formats
+#defaultView:BubbleChart
+PREFIX  p:    <http://www.wikidata.org/prop/>
+PREFIX  ps:   <http://www.wikidata.org/prop/statement/>
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?app ?appLabel (COUNT(?format) AS ?count)
+WHERE
+  { ?app (p:P31/ps:P31)/wdt:P279 wd:Q7397 .
+    ?app  wdt:P1072  ?format
+    OPTIONAL
+      { ?app  rdfs:label  ?app__label_value
+        FILTER ( lang(?app__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?app  rdfs:label  ?app__label_value
+        FILTER ( lang(?app__label_value) = "mul" )
+      }
+    BIND(if(bound(?app__label_value), ?app__label_value, if(( isURI(?app) && strstarts(str(?app), "http://www.wikidata.org/entity/") ), strafter(str(?app), "entity/"), str(?app))) AS ?appLabel)
+  }
+GROUP BY ?app ?appLabel
+ORDER BY DESC(?count)
+
+# Original query:
+# #title: Software applications ranked in descending order by the number of writable file formats
+# #defaultView:BubbleChart
+# SELECT ?app ?appLabel (COUNT(?format) AS ?count)
+# WHERE {
+#   ?app (p:P31/ps:P31/wdt:P279) wd:Q7397 .
+#   ?app wdt:P1072 ?format .
+#
+#   SERVICE wikibase:label {
+#     bd:serviceParam wikibase:language "en" .
+#
+# }
+#   }
+#
+# GROUP BY ?app ?appLabel
+# ORDER BY DESC(?count)

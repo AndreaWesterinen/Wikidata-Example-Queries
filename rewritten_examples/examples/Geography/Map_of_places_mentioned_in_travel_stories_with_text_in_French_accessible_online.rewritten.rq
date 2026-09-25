@@ -1,0 +1,120 @@
+# rewrite_status: rewritten
+#title: Map of places mentioned in travel stories with text in French accessible online
+#defaultView:Map
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT DISTINCT  ?item ?itemLabel ?ed ?edLabel ?auteurLabel (year(?dateCreation) AS ?AnneeCreation) ?lieuLabel ?coord ?lien
+WHERE
+  { ?item  wdt:P136  wd:Q1164267 ;
+           wdt:P31   wd:Q571
+    OPTIONAL
+      { ?item  wdt:P50  ?auteur }
+    OPTIONAL
+      { ?item  wdt:P571  ?dateCreation }
+    ?item  wdt:P840  ?lieu
+    MINUS
+      { ?item  wdt:P840  wd:Q933 }
+    ?lieu  wdt:P625  ?coord
+      { ?item  wdt:P953  ?lien ;
+               wdt:P407  wd:Q150
+      }
+    UNION
+      { ?ed  wdt:P629  ?item ;
+             wdt:P953  ?lien ;
+             wdt:P407  wd:Q150
+      }
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "fr" )
+      }
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "mul" )
+      }
+    BIND(if(bound(?item__label_value), ?item__label_value, if(( isURI(?item) && strstarts(str(?item), "http://www.wikidata.org/entity/") ), strafter(str(?item), "entity/"), str(?item))) AS ?itemLabel)
+    OPTIONAL
+      { ?lieu  rdfs:label  ?lieu__label_value
+        FILTER ( lang(?lieu__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?lieu  rdfs:label  ?lieu__label_value
+        FILTER ( lang(?lieu__label_value) = "fr" )
+      }
+    OPTIONAL
+      { ?lieu  rdfs:label  ?lieu__label_value
+        FILTER ( lang(?lieu__label_value) = "mul" )
+      }
+    BIND(if(bound(?lieu__label_value), ?lieu__label_value, if(( isURI(?lieu) && strstarts(str(?lieu), "http://www.wikidata.org/entity/") ), strafter(str(?lieu), "entity/"), str(?lieu))) AS ?lieuLabel)
+    BIND(if(bound(?ed), ?ed, "unbound") AS ?ed__label_subject)
+    OPTIONAL
+      { ?ed__label_subject
+                  rdfs:label  ?ed__label_value
+        FILTER ( lang(?ed__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?ed__label_subject
+                  rdfs:label  ?ed__label_value
+        FILTER ( lang(?ed__label_value) = "fr" )
+      }
+    OPTIONAL
+      { ?ed__label_subject
+                  rdfs:label  ?ed__label_value
+        FILTER ( lang(?ed__label_value) = "mul" )
+      }
+    BIND(if(bound(?ed__label_value), ?ed__label_value, if(( isURI(?ed) && strstarts(str(?ed), "http://www.wikidata.org/entity/") ), strafter(str(?ed), "entity/"), str(?ed))) AS ?edLabel)
+    BIND(if(bound(?auteur), ?auteur, "unbound") AS ?auteur__label_subject)
+    OPTIONAL
+      { ?auteur__label_subject
+                  rdfs:label  ?auteur__label_value
+        FILTER ( lang(?auteur__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?auteur__label_subject
+                  rdfs:label  ?auteur__label_value
+        FILTER ( lang(?auteur__label_value) = "fr" )
+      }
+    OPTIONAL
+      { ?auteur__label_subject
+                  rdfs:label  ?auteur__label_value
+        FILTER ( lang(?auteur__label_value) = "mul" )
+      }
+    BIND(if(bound(?auteur__label_value), ?auteur__label_value, if(( isURI(?auteur) && strstarts(str(?auteur), "http://www.wikidata.org/entity/") ), strafter(str(?auteur), "entity/"), str(?auteur))) AS ?auteurLabel)
+  }
+ORDER BY ?dateCreation
+
+# Original query:
+# #title: Map of places mentioned in travel stories with text in French accessible online
+# #defaultView:Map
+# SELECT DISTINCT ?item ?itemLabel ?ed ?edLabel ?auteurLabel (year(?dateCreation) as ?AnneeCreation) ?lieuLabel ?coord ?lien
+# WHERE
+# {
+#   ?item wdt:P136 wd:Q1164267 .    # genre :récit de voyage
+#   ?item wdt:P31 wd:Q571 .         # nature : livre
+#   OPTIONAL{
+#     ?item wdt:P50 ?auteur .       # [option] auteur
+#   }
+#   OPTIONAL{
+#     ?item wdt:P571 ?dateCreation. # [option] date de création
+#   }
+#
+#   ?item wdt:P840 ?lieu .          # lieu de l'action
+#   MINUS {?item wdt:P840 wd:Q933}  # (bogue du Pôle Sud)
+#   ?lieu wdt:P625 ?coord .         # coordonnées géographiques du lieu
+#
+#   {
+#     ?item wdt:P953 ?lien .        # URL, texte intégral disponible sur
+#     ?item wdt:P407 wd:Q150        # langue de l'œuvre : français
+#   }UNION{
+#     ?ed wdt:P629 ?item .          # édition du livre
+#     ?ed wdt:P953 ?lien .          # URL, texte intégral disponible sur
+#     ?ed wdt:P407 wd:Q150          # langue de l'œuvre : français
+#   }
+#
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],fr". }
+# } ORDER BY ?dateCreation

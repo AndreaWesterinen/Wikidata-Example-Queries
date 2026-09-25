@@ -1,0 +1,37 @@
+# rewrite_status: rewritten
+#title: Erdos Numbers and images of people who have oral histories in the Computer History Museum's collection
+#defaultView:ImageGrid
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?personLabel ?image ?Erdos
+WHERE
+  { ?person  wdt:P485   wd:Q964035 ;
+             wdt:P18    ?image ;
+             wdt:P2021  ?Erdos
+    OPTIONAL
+      { ?person  rdfs:label  ?person__label_value
+        FILTER ( lang(?person__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?person  rdfs:label  ?person__label_value
+        FILTER ( lang(?person__label_value) = "mul" )
+      }
+    BIND(if(bound(?person__label_value), ?person__label_value, if(( isURI(?person) && strstarts(str(?person), "http://www.wikidata.org/entity/") ), strafter(str(?person), "entity/"), str(?person))) AS ?personLabel)
+  }
+
+# Original query:
+# #title: Erdos Numbers and images of people who have oral histories in the Computer History Museum's collection
+# #defaultView:ImageGrid
+# SELECT ?personLabel ?image ?Erdos
+#
+# WHERE {
+#   ?person wdt:P485 wd:Q964035 .
+#   ?person wdt:P18 ?image .
+#   ?person wdt:P2021 ?Erdos
+#   SERVICE wikibase:label {
+#     bd:serviceParam wikibase:language "en" .
+#
+# }
+#   }

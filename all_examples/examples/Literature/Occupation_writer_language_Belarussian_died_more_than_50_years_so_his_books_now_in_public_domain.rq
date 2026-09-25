@@ -1,0 +1,12 @@
+#title: Occupation: writer, language: Belarussian, died more than 50 years (so his books now in public domain)
+SELECT ?writer ?writerLabel ?dateOfDeath WHERE {
+  ?writer wdt:P31 wd:Q5;          # Instance of human
+          wdt:P106 wd:Q36180;     # Occupation writer
+          wdt:P1412 wd:Q9091;     # Languages spoken or written Belarusian
+          wdt:P570 ?dateOfDeath .
+
+  FILTER((YEAR(?dateOfDeath)) <= (YEAR(NOW()) - 50)) . # More than 50 years ago
+  
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],be". }
+}
+ORDER BY DESC(?dateOfDeath)

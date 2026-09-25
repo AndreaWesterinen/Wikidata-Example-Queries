@@ -1,0 +1,54 @@
+# rewrite_status: rewritten
+#title: Lexeme languages by number of usage examples
+# by Vesihiisi
+# improved by So9q 23-02-2020 to only show those with both a form and a sense,
+# because that's what we really want
+
+#defaultView:BubbleChart
+PREFIX  dct:  <http://purl.org/dc/terms/>
+PREFIX  p:    <http://www.wikidata.org/prop/>
+PREFIX  pq:   <http://www.wikidata.org/prop/qualifier/>
+PREFIX  ps:   <http://www.wikidata.org/prop/statement/>
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT  ?languageLabel (COUNT(?example) AS ?count)
+WHERE
+  { ?l        dct:language  ?language ;
+              p:P5831       ?statement .
+    ?statement  ps:P5831    ?example ;
+              pq:P6072      _:b0 ;
+              pq:P5830      _:b1
+    OPTIONAL
+      { ?language  rdfs:label  ?language__label_value
+        FILTER ( lang(?language__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?language  rdfs:label  ?language__label_value
+        FILTER ( lang(?language__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?language  rdfs:label  ?language__label_value
+        FILTER ( lang(?language__label_value) = "en" )
+      }
+    BIND(if(bound(?language__label_value), ?language__label_value, if(( isURI(?language) && strstarts(str(?language), "http://www.wikidata.org/entity/") ), strafter(str(?language), "entity/"), str(?language))) AS ?languageLabel)
+  }
+GROUP BY ?languageLabel
+ORDER BY DESC(?count)
+
+# Original query:
+# #title: Lexeme languages by number of usage examples
+# # by Vesihiisi
+# # improved by So9q 23-02-2020 to only show those with both a form and a sense,
+# # because that's what we really want
+#
+# #defaultView:BubbleChart
+# SELECT ?languageLabel (COUNT(?example) AS ?count) WHERE {
+#   ?l dct:language ?language;
+#      p:P5831 ?statement.
+#   ?statement ps:P5831 ?example;
+#              pq:P6072 [];
+#              pq:P5830 [].
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en". }
+# }
+# GROUP BY ?languageLabel
+# ORDER BY DESC(?count)

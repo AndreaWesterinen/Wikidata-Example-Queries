@@ -1,0 +1,80 @@
+# rewrite_status: rewritten
+# added before 2016-10
+
+# Most frequent occupations without a label in Latvian (lv)
+# by Edgars2007/Jura1, 2016-05-09
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?occup ?occupLabel ?count
+WHERE
+  { { SELECT  ?occup (COUNT(?person) AS ?count)
+      WHERE
+        { ?person  wdt:P106  ?occup }
+      GROUP BY ?occup
+      ORDER BY DESC(?count)
+      LIMIT   1000
+    }
+    OPTIONAL
+      { ?occup  rdfs:label  ?label1
+        FILTER ( lang(?label1) = "lv" )
+      }
+    FILTER ( ! bound(?label1) )
+    OPTIONAL
+      { ?occup  rdfs:label  ?occup__label_value
+        FILTER ( lang(?occup__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?occup  rdfs:label  ?occup__label_value
+        FILTER ( lang(?occup__label_value) = "es" )
+      }
+    OPTIONAL
+      { ?occup  rdfs:label  ?occup__label_value
+        FILTER ( lang(?occup__label_value) = "pl" )
+      }
+    OPTIONAL
+      { ?occup  rdfs:label  ?occup__label_value
+        FILTER ( lang(?occup__label_value) = "ja" )
+      }
+    OPTIONAL
+      { ?occup  rdfs:label  ?occup__label_value
+        FILTER ( lang(?occup__label_value) = "zh" )
+      }
+    OPTIONAL
+      { ?occup  rdfs:label  ?occup__label_value
+        FILTER ( lang(?occup__label_value) = "ru" )
+      }
+    OPTIONAL
+      { ?occup  rdfs:label  ?occup__label_value
+        FILTER ( lang(?occup__label_value) = "mul" )
+      }
+    BIND(if(bound(?occup__label_value), ?occup__label_value, if(( isURI(?occup) && strstarts(str(?occup), "http://www.wikidata.org/entity/") ), strafter(str(?occup), "entity/"), str(?occup))) AS ?occupLabel)
+  }
+ORDER BY DESC(?count)
+LIMIT   50
+
+# Original query:
+# # added before 2016-10
+#
+# # Most frequent occupations without a label in Latvian (lv)
+# # by Edgars2007/Jura1, 2016-05-09
+# SELECT ?occup ?occupLabel ?count
+# WHERE
+# {
+# 	{
+# 		SELECT ?occup (COUNT(?person) as ?count)
+# 		WHERE
+# 		{
+# 			?person wdt:P106 ?occup
+# 		}
+# 		GROUP BY ?occup
+# 		ORDER BY DESC(?count)
+# 		LIMIT 1000
+# 	}
+#   	OPTIONAL {?occup rdfs:label ?label1 	filter(lang(?label1) = "lv")}
+# 	FILTER(!BOUND(?label1))
+#  
+#     SERVICE wikibase:label { bd:serviceParam wikibase:language "en,es,pl,ja,zh,ru" }
+# }
+# ORDER BY DESC(?count)
+# LIMIT 50

@@ -1,0 +1,47 @@
+# rewrite_status: rewritten
+#title: List of actors with pictures with year of birth and/or death
+#defaultView:ImageGrid
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?human ?humanLabel ?yob ?yod ?picture
+WHERE
+  { ?human  wdt:P31   wd:Q5 ;
+            wdt:P106  wd:Q33999 ;
+            wdt:P18   ?picture
+    OPTIONAL
+      { ?human  wdt:P569  ?dob ;
+                wdt:P570  ?dod
+      }
+    BIND(year(?dob) AS ?yob)
+    BIND(year(?dod) AS ?yod)
+    OPTIONAL
+      { ?human  rdfs:label  ?human__label_value
+        FILTER ( lang(?human__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?human  rdfs:label  ?human__label_value
+        FILTER ( lang(?human__label_value) = "mul" )
+      }
+    BIND(if(bound(?human__label_value), ?human__label_value, if(( isURI(?human) && strstarts(str(?human), "http://www.wikidata.org/entity/") ), strafter(str(?human), "entity/"), str(?human))) AS ?humanLabel)
+  }
+LIMIT   88
+
+# Original query:
+# #title: List of actors with pictures with year of birth and/or death
+# #defaultView:ImageGrid
+# SELECT ?human ?humanLabel ?yob ?yod ?picture
+# WHERE
+# {
+#   ?human wdt:P31 wd:Q5 ;
+#          wdt:P106 wd:Q33999 .
+#   ?human wdt:P18 ?picture .
+#   OPTIONAL { ?human wdt:P569 ?dob . ?human wdt:P570 ?dod }.
+#   BIND(YEAR(?dob) as ?yob) . # if available: year
+#   BIND(YEAR(?dod) as ?yod) .
+#   SERVICE wikibase:label {
+#     bd:serviceParam wikibase:language "en" .
+#   }
+# }
+# LIMIT 88

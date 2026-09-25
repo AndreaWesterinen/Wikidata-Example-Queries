@@ -1,0 +1,10 @@
+Human Examples (https://www.wikidata.org/wiki/Wikidata:SPARQL_query_service/queries/examples/human)
+
+11 written; 3 could not be rewritten
+
+Parse_error (3):
+  Reuse of at least one variable name from the query body in the projection variables - Invalid SPARQL:
+    General/Cancer_deaths_per_year_and_cancer_type.rq
+    General/Map_of_all_humans_with_LibrisURI_according_to_birthplace.rq
+  Invalid SPARQL - No closing } for SELECT clause:
+    Women_specific/Women_mushers.rq

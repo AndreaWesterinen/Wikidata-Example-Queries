@@ -1,0 +1,34 @@
+# rewrite_status: rewritten
+#title: Wikidata statements with a reference to a Figshare DOI (Q28061352)
+PREFIX  prov: <http://www.w3.org/ns/prov#>
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+
+SELECT DISTINCT  ?item ?itemLabel
+WHERE
+  { ?item     ?p                   ?statement .
+    ?statement  prov:wasDerivedFrom  ?ref .
+    ?ref      ?prop                wd:Q28061352
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "en" )
+      }
+    BIND(if(bound(?item__label_value), ?item__label_value, if(( isURI(?item) && strstarts(str(?item), "http://www.wikidata.org/entity/") ), strafter(str(?item), "entity/"), str(?item))) AS ?itemLabel)
+  }
+
+# Original query:
+# #title: Wikidata statements with a reference to a Figshare DOI (Q28061352)
+# SELECT DISTiNCT ?item ?itemLabel WHERE {
+#    ?item ?p ?statement.
+#    ?statement prov:wasDerivedFrom ?ref .
+#    ?ref ?prop wd:Q28061352 .
+#    SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en". }
+# }

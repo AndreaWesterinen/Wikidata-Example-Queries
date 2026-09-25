@@ -1,0 +1,41 @@
+# rewrite_status: rewritten
+#title: Whose birthday is today? 
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?humanLabel (year(?date) AS ?year)
+WHERE
+  { BIND(month(now()) AS ?nowMonth)
+    BIND(day(now()) AS ?nowDay)
+    ?human  wdt:P31   wd:Q5 ;
+            wdt:P569  ?date
+    FILTER ( ( month(?date) = ?nowMonth ) && ( day(?date) = ?nowDay ) )
+    OPTIONAL
+      { ?human  rdfs:label  ?human__label_value
+        FILTER ( lang(?human__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?human  rdfs:label  ?human__label_value
+        FILTER ( lang(?human__label_value) = "mul" )
+      }
+    BIND(if(bound(?human__label_value), ?human__label_value, if(( isURI(?human) && strstarts(str(?human), "http://www.wikidata.org/entity/") ), strafter(str(?human), "entity/"), str(?human))) AS ?humanLabel)
+  }
+LIMIT   10
+
+# Original query:
+# #title: Whose birthday is today? 
+# SELECT ?humanLabel (YEAR(?date) as ?year)
+# WHERE
+# {
+#     BIND(MONTH(NOW()) AS ?nowMonth)
+#     BIND(DAY(NOW()) AS ?nowDay)
+#
+#     ?human wdt:P31 wd:Q5.
+#     ?human wdt:P569 ?date .
+#     FILTER (MONTH(?date) = ?nowMonth && DAY(?date) = ?nowDay)
+#     SERVICE wikibase:label {
+#         bd:serviceParam wikibase:language "en" .
+#     }
+# }
+# LIMIT 10

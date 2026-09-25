@@ -1,0 +1,35 @@
+# rewrite_status: rewritten
+#title: List of computer files formats
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT DISTINCT  ?idExtension ?extension ?mediaType ?idExtensionLabel
+WHERE
+  { ?idExtension  wdt:P31  wd:Q235557 ;
+              wdt:P1195  ?extension
+    OPTIONAL
+      { ?idExtension  wdt:P1163  ?mediaType }
+    OPTIONAL
+      { ?idExtension  rdfs:label  ?idExtension__label_value
+        FILTER ( lang(?idExtension__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?idExtension  rdfs:label  ?idExtension__label_value
+        FILTER ( lang(?idExtension__label_value) = "mul" )
+      }
+    BIND(if(bound(?idExtension__label_value), ?idExtension__label_value, if(( isURI(?idExtension) && strstarts(str(?idExtension), "http://www.wikidata.org/entity/") ), strafter(str(?idExtension), "entity/"), str(?idExtension))) AS ?idExtensionLabel)
+  }
+ORDER BY ?extension ?mediaType
+
+# Original query:
+# #title: List of computer files formats
+# SELECT DISTINCT ?idExtension ?extension ?mediaType ?idExtensionLabel
+# WHERE
+# {
+#   ?idExtension wdt:P31 wd:Q235557 ;
+#                wdt:P1195 ?extension .
+#   OPTIONAL { ?idExtension wdt:P1163 ?mediaType }
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "en" }
+# }
+# ORDER BY ?extension ?mediaType

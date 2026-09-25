@@ -1,0 +1,48 @@
+# rewrite_status: rewritten
+#title: Most popular subjects of scientific articles
+#  NOTE - This scholarly query is written for use in WDQS-Main UI only  (query.wikidata.org).
+
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  (COUNT(?work) AS ?count) ?subject ?subjectLabel
+WHERE
+  { SERVICE <https://query-scholarly-next.wikidata.org/sparql>
+      { SELECT  ?work ?subject
+        WHERE
+          { ?work  wdt:P31   wd:Q13442814 ;
+                   wdt:P921  ?subject
+          }
+        LIMIT   10000
+      }
+    OPTIONAL
+      { ?subject  rdfs:label  ?subject__label_value
+        FILTER ( lang(?subject__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?subject  rdfs:label  ?subject__label_value
+        FILTER ( lang(?subject__label_value) = "mul" )
+      }
+    BIND(if(bound(?subject__label_value), ?subject__label_value, if(( isURI(?subject) && strstarts(str(?subject), "http://www.wikidata.org/entity/") ), strafter(str(?subject), "entity/"), str(?subject))) AS ?subjectLabel)
+  }
+GROUP BY ?subject ?subjectLabel
+ORDER BY DESC(?count)
+
+# Original query:
+# #title: Most popular subjects of scientific articles
+# #  NOTE - This scholarly query is written for use in WDQS-Main UI only  (query.wikidata.org).
+#
+# SELECT (COUNT(?work) AS ?count) ?subject ?subjectLabel WHERE {
+#   hint:Query hint:optimizer "None".
+#   SERVICE wdsubgraph:scholarly_articles {
+#     SELECT ?work ?subject WHERE {
+#       ?work wdt:P31 wd:Q13442814;
+#         wdt:P921 ?subject.
+#     }
+#     LIMIT 10000
+#   }
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "en". }
+# }
+# GROUP BY ?subject ?subjectLabel
+# ORDER BY DESC (?count)

@@ -1,0 +1,34 @@
+# rewrite_status: rewritten
+#title: List of torture devices
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?thing ?thingLabel ?image
+WHERE
+  { ?thing  wdt:P366  wd:Q132781 ;
+            wdt:P18   ?image
+    OPTIONAL
+      { ?thing  rdfs:label  ?thing__label_value
+        FILTER ( lang(?thing__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?thing  rdfs:label  ?thing__label_value
+        FILTER ( lang(?thing__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?thing  rdfs:label  ?thing__label_value
+        FILTER ( lang(?thing__label_value) = "en" )
+      }
+    BIND(if(bound(?thing__label_value), ?thing__label_value, if(( isURI(?thing) && strstarts(str(?thing), "http://www.wikidata.org/entity/") ), strafter(str(?thing), "entity/"), str(?thing))) AS ?thingLabel)
+  }
+
+# Original query:
+# #title: List of torture devices
+# SELECT ?thing ?thingLabel ?image
+# WHERE
+# {
+#   ?thing wdt:P366 wd:Q132781 .
+#   ?thing wdt:P18 ?image .
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" }
+# }

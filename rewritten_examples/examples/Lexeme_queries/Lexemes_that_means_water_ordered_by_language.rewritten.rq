@@ -1,0 +1,49 @@
+# rewrite_status: rewritten
+#title: Lexemes that meann (liquid) water, ordered by language
+# By So9q
+
+PREFIX  dct:  <http://purl.org/dc/terms/>
+PREFIX  ontolex: <http://www.w3.org/ns/lemon/ontolex#>
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+PREFIX  wikibase: <http://wikiba.se/ontology#>
+
+SELECT  ?l ?sense ?lemma ?languageLabel
+WHERE
+  { ?l      a               ontolex:LexicalEntry ;
+            ontolex:sense   ?sense ;
+            dct:language    ?language ;
+            wikibase:lemma  ?lemma .
+    ?sense  wdt:P5137       wd:Q29053744
+    OPTIONAL
+      { ?language  rdfs:label  ?language__label_value
+        FILTER ( lang(?language__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?language  rdfs:label  ?language__label_value
+        FILTER ( lang(?language__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?language  rdfs:label  ?language__label_value
+        FILTER ( lang(?language__label_value) = "en" )
+      }
+    BIND(if(bound(?language__label_value), ?language__label_value, if(( isURI(?language) && strstarts(str(?language), "http://www.wikidata.org/entity/") ), strafter(str(?language), "entity/"), str(?language))) AS ?languageLabel)
+  }
+ORDER BY lcase(?languageLabel)
+
+# Original query:
+# #title: Lexemes that meann (liquid) water, ordered by language
+# # By So9q
+#
+# SELECT ?l ?sense ?lemma ?languageLabel WHERE {
+#   ?l a ontolex:LexicalEntry ; # get from the special LexicalEntry
+#        ontolex:sense ?sense ; # the sense
+#        dct:language ?language ; # the language
+#        wikibase:lemma ?lemma. # and the lemma
+#   ?sense wdt:P5137 wd:Q29053744 .
+#                    # change Q29053744 to anything you want
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en". }
+# }
+# # Lower case before order
+# ORDER BY (LCASE(?languageLabel))

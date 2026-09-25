@@ -1,0 +1,31 @@
+# rewrite_status: rewritten
+#added before 2016-10
+
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?item ?itemLabel
+WHERE
+  { ?item  wdt:P18  <http://commons.wikimedia.org/wiki/Special:FilePath/Flag%20of%20the%20Netherlands.svg>
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "mul" )
+      }
+    BIND(if(bound(?item__label_value), ?item__label_value, if(( isURI(?item) && strstarts(str(?item), "http://www.wikidata.org/entity/") ), strafter(str(?item), "entity/"), str(?item))) AS ?itemLabel)
+  }
+LIMIT   100
+
+# Original query:
+# #added before 2016-10
+#
+# SELECT ?item ?itemLabel
+# WHERE
+# {
+# ?item wdt:P18 <http://commons.wikimedia.org/wiki/Special:FilePath/Flag%20of%20the%20Netherlands.svg>
+# SERVICE wikibase:label { bd:serviceParam wikibase:language "en" }
+# }
+# LIMIT 100

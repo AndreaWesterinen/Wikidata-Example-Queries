@@ -1,0 +1,28 @@
+# rewrite_status: rewritten
+#title: Mathematical proofs
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?proof ?proofLabel
+WHERE
+  { ?proof  wdt:P31  wd:Q11538
+    OPTIONAL
+      { ?proof  rdfs:label  ?proof__label_value
+        FILTER ( lang(?proof__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?proof  rdfs:label  ?proof__label_value
+        FILTER ( lang(?proof__label_value) = "mul" )
+      }
+    BIND(if(bound(?proof__label_value), ?proof__label_value, if(( isURI(?proof) && strstarts(str(?proof), "http://www.wikidata.org/entity/") ), strafter(str(?proof), "entity/"), str(?proof))) AS ?proofLabel)
+  }
+
+# Original query:
+# #title: Mathematical proofs
+# SELECT ?proof ?proofLabel
+# WHERE
+# {
+#   ?proof wdt:P31 wd:Q11538.
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "en". }
+# }

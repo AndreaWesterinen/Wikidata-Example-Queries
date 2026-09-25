@@ -1,0 +1,69 @@
+# rewrite_status: rewritten
+#title: Longest river of each continent
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?continent ?river ?continentLabel ?riverLabel ?maxlength
+WHERE
+  { { SELECT  ?continent (MAX(?length) AS ?maxlength)
+      WHERE
+        { ?river wdt:P31/(wdt:P279)* wd:Q355304 .
+          ?river  wdt:P2043  ?length ;
+                  wdt:P30    ?continent
+        }
+      GROUP BY ?continent
+    }
+    ?river wdt:P31/(wdt:P279)* wd:Q355304 .
+    ?river  wdt:P2043  ?maxlength ;
+            wdt:P30    ?continent
+    OPTIONAL
+      { ?continent  rdfs:label  ?continent__label_value
+        FILTER ( lang(?continent__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?continent  rdfs:label  ?continent__label_value
+        FILTER ( lang(?continent__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?continent  rdfs:label  ?continent__label_value
+        FILTER ( lang(?continent__label_value) = "en" )
+      }
+    BIND(if(bound(?continent__label_value), ?continent__label_value, if(( isURI(?continent) && strstarts(str(?continent), "http://www.wikidata.org/entity/") ), strafter(str(?continent), "entity/"), str(?continent))) AS ?continentLabel)
+    OPTIONAL
+      { ?river  rdfs:label  ?river__label_value
+        FILTER ( lang(?river__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?river  rdfs:label  ?river__label_value
+        FILTER ( lang(?river__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?river  rdfs:label  ?river__label_value
+        FILTER ( lang(?river__label_value) = "en" )
+      }
+    BIND(if(bound(?river__label_value), ?river__label_value, if(( isURI(?river) && strstarts(str(?river), "http://www.wikidata.org/entity/") ), strafter(str(?river), "entity/"), str(?river))) AS ?riverLabel)
+  }
+ORDER BY ?continentLabel
+
+# Original query:
+# #title: Longest river of each continent
+# SELECT ?continent ?river ?continentLabel ?riverLabel ?maxlength
+# WHERE
+# {
+#   {
+#     SELECT ?continent (MAX(?length) AS ?maxlength)
+#     WHERE
+#     {
+#       ?river wdt:P31/wdt:P279* wd:Q355304;
+#              wdt:P2043 ?length;
+#              wdt:P30 ?continent.
+#     }
+#     GROUP BY ?continent
+#   }
+#   ?river wdt:P31/wdt:P279* wd:Q355304;
+#          wdt:P2043 ?maxlength;
+#          wdt:P30 ?continent.
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en". }
+# }
+# ORDER BY ?continentLabel

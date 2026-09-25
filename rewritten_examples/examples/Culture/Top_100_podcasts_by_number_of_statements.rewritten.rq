@@ -1,0 +1,38 @@
+# rewrite_status: rewritten
+#title: Top 100 podcasts by number of statements
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+PREFIX  wikibase: <http://wikiba.se/ontology#>
+
+SELECT  ?item ?itemLabel ?statements
+WHERE
+  { ?item  wdt:P31              wd:Q24634210 ;
+           wikibase:statements  ?statements
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "en" )
+      }
+    BIND(if(bound(?item__label_value), ?item__label_value, if(( isURI(?item) && strstarts(str(?item), "http://www.wikidata.org/entity/") ), strafter(str(?item), "entity/"), str(?item))) AS ?itemLabel)
+  }
+ORDER BY DESC(?statements)
+LIMIT   100
+
+# Original query:
+# #title: Top 100 podcasts by number of statements
+# SELECT ?item ?itemLabel ?statements WHERE
+# {
+#   ?item wdt:P31 wd:Q24634210. # Instance of: podcast
+#   ?item wikibase:statements ?statements. # Number of statements
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en". }
+# }
+# ORDER BY desc(?statements) # Sort by number of statements
+# LIMIT 100 # Only the top 100 items

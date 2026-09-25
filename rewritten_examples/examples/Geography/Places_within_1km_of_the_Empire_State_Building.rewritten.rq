@@ -1,0 +1,55 @@
+# rewrite_status: rewritten
+#title: Places within 1km of the Empire State Building
+PREFIX  geof: <http://www.opengis.net/def/function/geosparql/>
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+PREFIX  xsd:  <http://www.w3.org/2001/XMLSchema#>
+
+SELECT  ?place ?placeLabel ?location ?instanceLabel
+WHERE
+  { wd:Q9188  wdt:P625  ?loc .
+    ?place    wdt:P625  ?location
+    FILTER ( geof:distance(?loc, ?location) <= xsd:decimal("1") )
+    OPTIONAL
+      { ?place  wdt:P31  ?instance }
+    OPTIONAL
+      { ?place  rdfs:label  ?place__label_value
+        FILTER ( lang(?place__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?place  rdfs:label  ?place__label_value
+        FILTER ( lang(?place__label_value) = "mul" )
+      }
+    BIND(if(bound(?place__label_value), ?place__label_value, if(( isURI(?place) && strstarts(str(?place), "http://www.wikidata.org/entity/") ), strafter(str(?place), "entity/"), str(?place))) AS ?placeLabel)
+    BIND(if(bound(?instance), ?instance, "unbound") AS ?instance__label_subject)
+    OPTIONAL
+      { ?instance__label_subject
+                  rdfs:label  ?instance__label_value
+        FILTER ( lang(?instance__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?instance__label_subject
+                  rdfs:label  ?instance__label_value
+        FILTER ( lang(?instance__label_value) = "mul" )
+      }
+    BIND(if(bound(?instance__label_value), ?instance__label_value, if(( isURI(?instance) && strstarts(str(?instance), "http://www.wikidata.org/entity/") ), strafter(str(?instance), "entity/"), str(?instance))) AS ?instanceLabel)
+    BIND(geof:distance(?loc, ?location) AS ?dist)
+  }
+ORDER BY ?dist
+
+# Original query:
+# #title: Places within 1km of the Empire State Building
+#  SELECT ?place ?placeLabel ?location ?instanceLabel
+# WHERE
+# {
+#   wd:Q9188 wdt:P625 ?loc .
+#   SERVICE wikibase:around {
+#       ?place wdt:P625 ?location .
+#       bd:serviceParam wikibase:center ?loc .
+#       bd:serviceParam wikibase:radius "1" .
+#   }
+#   OPTIONAL { ?place wdt:P31 ?instance }
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "en" }
+#   BIND(geof:distance(?loc, ?location) as ?dist)
+# } ORDER BY ?dist

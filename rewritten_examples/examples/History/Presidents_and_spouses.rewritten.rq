@@ -1,0 +1,61 @@
+# rewrite_status: rewritten
+#title: Presidents and spouses
+#TEMPLATE={"template":"Presidents of ?country and their spouses","variables":{"?country":{"query":" SELECT ?id WHERE { ?id wdt:P31 wd:Q6256 . }"} } }
+
+PREFIX  p:    <http://www.wikidata.org/prop/>
+PREFIX  ps:   <http://www.wikidata.org/prop/statement/>
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?p ?pLabel ?ppicture ?w ?wLabel ?wpicture
+WHERE
+  { BIND(wd:Q30 AS ?country)
+    ?country p:P6/ps:P6 ?p .
+    ?p  wdt:P26  ?w
+    OPTIONAL
+      { ?p  wdt:P18  ?ppicture .
+        ?w  wdt:P18  ?wpicture
+      }
+    OPTIONAL
+      { ?p  rdfs:label  ?p__label_value
+        FILTER ( lang(?p__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?p  rdfs:label  ?p__label_value
+        FILTER ( lang(?p__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?p  rdfs:label  ?p__label_value
+        FILTER ( lang(?p__label_value) = "en" )
+      }
+    BIND(if(bound(?p__label_value), ?p__label_value, if(( isURI(?p) && strstarts(str(?p), "http://www.wikidata.org/entity/") ), strafter(str(?p), "entity/"), str(?p))) AS ?pLabel)
+    OPTIONAL
+      { ?w  rdfs:label  ?w__label_value
+        FILTER ( lang(?w__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?w  rdfs:label  ?w__label_value
+        FILTER ( lang(?w__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?w  rdfs:label  ?w__label_value
+        FILTER ( lang(?w__label_value) = "en" )
+      }
+    BIND(if(bound(?w__label_value), ?w__label_value, if(( isURI(?w) && strstarts(str(?w), "http://www.wikidata.org/entity/") ), strafter(str(?w), "entity/"), str(?w))) AS ?wLabel)
+  }
+
+# Original query:
+# #title: Presidents and spouses
+# #TEMPLATE={"template":"Presidents of ?country and their spouses","variables":{"?country":{"query":" SELECT ?id WHERE { ?id wdt:P31 wd:Q6256 . }"} } }
+#
+# SELECT ?p ?pLabel ?ppicture ?w ?wLabel ?wpicture WHERE {
+#   BIND(wd:Q30 AS ?country)
+#   ?country (p:P6/ps:P6) ?p.
+#   ?p wdt:P26 ?w.
+#   OPTIONAL {
+#     ?p wdt:P18 ?ppicture.
+#     ?w wdt:P18 ?wpicture.
+#   }
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en". }
+# }

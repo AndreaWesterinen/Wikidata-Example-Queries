@@ -1,0 +1,38 @@
+# rewrite_status: rewritten
+# Demonstrates "no value" handling
+#title: Humans without children (only truthy values)
+PREFIX  rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdno: <http://www.wikidata.org/prop/novalue/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?human ?humanLabel
+WHERE
+  { ?human  wdt:P31   wd:Q5 ;
+            rdf:type  wdno:P40
+    OPTIONAL
+      { ?human  rdfs:label  ?human__label_value
+        FILTER ( lang(?human__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?human  rdfs:label  ?human__label_value
+        FILTER ( lang(?human__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?human  rdfs:label  ?human__label_value
+        FILTER ( lang(?human__label_value) = "en" )
+      }
+    BIND(if(bound(?human__label_value), ?human__label_value, if(( isURI(?human) && strstarts(str(?human), "http://www.wikidata.org/entity/") ), strafter(str(?human), "entity/"), str(?human))) AS ?humanLabel)
+  }
+
+# Original query:
+# # Demonstrates "no value" handling
+# #title: Humans without children (only truthy values)
+# SELECT ?human ?humanLabel
+# WHERE
+# {
+#   ?human wdt:P31 wd:Q5 .       # find humans
+#   ?human rdf:type wdno:P40 .   # with at least one truthy P40 (child) statement defined to be "no value"
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" }
+# }

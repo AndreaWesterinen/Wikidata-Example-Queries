@@ -1,0 +1,38 @@
+# rewrite_status: rewritten
+#defaultView:Map
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?place ?placeLabel ?coord ?layer
+WHERE
+  { ?place wdt:P31/(wdt:P279)? wd:Q474 .
+    ?place  wdt:P625  ?coord ;
+            wdt:P31   ?type .
+    ?type (wdt:P279)* wd:Q474
+    OPTIONAL
+      { ?type  rdfs:label  ?type__label_value
+        FILTER ( lang(?type__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?type  rdfs:label  ?type__label_value
+        FILTER ( lang(?type__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?type  rdfs:label  ?type__label_value
+        FILTER ( lang(?type__label_value) = "mul" )
+      }
+    BIND(if(bound(?type__label_value), ?type__label_value, if(( isURI(?type) && strstarts(str(?type), "http://www.wikidata.org/entity/") ), strafter(str(?type), "entity/"), str(?type))) AS ?layer)
+  }
+
+# Original query:
+# #defaultView:Map
+# SELECT ?place ?placeLabel ?coord ?layer
+# WHERE {
+#    ?place wdt:P31/wdt:P279? wd:Q474 ; # instance of aqueduct
+#           wdt:P625 ?coord ;
+#           wdt:P31 ?type.
+#   ?type wdt:P279* wd:Q474
+# SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],en". 
+#                        ?type rdfs:label ?layer}
+# }

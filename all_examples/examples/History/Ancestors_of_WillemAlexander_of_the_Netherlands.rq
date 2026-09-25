@@ -1,0 +1,6 @@
+#title: Ancestors of Willem-Alexander of the Netherlands
+SELECT DISTINCT ?item ?itemLabel ?dateofbirth WHERE {
+  wd:Q154952 (wdt:P22|wdt:P25)* ?item .
+  OPTIONAL { ?item wdt:P569 ?dateofbirth } .
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" }
+} ORDER BY ?itemLabel

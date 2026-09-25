@@ -1,0 +1,8 @@
+#title: All CAS registry numbers in Wikidata
+
+SELECT DISTINCT ?compound ?compoundLabel ?cas
+WHERE
+{
+  ?compound wdt:P231 ?cas .
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "en". }
+}

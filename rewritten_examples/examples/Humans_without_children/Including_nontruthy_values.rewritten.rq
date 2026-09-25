@@ -1,0 +1,40 @@
+# rewrite_status: rewritten
+#title: Humans without children (including non-truthy values)
+PREFIX  p:    <http://www.wikidata.org/prop/>
+PREFIX  rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdno: <http://www.wikidata.org/prop/novalue/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?human ?humanLabel
+WHERE
+  { ?human    wdt:P31   wd:Q5 ;
+              p:P40     ?childStatement .
+    ?childStatement
+              rdf:type  wdno:P40
+    OPTIONAL
+      { ?human  rdfs:label  ?human__label_value
+        FILTER ( lang(?human__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?human  rdfs:label  ?human__label_value
+        FILTER ( lang(?human__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?human  rdfs:label  ?human__label_value
+        FILTER ( lang(?human__label_value) = "en" )
+      }
+    BIND(if(bound(?human__label_value), ?human__label_value, if(( isURI(?human) && strstarts(str(?human), "http://www.wikidata.org/entity/") ), strafter(str(?human), "entity/"), str(?human))) AS ?humanLabel)
+  }
+
+# Original query:
+# #title: Humans without children (including non-truthy values)
+# SELECT ?human ?humanLabel
+# WHERE
+# {
+#   ?human wdt:P31 wd:Q5 .         # find humans
+#   ?human p:P40 ?childStatement . # with at least one P40 (child) statement
+#   ?childStatement rdf:type wdno:P40 .   # where the P40 (child) statement is defined to be "no value"
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" . }
+# }

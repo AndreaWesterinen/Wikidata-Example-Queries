@@ -1,0 +1,71 @@
+# rewrite_status: rewritten
+#title: Museums in Brittany
+PREFIX  p:    <http://www.wikidata.org/prop/>
+PREFIX  psv:  <http://www.wikidata.org/prop/statement/value/>
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  schema: <http://schema.org/>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+PREFIX  wikibase: <http://wikiba.se/ontology#>
+
+SELECT DISTINCT  ?museumLabel ?museumDescription ?villeId ?villeIdLabel (?villeIdLabel AS ?ville) ?coord ?lat ?lon
+WHERE
+  { ?museum  wdt:P539  ?museofile .
+    ?museum (wdt:P131)* wd:Q12130 .
+    ?museum  wdt:P131  ?villeId
+    OPTIONAL
+      { ?museum  wdt:P856  ?link }
+    OPTIONAL
+      { ?museum  wdt:P625  ?coord }
+    OPTIONAL
+      { ?museum   p:P625                ?statement .
+        ?statement  psv:P625            ?node .
+        ?node     wikibase:geoLatitude  ?lat ;
+                  wikibase:geoLongitude  ?lon
+      }
+    OPTIONAL
+      { ?museum  rdfs:label  ?museum__label_value
+        FILTER ( lang(?museum__label_value) = "fr" )
+      }
+    OPTIONAL
+      { ?museum  rdfs:label  ?museum__label_value
+        FILTER ( lang(?museum__label_value) = "mul" )
+      }
+    BIND(if(bound(?museum__label_value), ?museum__label_value, if(( isURI(?museum) && strstarts(str(?museum), "http://www.wikidata.org/entity/") ), strafter(str(?museum), "entity/"), str(?museum))) AS ?museumLabel)
+    OPTIONAL
+      { ?museum  schema:description  ?museum__description_value
+        FILTER ( lang(?museum__description_value) = "fr" )
+      }
+    BIND(?museum__description_value AS ?museumDescription)
+    OPTIONAL
+      { ?villeId  rdfs:label  ?villeId__label_value
+        FILTER ( lang(?villeId__label_value) = "fr" )
+      }
+    OPTIONAL
+      { ?villeId  rdfs:label  ?villeId__label_value
+        FILTER ( lang(?villeId__label_value) = "mul" )
+      }
+    BIND(if(bound(?villeId__label_value), ?villeId__label_value, if(( isURI(?villeId) && strstarts(str(?villeId), "http://www.wikidata.org/entity/") ), strafter(str(?villeId), "entity/"), str(?villeId))) AS ?villeIdLabel)
+  }
+ORDER BY ?villeIdLabel
+
+# Original query:
+# #title: Museums in Brittany
+# SELECT DISTINCT ?museumLabel ?museumDescription ?villeId ?villeIdLabel (?villeIdLabel AS ?ville) ?coord ?lat ?lon
+# WHERE
+# {
+#   ?museum wdt:P539 ?museofile. # french museofile Id
+#   ?museum wdt:P131* wd:Q12130. # in Brittany
+#   ?museum wdt:P131 ?villeId. # city of the museum
+#   # ?object wdt:P166 wd:Q2275045 # that have french label "musées de France"
+#   OPTIONAL {?museum wdt:P856 ?link.} # official website
+#   OPTIONAL {?museum wdt:P625 ?coord .} # geographic coord
+#   OPTIONAL {
+#     ?museum p:P625 ?statement.
+#     ?statement psv:P625 ?node.
+#     ?node wikibase:geoLatitude ?lat.
+#     ?node wikibase:geoLongitude ?lon.
+#    }
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "fr". } # french label
+# }
+# ORDER BY ?villeIdLabel

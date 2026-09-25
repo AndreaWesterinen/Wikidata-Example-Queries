@@ -1,0 +1,72 @@
+# rewrite_status: rewritten
+#title: French heads of government by length of service
+PREFIX  p:    <http://www.wikidata.org/prop/>
+PREFIX  pq:   <http://www.wikidata.org/prop/qualifier/>
+PREFIX  ps:   <http://www.wikidata.org/prop/statement/>
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+PREFIX  xsd:  <http://www.w3.org/2001/XMLSchema#>
+
+SELECT DISTINCT  ?item ?itemLabel ?positionLabel ?picture ?start ?end ?days
+WHERE
+  { ?item     wdt:P31  wd:Q5 ;
+              p:P39    ?position_statement .
+    ?position_statement
+              ps:P39   ?position ;
+              pq:P580  ?start
+    FILTER ( ?start >= "1815-01-01T00:00:00Z"^^xsd:dateTime )
+    ?position wdt:P31|(wdt:P279)* wd:Q15135541
+    OPTIONAL
+      { ?position_statement
+                  pq:P582  ?x
+      }
+    OPTIONAL
+      { ?item  wdt:P18  ?picture }
+    BIND(if(bound(?x), ?x, now()) AS ?end)
+    BIND(floor(( ?end - ?start )) AS ?days)
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "en" )
+      }
+    BIND(if(bound(?item__label_value), ?item__label_value, if(( isURI(?item) && strstarts(str(?item), "http://www.wikidata.org/entity/") ), strafter(str(?item), "entity/"), str(?item))) AS ?itemLabel)
+    OPTIONAL
+      { ?position  rdfs:label  ?position__label_value
+        FILTER ( lang(?position__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?position  rdfs:label  ?position__label_value
+        FILTER ( lang(?position__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?position  rdfs:label  ?position__label_value
+        FILTER ( lang(?position__label_value) = "en" )
+      }
+    BIND(if(bound(?position__label_value), ?position__label_value, if(( isURI(?position) && strstarts(str(?position), "http://www.wikidata.org/entity/") ), strafter(str(?position), "entity/"), str(?position))) AS ?positionLabel)
+  }
+ORDER BY DESC(?days) ?itemLabel
+
+# Original query:
+# #title: French heads of government by length of service
+# SELECT DISTINCT ?item ?itemLabel ?positionLabel ?picture ?start ?end ?days WHERE
+# {
+#   ?item wdt:P31 wd:Q5 ;
+#         p:P39 ?position_statement .
+#   ?position_statement ps:P39 ?position ;
+#                       pq:P580 ?start FILTER (?start >= "1815-01-01T00:00:00Z"^^xsd:dateTime) .
+#   ?position wdt:P31|wdt:P279* wd:Q15135541 .
+#   OPTIONAL { ?position_statement pq:P582 ?x }
+#   OPTIONAL { ?item wdt:P18 ?picture }
+#   bind(if(bound(?x), ?x, NOW()) as ?end )
+#   bind(floor(?end - ?start) as ?days)
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" . }
+# }
+# ORDER BY DESC(?days) ?itemLabel

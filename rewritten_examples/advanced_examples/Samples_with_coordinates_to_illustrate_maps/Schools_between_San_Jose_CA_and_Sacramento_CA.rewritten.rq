@@ -1,0 +1,40 @@
+# rewrite_status: rewritten
+# Schools between San Jose, CA and Sacramento, CA
+#defaultView:Map
+PREFIX  geof: <http://www.opengis.net/def/function/geosparql/>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  *
+WHERE
+  { wd:Q16553  wdt:P625  ?SJloc .
+    wd:Q18013  wdt:P625  ?SCloc .
+    ?place    wdt:P625  ?location
+    BIND(geof:minX(?SJloc) AS ?west)
+    BIND(geof:minX(?SCloc) AS ?east)
+    BIND(geof:minY(?SJloc) AS ?latW)
+    BIND(geof:minY(?SCloc) AS ?latE)
+    BIND(if(( ?latW < ?latE ), ?latW, ?latE) AS ?south)
+    BIND(if(( ?latW < ?latE ), ?latE, ?latW) AS ?north)
+    BIND(geof:minX(?location) AS ?locLong)
+    BIND(geof:minY(?location) AS ?locLat)
+    FILTER ( ( ?locLat >= ?south ) && ( ?locLat <= ?north ) )
+    FILTER ( ( ( ( ?west <= ?east ) && ( ?locLong >= ?west ) ) && ( ?locLong <= ?east ) ) || ( ( ?west > ?east ) && ( ( ?locLong >= ?west ) || ( ?locLong <= ?east ) ) ) )
+    ?place wdt:P31/(wdt:P279)* wd:Q3914
+  }
+
+# Original query:
+# # Schools between San Jose, CA and Sacramento, CA
+# #defaultView:Map
+# SELECT *
+# WHERE
+# { hint:Query hint:optimizer "None" .
+#   wd:Q16553 wdt:P625 ?SJloc .
+#   wd:Q18013 wdt:P625 ?SCloc .
+#   SERVICE wikibase:box {
+#       ?place wdt:P625 ?location .
+#       bd:serviceParam wikibase:cornerWest ?SJloc .
+#       bd:serviceParam wikibase:cornerEast ?SCloc .
+#     }
+#   ?place wdt:P31/wdt:P279* wd:Q3914 .
+# }

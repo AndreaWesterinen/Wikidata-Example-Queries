@@ -1,0 +1,105 @@
+# rewrite_status: rewritten
+#title: Everything with a time property on a given date
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  schema: <http://schema.org/>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+PREFIX  wikibase: <http://wikiba.se/ontology#>
+PREFIX  xsd:  <http://www.w3.org/2001/XMLSchema#>
+
+SELECT  (GROUP_CONCAT(?classLabel ; separator='; ') AS ?classes) ?propLabel ?i ?iLabel ?iDescription
+WHERE
+  { { SELECT  ?i ?prop ?class
+      WHERE
+        { { SELECT  ?prop ?p
+            WHERE
+              { ?prop  wikibase:directClaim  ?p .
+                ?prop wdt:P31/(wdt:P279)* wd:Q18636219
+              }
+          }
+          ?i  ?p  "2001-5-11"^^xsd:dateTime
+          OPTIONAL
+            { ?i  wdt:P31  ?class }
+        }
+      LIMIT   1000
+    }
+    BIND(if(bound(?class), ?class, "unbound") AS ?class__label_subject)
+    OPTIONAL
+      { ?class__label_subject
+                  rdfs:label  ?class__label_value
+        FILTER ( lang(?class__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?class__label_subject
+                  rdfs:label  ?class__label_value
+        FILTER ( lang(?class__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?class__label_subject
+                  rdfs:label  ?class__label_value
+        FILTER ( lang(?class__label_value) = "en" )
+      }
+    BIND(if(bound(?class__label_value), ?class__label_value, if(( isURI(?class) && strstarts(str(?class), "http://www.wikidata.org/entity/") ), strafter(str(?class), "entity/"), str(?class))) AS ?classLabel)
+    OPTIONAL
+      { ?prop  rdfs:label  ?prop__label_value
+        FILTER ( lang(?prop__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?prop  rdfs:label  ?prop__label_value
+        FILTER ( lang(?prop__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?prop  rdfs:label  ?prop__label_value
+        FILTER ( lang(?prop__label_value) = "en" )
+      }
+    BIND(if(bound(?prop__label_value), ?prop__label_value, if(( isURI(?prop) && strstarts(str(?prop), "http://www.wikidata.org/entity/") ), strafter(str(?prop), "entity/"), str(?prop))) AS ?propLabel)
+    OPTIONAL
+      { ?i  rdfs:label  ?i__label_value
+        FILTER ( lang(?i__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?i  rdfs:label  ?i__label_value
+        FILTER ( lang(?i__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?i  rdfs:label  ?i__label_value
+        FILTER ( lang(?i__label_value) = "en" )
+      }
+    BIND(if(bound(?i__label_value), ?i__label_value, if(( isURI(?i) && strstarts(str(?i), "http://www.wikidata.org/entity/") ), strafter(str(?i), "entity/"), str(?i))) AS ?iLabel)
+    OPTIONAL
+      { ?i  schema:description  ?i__description_value
+        FILTER ( lang(?i__description_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?i  schema:description  ?i__description_value
+        FILTER ( lang(?i__description_value) = "en" )
+      }
+    BIND(?i__description_value AS ?iDescription)
+  }
+GROUP BY ?propLabel ?i ?iLabel ?iDescription
+
+# Original query:
+# #title: Everything with a time property on a given date
+# SELECT (GROUP_CONCAT(?classLabel; SEPARATOR = "; ") AS ?classes) ?propLabel ?i ?iLabel ?iDescription WHERE {
+#   {
+#     SELECT ?i ?prop ?class WHERE {
+#       {
+#         SELECT ?prop ?p WHERE {
+#           ?prop wikibase:directClaim ?p;
+#             (wdt:P31/(wdt:P279*)) wd:Q18636219.
+#         }
+#       }
+#       ?i ?p "2001-5-11"^^xsd:dateTime.
+#       OPTIONAL { ?i wdt:P31 ?class }
+#     }
+#     LIMIT 1000
+#   }
+#   SERVICE wikibase:label {
+#     bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en".
+#     ?class rdfs:label ?classLabel.
+#     ?prop rdfs:label ?propLabel.
+#     ?i rdfs:label ?iLabel;
+#       schema:description ?iDescription.
+#   }
+# }
+# GROUP BY ?propLabel ?i ?iLabel ?iDescription

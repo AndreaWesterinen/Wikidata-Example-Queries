@@ -1,0 +1,53 @@
+# rewrite_status: rewritten
+#title: Population of cities and towns in Denmark and their OSM relation id
+# Population of cities and towns in Denmark and their OSM relation id
+# This shows a simple OR using VALUES and a variable
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?city ?cityLabel ?population ?OSM_relation_ID
+WHERE
+  { VALUES ?town_or_city { wd:Q3957 wd:Q515 }
+    ?city wdt:P31/(wdt:P279)* ?town_or_city .
+    ?city  wdt:P17  wd:Q35
+    OPTIONAL
+      { ?city  wdt:P1082  ?population }
+    OPTIONAL
+      { ?city  wdt:P402  ?OSM_relation_ID }
+    BIND(if(bound(?city), ?city, "unbound") AS ?city__label_subject)
+    OPTIONAL
+      { ?city__label_subject
+                  rdfs:label  ?city__label_value
+        FILTER ( lang(?city__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?city__label_subject
+                  rdfs:label  ?city__label_value
+        FILTER ( lang(?city__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?city__label_subject
+                  rdfs:label  ?city__label_value
+        FILTER ( lang(?city__label_value) = "en" )
+      }
+    BIND(if(bound(?city__label_value), ?city__label_value, if(( isURI(?city) && strstarts(str(?city), "http://www.wikidata.org/entity/") ), strafter(str(?city), "entity/"), str(?city))) AS ?cityLabel)
+  }
+LIMIT   100
+
+# Original query:
+# #title: Population of cities and towns in Denmark and their OSM relation id
+# # Population of cities and towns in Denmark and their OSM relation id
+# # This shows a simple OR using VALUES and a variable
+# SELECT ?city ?cityLabel ?population ?OSM_relation_ID WHERE {
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en". }
+#   VALUES ?town_or_city {
+#     wd:Q3957
+#     wd:Q515
+#   }
+#   ?city (wdt:P31/(wdt:P279*)) ?town_or_city;
+#     wdt:P17 wd:Q35.
+#   OPTIONAL { ?city wdt:P1082 ?population. }
+#   OPTIONAL { ?city wdt:P402 ?OSM_relation_ID. }
+# }
+# LIMIT 100

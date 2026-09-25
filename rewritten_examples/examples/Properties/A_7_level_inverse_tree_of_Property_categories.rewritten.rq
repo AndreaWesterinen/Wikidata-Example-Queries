@@ -1,0 +1,541 @@
+# rewrite_status: rewritten
+#title: A 7-level inverse tree of Property categories
+#defaultView:Tree
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  schema: <http://schema.org/>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?root ?rootLabel ?item ?itemL ?itemImage ?item2 ?itemL2 ?itemImage2 ?item3 ?itemL3 ?itemImage3 ?item4 ?itemL4 ?itemImage4 ?item5 ?itemL5 ?itemImage5 ?item6 ?itemL6 ?itemImage6 ?item7 ?itemL7 ?itemImage7
+WHERE
+  { BIND(wd:Q18616576 AS ?root)
+    BIND(wdt:P279 AS ?property)
+    ?item  ?property  ?root
+    OPTIONAL
+      { ?item  wdt:P18  ?itemImage }
+    OPTIONAL
+      { ?item2  ?property  ?item
+        OPTIONAL
+          { ?item2  wdt:P18  ?itemImage2 }
+        OPTIONAL
+          { ?item3  ?property  ?item2
+            OPTIONAL
+              { ?item3  wdt:P18  ?itemImage3 }
+            OPTIONAL
+              { ?item4  ?property  ?item3
+                OPTIONAL
+                  { ?item4  wdt:P18  ?itemImage4 }
+                OPTIONAL
+                  { ?item5  ?property  ?item4
+                    OPTIONAL
+                      { ?item5  wdt:P18  ?itemImage5 }
+                    OPTIONAL
+                      { ?item6  ?property  ?item5
+                        OPTIONAL
+                          { ?item6  wdt:P18  ?itemImage6 }
+                        OPTIONAL
+                          { ?item7  ?property  ?item6
+                            OPTIONAL
+                              { ?item7  wdt:P18  ?itemImage7 }
+                          }
+                      }
+                  }
+              }
+          }
+      }
+    OPTIONAL
+      { ?root  rdfs:label  ?root__label_value
+        FILTER ( lang(?root__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?root  rdfs:label  ?root__label_value
+        FILTER ( lang(?root__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?root  rdfs:label  ?root__label_value
+        FILTER ( lang(?root__label_value) = "es" )
+      }
+    OPTIONAL
+      { ?root  rdfs:label  ?root__label_value
+        FILTER ( lang(?root__label_value) = "fr" )
+      }
+    OPTIONAL
+      { ?root  rdfs:label  ?root__label_value
+        FILTER ( lang(?root__label_value) = "de" )
+      }
+    OPTIONAL
+      { ?root  rdfs:label  ?root__label_value
+        FILTER ( lang(?root__label_value) = "mul" )
+      }
+    BIND(if(bound(?root__label_value), ?root__label_value, if(( isURI(?root) && strstarts(str(?root), "http://www.wikidata.org/entity/") ), strafter(str(?root), "entity/"), str(?root))) AS ?rootLabel)
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "es" )
+      }
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "fr" )
+      }
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "de" )
+      }
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "mul" )
+      }
+    BIND(if(bound(?item__label_value), ?item__label_value, if(( isURI(?item) && strstarts(str(?item), "http://www.wikidata.org/entity/") ), strafter(str(?item), "entity/"), str(?item))) AS ?itemLabel)
+    OPTIONAL
+      { ?item  schema:description  ?item__description_value
+        FILTER ( lang(?item__description_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?item  schema:description  ?item__description_value
+        FILTER ( lang(?item__description_value) = "en" )
+      }
+    OPTIONAL
+      { ?item  schema:description  ?item__description_value
+        FILTER ( lang(?item__description_value) = "es" )
+      }
+    OPTIONAL
+      { ?item  schema:description  ?item__description_value
+        FILTER ( lang(?item__description_value) = "fr" )
+      }
+    OPTIONAL
+      { ?item  schema:description  ?item__description_value
+        FILTER ( lang(?item__description_value) = "de" )
+      }
+    BIND(?item__description_value AS ?itemDescription)
+    BIND(if(bound(?item2), ?item2, "unbound") AS ?item2__label_subject)
+    OPTIONAL
+      { ?item2__label_subject
+                  rdfs:label  ?item2__label_value
+        FILTER ( lang(?item2__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?item2__label_subject
+                  rdfs:label  ?item2__label_value
+        FILTER ( lang(?item2__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?item2__label_subject
+                  rdfs:label  ?item2__label_value
+        FILTER ( lang(?item2__label_value) = "es" )
+      }
+    OPTIONAL
+      { ?item2__label_subject
+                  rdfs:label  ?item2__label_value
+        FILTER ( lang(?item2__label_value) = "fr" )
+      }
+    OPTIONAL
+      { ?item2__label_subject
+                  rdfs:label  ?item2__label_value
+        FILTER ( lang(?item2__label_value) = "de" )
+      }
+    OPTIONAL
+      { ?item2__label_subject
+                  rdfs:label  ?item2__label_value
+        FILTER ( lang(?item2__label_value) = "mul" )
+      }
+    BIND(if(bound(?item2__label_value), ?item2__label_value, if(( isURI(?item2) && strstarts(str(?item2), "http://www.wikidata.org/entity/") ), strafter(str(?item2), "entity/"), str(?item2))) AS ?itemLabel2)
+    BIND(if(bound(?item2), ?item2, "unbound") AS ?item2__label_subject__1)
+    OPTIONAL
+      { ?item2__label_subject__1
+                  schema:description  ?item2__description_value
+        FILTER ( lang(?item2__description_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?item2__label_subject__1
+                  schema:description  ?item2__description_value
+        FILTER ( lang(?item2__description_value) = "en" )
+      }
+    OPTIONAL
+      { ?item2__label_subject__1
+                  schema:description  ?item2__description_value
+        FILTER ( lang(?item2__description_value) = "es" )
+      }
+    OPTIONAL
+      { ?item2__label_subject__1
+                  schema:description  ?item2__description_value
+        FILTER ( lang(?item2__description_value) = "fr" )
+      }
+    OPTIONAL
+      { ?item2__label_subject__1
+                  schema:description  ?item2__description_value
+        FILTER ( lang(?item2__description_value) = "de" )
+      }
+    BIND(?item2__description_value AS ?itemDescription2)
+    BIND(if(bound(?item3), ?item3, "unbound") AS ?item3__label_subject)
+    OPTIONAL
+      { ?item3__label_subject
+                  rdfs:label  ?item3__label_value
+        FILTER ( lang(?item3__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?item3__label_subject
+                  rdfs:label  ?item3__label_value
+        FILTER ( lang(?item3__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?item3__label_subject
+                  rdfs:label  ?item3__label_value
+        FILTER ( lang(?item3__label_value) = "es" )
+      }
+    OPTIONAL
+      { ?item3__label_subject
+                  rdfs:label  ?item3__label_value
+        FILTER ( lang(?item3__label_value) = "fr" )
+      }
+    OPTIONAL
+      { ?item3__label_subject
+                  rdfs:label  ?item3__label_value
+        FILTER ( lang(?item3__label_value) = "de" )
+      }
+    OPTIONAL
+      { ?item3__label_subject
+                  rdfs:label  ?item3__label_value
+        FILTER ( lang(?item3__label_value) = "mul" )
+      }
+    BIND(if(bound(?item3__label_value), ?item3__label_value, if(( isURI(?item3) && strstarts(str(?item3), "http://www.wikidata.org/entity/") ), strafter(str(?item3), "entity/"), str(?item3))) AS ?itemLabel3)
+    BIND(if(bound(?item3), ?item3, "unbound") AS ?item3__label_subject__1)
+    OPTIONAL
+      { ?item3__label_subject__1
+                  schema:description  ?item3__description_value
+        FILTER ( lang(?item3__description_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?item3__label_subject__1
+                  schema:description  ?item3__description_value
+        FILTER ( lang(?item3__description_value) = "en" )
+      }
+    OPTIONAL
+      { ?item3__label_subject__1
+                  schema:description  ?item3__description_value
+        FILTER ( lang(?item3__description_value) = "es" )
+      }
+    OPTIONAL
+      { ?item3__label_subject__1
+                  schema:description  ?item3__description_value
+        FILTER ( lang(?item3__description_value) = "fr" )
+      }
+    OPTIONAL
+      { ?item3__label_subject__1
+                  schema:description  ?item3__description_value
+        FILTER ( lang(?item3__description_value) = "de" )
+      }
+    BIND(?item3__description_value AS ?itemDescription3)
+    BIND(if(bound(?item4), ?item4, "unbound") AS ?item4__label_subject)
+    OPTIONAL
+      { ?item4__label_subject
+                  rdfs:label  ?item4__label_value
+        FILTER ( lang(?item4__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?item4__label_subject
+                  rdfs:label  ?item4__label_value
+        FILTER ( lang(?item4__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?item4__label_subject
+                  rdfs:label  ?item4__label_value
+        FILTER ( lang(?item4__label_value) = "es" )
+      }
+    OPTIONAL
+      { ?item4__label_subject
+                  rdfs:label  ?item4__label_value
+        FILTER ( lang(?item4__label_value) = "fr" )
+      }
+    OPTIONAL
+      { ?item4__label_subject
+                  rdfs:label  ?item4__label_value
+        FILTER ( lang(?item4__label_value) = "de" )
+      }
+    OPTIONAL
+      { ?item4__label_subject
+                  rdfs:label  ?item4__label_value
+        FILTER ( lang(?item4__label_value) = "mul" )
+      }
+    BIND(if(bound(?item4__label_value), ?item4__label_value, if(( isURI(?item4) && strstarts(str(?item4), "http://www.wikidata.org/entity/") ), strafter(str(?item4), "entity/"), str(?item4))) AS ?itemLabel4)
+    BIND(if(bound(?item4), ?item4, "unbound") AS ?item4__label_subject__1)
+    OPTIONAL
+      { ?item4__label_subject__1
+                  schema:description  ?item4__description_value
+        FILTER ( lang(?item4__description_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?item4__label_subject__1
+                  schema:description  ?item4__description_value
+        FILTER ( lang(?item4__description_value) = "en" )
+      }
+    OPTIONAL
+      { ?item4__label_subject__1
+                  schema:description  ?item4__description_value
+        FILTER ( lang(?item4__description_value) = "es" )
+      }
+    OPTIONAL
+      { ?item4__label_subject__1
+                  schema:description  ?item4__description_value
+        FILTER ( lang(?item4__description_value) = "fr" )
+      }
+    OPTIONAL
+      { ?item4__label_subject__1
+                  schema:description  ?item4__description_value
+        FILTER ( lang(?item4__description_value) = "de" )
+      }
+    BIND(?item4__description_value AS ?itemDescription4)
+    BIND(if(bound(?item5), ?item5, "unbound") AS ?item5__label_subject)
+    OPTIONAL
+      { ?item5__label_subject
+                  rdfs:label  ?item5__label_value
+        FILTER ( lang(?item5__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?item5__label_subject
+                  rdfs:label  ?item5__label_value
+        FILTER ( lang(?item5__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?item5__label_subject
+                  rdfs:label  ?item5__label_value
+        FILTER ( lang(?item5__label_value) = "es" )
+      }
+    OPTIONAL
+      { ?item5__label_subject
+                  rdfs:label  ?item5__label_value
+        FILTER ( lang(?item5__label_value) = "fr" )
+      }
+    OPTIONAL
+      { ?item5__label_subject
+                  rdfs:label  ?item5__label_value
+        FILTER ( lang(?item5__label_value) = "de" )
+      }
+    OPTIONAL
+      { ?item5__label_subject
+                  rdfs:label  ?item5__label_value
+        FILTER ( lang(?item5__label_value) = "mul" )
+      }
+    BIND(if(bound(?item5__label_value), ?item5__label_value, if(( isURI(?item5) && strstarts(str(?item5), "http://www.wikidata.org/entity/") ), strafter(str(?item5), "entity/"), str(?item5))) AS ?itemLabel5)
+    BIND(if(bound(?item5), ?item5, "unbound") AS ?item5__label_subject__1)
+    OPTIONAL
+      { ?item5__label_subject__1
+                  schema:description  ?item5__description_value
+        FILTER ( lang(?item5__description_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?item5__label_subject__1
+                  schema:description  ?item5__description_value
+        FILTER ( lang(?item5__description_value) = "en" )
+      }
+    OPTIONAL
+      { ?item5__label_subject__1
+                  schema:description  ?item5__description_value
+        FILTER ( lang(?item5__description_value) = "es" )
+      }
+    OPTIONAL
+      { ?item5__label_subject__1
+                  schema:description  ?item5__description_value
+        FILTER ( lang(?item5__description_value) = "fr" )
+      }
+    OPTIONAL
+      { ?item5__label_subject__1
+                  schema:description  ?item5__description_value
+        FILTER ( lang(?item5__description_value) = "de" )
+      }
+    BIND(?item5__description_value AS ?itemDescription5)
+    BIND(if(bound(?item6), ?item6, "unbound") AS ?item6__label_subject)
+    OPTIONAL
+      { ?item6__label_subject
+                  rdfs:label  ?item6__label_value
+        FILTER ( lang(?item6__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?item6__label_subject
+                  rdfs:label  ?item6__label_value
+        FILTER ( lang(?item6__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?item6__label_subject
+                  rdfs:label  ?item6__label_value
+        FILTER ( lang(?item6__label_value) = "es" )
+      }
+    OPTIONAL
+      { ?item6__label_subject
+                  rdfs:label  ?item6__label_value
+        FILTER ( lang(?item6__label_value) = "fr" )
+      }
+    OPTIONAL
+      { ?item6__label_subject
+                  rdfs:label  ?item6__label_value
+        FILTER ( lang(?item6__label_value) = "de" )
+      }
+    OPTIONAL
+      { ?item6__label_subject
+                  rdfs:label  ?item6__label_value
+        FILTER ( lang(?item6__label_value) = "mul" )
+      }
+    BIND(if(bound(?item6__label_value), ?item6__label_value, if(( isURI(?item6) && strstarts(str(?item6), "http://www.wikidata.org/entity/") ), strafter(str(?item6), "entity/"), str(?item6))) AS ?itemLabel6)
+    BIND(if(bound(?item6), ?item6, "unbound") AS ?item6__label_subject__1)
+    OPTIONAL
+      { ?item6__label_subject__1
+                  schema:description  ?item6__description_value
+        FILTER ( lang(?item6__description_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?item6__label_subject__1
+                  schema:description  ?item6__description_value
+        FILTER ( lang(?item6__description_value) = "en" )
+      }
+    OPTIONAL
+      { ?item6__label_subject__1
+                  schema:description  ?item6__description_value
+        FILTER ( lang(?item6__description_value) = "es" )
+      }
+    OPTIONAL
+      { ?item6__label_subject__1
+                  schema:description  ?item6__description_value
+        FILTER ( lang(?item6__description_value) = "fr" )
+      }
+    OPTIONAL
+      { ?item6__label_subject__1
+                  schema:description  ?item6__description_value
+        FILTER ( lang(?item6__description_value) = "de" )
+      }
+    BIND(?item6__description_value AS ?itemDescription6)
+    BIND(if(bound(?item7), ?item7, "unbound") AS ?item7__label_subject)
+    OPTIONAL
+      { ?item7__label_subject
+                  rdfs:label  ?item7__label_value
+        FILTER ( lang(?item7__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?item7__label_subject
+                  rdfs:label  ?item7__label_value
+        FILTER ( lang(?item7__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?item7__label_subject
+                  rdfs:label  ?item7__label_value
+        FILTER ( lang(?item7__label_value) = "es" )
+      }
+    OPTIONAL
+      { ?item7__label_subject
+                  rdfs:label  ?item7__label_value
+        FILTER ( lang(?item7__label_value) = "fr" )
+      }
+    OPTIONAL
+      { ?item7__label_subject
+                  rdfs:label  ?item7__label_value
+        FILTER ( lang(?item7__label_value) = "de" )
+      }
+    OPTIONAL
+      { ?item7__label_subject
+                  rdfs:label  ?item7__label_value
+        FILTER ( lang(?item7__label_value) = "mul" )
+      }
+    BIND(if(bound(?item7__label_value), ?item7__label_value, if(( isURI(?item7) && strstarts(str(?item7), "http://www.wikidata.org/entity/") ), strafter(str(?item7), "entity/"), str(?item7))) AS ?itemLabel7)
+    BIND(if(bound(?item7), ?item7, "unbound") AS ?item7__label_subject__1)
+    OPTIONAL
+      { ?item7__label_subject__1
+                  schema:description  ?item7__description_value
+        FILTER ( lang(?item7__description_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?item7__label_subject__1
+                  schema:description  ?item7__description_value
+        FILTER ( lang(?item7__description_value) = "en" )
+      }
+    OPTIONAL
+      { ?item7__label_subject__1
+                  schema:description  ?item7__description_value
+        FILTER ( lang(?item7__description_value) = "es" )
+      }
+    OPTIONAL
+      { ?item7__label_subject__1
+                  schema:description  ?item7__description_value
+        FILTER ( lang(?item7__description_value) = "fr" )
+      }
+    OPTIONAL
+      { ?item7__label_subject__1
+                  schema:description  ?item7__description_value
+        FILTER ( lang(?item7__description_value) = "de" )
+      }
+    BIND(?item7__description_value AS ?itemDescription7)
+    BIND(concat(?itemLabel, ": ", coalesce(?itemDescription, "")) AS ?itemL)
+    BIND(concat(?itemLabel2, ": ", coalesce(?itemDescription2, "")) AS ?itemL2)
+    BIND(concat(?itemLabel3, ": ", coalesce(?itemDescription3, "")) AS ?itemL3)
+    BIND(concat(?itemLabel4, ": ", coalesce(?itemDescription4, "")) AS ?itemL4)
+    BIND(concat(?itemLabel5, ": ", coalesce(?itemDescription5, "")) AS ?itemL5)
+    BIND(concat(?itemLabel6, ": ", coalesce(?itemDescription6, "")) AS ?itemL6)
+    BIND(concat(?itemLabel7, ": ", coalesce(?itemDescription7, "")) AS ?itemL7)
+  }
+ORDER BY ?itemL ?itemL2 ?itemL3 ?itemL4 ?itemL5 ?itemL6 ?itemL7
+LIMIT   20000
+
+# Original query:
+# #title: A 7-level inverse tree of Property categories
+# #defaultView:Tree
+# SELECT ?root ?rootLabel ?item ?itemL ?itemImage ?item2 ?itemL2 ?itemImage2 ?item3 ?itemL3 ?itemImage3 ?item4 ?itemL4 ?itemImage4 ?item5 ?itemL5 ?itemImage5 ?item6 ?itemL6 ?itemImage6 ?item7 ?itemL7 ?itemImage7 WHERE {
+#   BIND(wd:Q18616576 AS ?root)
+#   BIND(wdt:P279 AS ?property)
+#   ?item ?property ?root.
+#   OPTIONAL { ?item wdt:P18 ?itemImage. }
+#   OPTIONAL {
+#     ?item2 ?property ?item.
+#     OPTIONAL { ?item2 wdt:P18 ?itemImage2. }
+#     OPTIONAL {
+#       ?item3 ?property ?item2.
+#       OPTIONAL { ?item3 wdt:P18 ?itemImage3. }
+#       OPTIONAL {
+#         ?item4 ?property ?item3.
+#         OPTIONAL { ?item4 wdt:P18 ?itemImage4. }
+#         OPTIONAL {
+#           ?item5 ?property ?item4.
+#           OPTIONAL { ?item5 wdt:P18 ?itemImage5. }
+#           OPTIONAL {
+#             ?item6 ?property ?item5.
+#             OPTIONAL { ?item6 wdt:P18 ?itemImage6. }
+#             OPTIONAL {
+#               ?item7 ?property ?item6.
+#               OPTIONAL { ?item7 wdt:P18 ?itemImage7. }
+#             }
+#           }
+#         }
+#       }
+#     }
+#   }
+#   SERVICE wikibase:label {
+#     bd:serviceParam wikibase:language "[AUTO_LANGUAGE],en,es,fr,de,mul".
+#     ?root rdfs:label ?rootLabel.
+#     ?item rdfs:label ?itemLabel;
+#       schema:description ?itemDescription.
+#     ?item2 rdfs:label ?itemLabel2;
+#       schema:description ?itemDescription2.
+#     ?item3 rdfs:label ?itemLabel3;
+#       schema:description ?itemDescription3.
+#     ?item4 rdfs:label ?itemLabel4;
+#       schema:description ?itemDescription4.
+#     ?item5 rdfs:label ?itemLabel5;
+#       schema:description ?itemDescription5.
+#     ?item6 rdfs:label ?itemLabel6;
+#       schema:description ?itemDescription6.
+#     ?item7 rdfs:label ?itemLabel7;
+#       schema:description ?itemDescription7.
+#   }
+#   BIND(CONCAT(?itemLabel, ": ", COALESCE(?itemDescription, "")) AS ?itemL)
+#   BIND(CONCAT(?itemLabel2, ": ", COALESCE(?itemDescription2, "")) AS ?itemL2)
+#   BIND(CONCAT(?itemLabel3, ": ", COALESCE(?itemDescription3, "")) AS ?itemL3)
+#   BIND(CONCAT(?itemLabel4, ": ", COALESCE(?itemDescription4, "")) AS ?itemL4)
+#   BIND(CONCAT(?itemLabel5, ": ", COALESCE(?itemDescription5, "")) AS ?itemL5)
+#   BIND(CONCAT(?itemLabel6, ": ", COALESCE(?itemDescription6, "")) AS ?itemL6)
+#   BIND(CONCAT(?itemLabel7, ": ", COALESCE(?itemDescription7, "")) AS ?itemL7)
+# }
+# ORDER BY (?itemL) (?itemL2) (?itemL3) (?itemL4) (?itemL5) (?itemL6) (?itemL7)
+# LIMIT 20000

@@ -1,0 +1,63 @@
+# rewrite_status: rewritten
+#title: Destinations from Antwerp International airport
+#defaultView:Map
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?connectsairport ?connectsairportLabel ?place_served ?place_servedLabel ?coor
+WHERE
+  { VALUES ?airport { wd:Q17480 }
+    ?airport  wdt:P81   ?connectsairport ;
+              wdt:P625  ?base_airport_coor .
+    ?connectsairport
+              wdt:P931  ?place_served ;
+              wdt:P625  ?coor
+    OPTIONAL
+      { ?connectsairport
+                  rdfs:label  ?connectsairport__label_value
+        FILTER ( lang(?connectsairport__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?connectsairport
+                  rdfs:label  ?connectsairport__label_value
+        FILTER ( lang(?connectsairport__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?connectsairport
+                  rdfs:label  ?connectsairport__label_value
+        FILTER ( lang(?connectsairport__label_value) = "en" )
+      }
+    BIND(if(bound(?connectsairport__label_value), ?connectsairport__label_value, if(( isURI(?connectsairport) && strstarts(str(?connectsairport), "http://www.wikidata.org/entity/") ), strafter(str(?connectsairport), "entity/"), str(?connectsairport))) AS ?connectsairportLabel)
+    OPTIONAL
+      { ?place_served
+                  rdfs:label  ?place_served__label_value
+        FILTER ( lang(?place_served__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?place_served
+                  rdfs:label  ?place_served__label_value
+        FILTER ( lang(?place_served__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?place_served
+                  rdfs:label  ?place_served__label_value
+        FILTER ( lang(?place_served__label_value) = "en" )
+      }
+    BIND(if(bound(?place_served__label_value), ?place_served__label_value, if(( isURI(?place_served) && strstarts(str(?place_served), "http://www.wikidata.org/entity/") ), strafter(str(?place_served), "entity/"), str(?place_served))) AS ?place_servedLabel)
+  }
+
+# Original query:
+# #title: Destinations from Antwerp International airport
+# #defaultView:Map
+# SELECT ?connectsairport ?connectsairportLabel ?place_served ?place_servedLabel ?coor
+# WHERE
+# {
+#   VALUES ?airport { wd:Q17480 } # Antwerp international airport wd:Q17480
+#   ?airport wdt:P81 ?connectsairport ;
+#            wdt:P625 ?base_airport_coor .
+#   ?connectsairport wdt:P931 ?place_served ;
+#                    wdt:P625 ?coor .
+#
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en". }
+# }

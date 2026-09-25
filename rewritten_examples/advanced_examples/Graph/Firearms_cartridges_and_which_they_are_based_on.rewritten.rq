@@ -1,0 +1,59 @@
+# rewrite_status: rewritten
+#Show firearms cartridges and which they are based on
+#defaultView:Graph
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?item ?itemLabel ?image ?other ?otherLabel ?image2
+WHERE
+  { ?item (wdt:P279)+ wd:Q37144 .
+    ?item  wdt:P144  ?other
+    OPTIONAL
+      { ?item   wdt:P18  ?image .
+        ?other  wdt:P18  ?image2
+      }
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "mul" )
+      }
+    BIND(if(bound(?item__label_value), ?item__label_value, if(( isURI(?item) && strstarts(str(?item), "http://www.wikidata.org/entity/") ), strafter(str(?item), "entity/"), str(?item))) AS ?itemLabel)
+    OPTIONAL
+      { ?other  rdfs:label  ?other__label_value
+        FILTER ( lang(?other__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?other  rdfs:label  ?other__label_value
+        FILTER ( lang(?other__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?other  rdfs:label  ?other__label_value
+        FILTER ( lang(?other__label_value) = "mul" )
+      }
+    BIND(if(bound(?other__label_value), ?other__label_value, if(( isURI(?other) && strstarts(str(?other), "http://www.wikidata.org/entity/") ), strafter(str(?other), "entity/"), str(?other))) AS ?otherLabel)
+  }
+
+# Original query:
+# #Show firearms cartridges and which they are based on
+# #defaultView:Graph
+# SELECT 
+# ?item ?itemLabel ?image 
+# ?other ?otherLabel ?image2
+# WHERE
+# {
+#     ?item  wdt:P279+ wd:Q37144 .   # cartridges
+#     ?item  wdt:P144    ?other  .   # if the cartridge is based on another
+#     OPTIONAL {
+#       ?item  wdt:P18     ?image  .   # grab image
+#       ?other wdt:P18     ?image2 .   # grab image
+#     }
+#     SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],en" }
+# }

@@ -1,0 +1,7 @@
+#title: All events that occured on 2001/09/11
+SELECT ?item ?itemLabel
+WHERE
+{
+  ?item p:P585/ps:P585 "2001-09-11T00:00:00Z"^^xsd:dateTime
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en". }
+}

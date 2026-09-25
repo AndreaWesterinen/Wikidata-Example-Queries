@@ -1,0 +1,41 @@
+Examples (https://www.wikidata.org/wiki/Wikidata:SPARQL_query_service/queries/examples)
+
+369 written; 26 could not be rewritten
+  
+Parse_error (21):
+  Reuse of at least one variable name from the query body in the projection variables - Invalid SPARQL:
+    Chemistry/Chemical_elements_and_their_isotopes_by_number_of_neutrons_minmax.rq
+    Chemistry/Colors_of_chemical_compounds.rq
+	Churches/Churches_in_church_district_Wittenberg.rq
+    Distances_between_any_two_cities_or_municipalities_in_an_area/grouped_by_dist_range_colorcoded.rq
+    Distances_between_any_two_cities_or_municipalities_in_an_area/grouped_per_municipality_on_xaxis_alphabetically.rq
+    Distances_between_any_two_cities_or_municipalities_in_an_area/grouped_per_municipality_on_xaxis_animated_by_fixed_dist_range_groups.rq
+    Distances_between_any_two_cities_or_municipalities_in_an_area/grouped_per_municipality_on_xaxis_animated_by_ranked_dist_farthest_2nd_farthest.rq
+    Distances_between_any_two_cities_or_municipalities_in_an_area/grouped_per_municipality_on_xaxis_animated_per_municipality_on_xaxis.rq
+    Distances_between_any_two_cities_or_municipalities_in_an_area/grouped_per_municipality_on_xaxis_animated_per_municipality_on_zaxis.rq
+    Distances_between_any_two_cities_or_municipalities_in_an_area/grouped_per_municipality_on_xaxis_by_sum_of_dist.rq
+    Film_and_television/Academy_award_data.rq
+    Film_and_television/Contemporary_Indian_actresses.rq
+    Film_and_television/Law_Order_episodes.rq
+    Film_and_television/Number_of_handed_out_Academy_Awards_per_award_type.rq
+    History/Popes_with_children.rq
+	Politics/Current_US_members_of_the_Senate_with_district_party_and_date_they_assumed_office.rq
+    Science/Fictional_universes_with_most_fictional_planets.rq
+    Science/Objects_with_most_mass.rq
+    Scientists/Scientists_who_have_worked_together_but_whose_Erdos_numbers_dont_reflect_that.rq
+    Simple_queries/Items_in_the_Messier_Catalog_with_image.rq
+    Visual_arts/Monuments_historiques_in_LoireAtlantique.rq
+
+Skipped_unsupported (5):
+  SELECT DISTINCT * or SELECT * in named subquery**:
+    Cities/Largest_cities_of_the_world.rq
+    Simple_queries/Items_with_a_Wikispecies_sitelink.rq
+    Wikimedia_projects/People_deceased_in_2018_ordered_by_the_number_of_sitelinks.rq
+  Rewriting of decodeUri() is not possible:	
+    Wikimedia_projects/List_of_small_monuments_and_other_similar_sites_with_link_to_Commons_category_sitelink_or_P373.rq
+  Rewriting of MWAPI is not possible:	  
+	Zika_corpus/Scholarly_articles_with_Zika_in_the_item_label.rq
+	
+** Per docs/syntax/named-subquery.md: A named subquery block that declares SELECT * (or SELECT DISTINCT * / SELECT REDUCED *) is not supported by the rewrite tool. It cannot be safely translated and so the rewrite is terminated. Why? When a named subquery is referenced via INCLUDE, the rewriter has to wrap that reference as { SELECT <vars> WHERE { INCLUDE %name } }, where <vars> is the block's explicit projected-variable list. With SELECT *, there is no explicit list to hoist — the rewriter would have to infer the projected variables from the subquery's pattern, and that inference isn't safe/guaranteed to match what QLever's own *-expansion would produce, so the rule refuses rather than risk a silently wrong rewrite.
+
+Fix: replace SELECT DISTINCT * with an explicit projection listing the variables your subquery actually needs in the outer query. 

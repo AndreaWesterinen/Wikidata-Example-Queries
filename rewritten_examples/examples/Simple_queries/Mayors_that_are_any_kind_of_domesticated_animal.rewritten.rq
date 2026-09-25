@@ -1,0 +1,71 @@
+# rewrite_status: rewritten
+#title: Mayors that are any kind of domesticated animal
+PREFIX  p:    <http://www.wikidata.org/prop/>
+PREFIX  pq:   <http://www.wikidata.org/prop/qualifier/>
+PREFIX  ps:   <http://www.wikidata.org/prop/statement/>
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?image ?speciesLabel ?mayorLabel ?placeLabel
+WHERE
+  { ?species (wdt:P279)* wd:Q622852 .
+    ?mayor  wdt:P31   ?species ;
+            p:P39     ?node .
+    ?node   ps:P39    wd:Q30185 ;
+            pq:P1001  ?place
+    OPTIONAL
+      { ?mayor  wdt:P18  ?image }
+    OPTIONAL
+      { ?species  rdfs:label  ?species__label_value
+        FILTER ( lang(?species__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?species  rdfs:label  ?species__label_value
+        FILTER ( lang(?species__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?species  rdfs:label  ?species__label_value
+        FILTER ( lang(?species__label_value) = "en" )
+      }
+    BIND(if(bound(?species__label_value), ?species__label_value, if(( isURI(?species) && strstarts(str(?species), "http://www.wikidata.org/entity/") ), strafter(str(?species), "entity/"), str(?species))) AS ?speciesLabel)
+    OPTIONAL
+      { ?mayor  rdfs:label  ?mayor__label_value
+        FILTER ( lang(?mayor__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?mayor  rdfs:label  ?mayor__label_value
+        FILTER ( lang(?mayor__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?mayor  rdfs:label  ?mayor__label_value
+        FILTER ( lang(?mayor__label_value) = "en" )
+      }
+    BIND(if(bound(?mayor__label_value), ?mayor__label_value, if(( isURI(?mayor) && strstarts(str(?mayor), "http://www.wikidata.org/entity/") ), strafter(str(?mayor), "entity/"), str(?mayor))) AS ?mayorLabel)
+    OPTIONAL
+      { ?place  rdfs:label  ?place__label_value
+        FILTER ( lang(?place__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?place  rdfs:label  ?place__label_value
+        FILTER ( lang(?place__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?place  rdfs:label  ?place__label_value
+        FILTER ( lang(?place__label_value) = "en" )
+      }
+    BIND(if(bound(?place__label_value), ?place__label_value, if(( isURI(?place) && strstarts(str(?place), "http://www.wikidata.org/entity/") ), strafter(str(?place), "entity/"), str(?place))) AS ?placeLabel)
+  }
+
+# Original query:
+# #title: Mayors that are any kind of domesticated animal
+# SELECT ?image ?speciesLabel ?mayorLabel ?placeLabel WHERE {
+#   ?species wdt:P279* wd:Q622852 .
+#   ?mayor wdt:P31 ?species .
+#
+#   ?mayor p:P39 ?node .
+#   ?node ps:P39 wd:Q30185 .
+#   ?node pq:P1001 ?place .
+#   OPTIONAL {?mayor wdt:P18 ?image}
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en". }
+# }

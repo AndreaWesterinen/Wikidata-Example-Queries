@@ -1,0 +1,34 @@
+# rewrite_status: rewritten
+# Make a list of properties of the type external-id
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  schema: <http://schema.org/>
+PREFIX  wikibase: <http://wikiba.se/ontology#>
+
+SELECT  ?property ?propertyLabel ?propertyDescription
+WHERE
+  { ?property  wikibase:propertyType  wikibase:ExternalId
+    OPTIONAL
+      { ?property  rdfs:label  ?property__label_value
+        FILTER ( lang(?property__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?property  rdfs:label  ?property__label_value
+        FILTER ( lang(?property__label_value) = "mul" )
+      }
+    BIND(if(bound(?property__label_value), ?property__label_value, if(( isURI(?property) && strstarts(str(?property), "http://www.wikidata.org/entity/") ), strafter(str(?property), "entity/"), str(?property))) AS ?propertyLabel)
+    OPTIONAL
+      { ?property  schema:description  ?property__description_value
+        FILTER ( lang(?property__description_value) = "en" )
+      }
+    BIND(?property__description_value AS ?propertyDescription)
+  }
+ORDER BY ?propertyLabel
+
+# Original query:
+# # Make a list of properties of the type external-id
+# SELECT ?property ?propertyLabel ?propertyDescription WHERE {
+#   ?property wikibase:propertyType wikibase:ExternalId .
+# 	SERVICE wikibase:label {
+# 		bd:serviceParam wikibase:language "en" .
+# 	}          
+# } ORDER BY ?propertyLabel

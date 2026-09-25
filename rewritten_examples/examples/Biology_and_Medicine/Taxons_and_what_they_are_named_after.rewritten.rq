@@ -1,0 +1,36 @@
+# rewrite_status: rewritten
+#title: Taxons and what they are named after
+
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?taxon ?eponym ?taxonName ?eponymLabel
+WHERE
+  { ?taxon  wdt:P31   wd:Q16521 ;
+            wdt:P225  ?taxonName ;
+            wdt:P138  ?eponym
+    OPTIONAL
+      { ?eponym  rdfs:label  ?eponym__label_value
+        FILTER ( lang(?eponym__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?eponym  rdfs:label  ?eponym__label_value
+        FILTER ( lang(?eponym__label_value) = "mul" )
+      }
+    BIND(if(bound(?eponym__label_value), ?eponym__label_value, if(( isURI(?eponym) && strstarts(str(?eponym), "http://www.wikidata.org/entity/") ), strafter(str(?eponym), "entity/"), str(?eponym))) AS ?eponymLabel)
+  }
+ORDER BY ?eponym
+
+# Original query:
+# #title: Taxons and what they are named after
+#
+# SELECT ?taxon ?eponym ?taxonName ?eponymLabel
+# WHERE
+# {
+#   ?taxon wdt:P31 wd:Q16521;
+#          wdt:P225 ?taxonName;
+#          wdt:P138 ?eponym.
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "en". }
+# }
+# ORDER BY ?eponym

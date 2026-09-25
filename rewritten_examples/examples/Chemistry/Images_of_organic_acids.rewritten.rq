@@ -1,0 +1,34 @@
+# rewrite_status: rewritten
+#title: Images of organic acids
+#defaultView:ImageGrid
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?compound ?compoundLabel ?image
+WHERE
+  { ?compound (wdt:P279)+|(wdt:P31)+ wd:Q421948 .
+    ?compound wdt:P18|wdt:P117 ?image
+    OPTIONAL
+      { ?compound  rdfs:label  ?compound__label_value
+        FILTER ( lang(?compound__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?compound  rdfs:label  ?compound__label_value
+        FILTER ( lang(?compound__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?compound  rdfs:label  ?compound__label_value
+        FILTER ( lang(?compound__label_value) = "en" )
+      }
+    BIND(if(bound(?compound__label_value), ?compound__label_value, if(( isURI(?compound) && strstarts(str(?compound), "http://www.wikidata.org/entity/") ), strafter(str(?compound), "entity/"), str(?compound))) AS ?compoundLabel)
+  }
+
+# Original query:
+# #title: Images of organic acids
+# #defaultView:ImageGrid
+# SELECT ?compound ?compoundLabel ?image WHERE {
+#   ?compound wdt:P279+|wdt:P31+ wd:Q421948 ;
+#             wdt:P18|wdt:P117 ?image .
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en". }
+# }

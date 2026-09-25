@@ -1,0 +1,41 @@
+# rewrite_status: rewritten
+#title: Swedish municipalities which changed their municipality identifier at some point
+#author: Salgo60, 2021-09-11
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  schema: <http://schema.org/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT DISTINCT  ?item ?itemLabel ?kkod1 ?kkod2 ?svwp_artikel
+WHERE
+  { ?item  wdt:P525  ?kkod1 ;
+           wdt:P525  ?kkod2
+    FILTER ( ?kkod1 < ?kkod2 )
+    OPTIONAL
+      { ?svwp_artikel
+                  schema:about     ?item ;
+                  schema:isPartOf  <https://sv.wikipedia.org/>
+      }
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "sv" )
+      }
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "mul" )
+      }
+    BIND(if(bound(?item__label_value), ?item__label_value, if(( isURI(?item) && strstarts(str(?item), "http://www.wikidata.org/entity/") ), strafter(str(?item), "entity/"), str(?item))) AS ?itemLabel)
+  }
+ORDER BY ?itemLabel
+
+# Original query:
+# #title: Swedish municipalities which changed their municipality identifier at some point
+# #author: Salgo60, 2021-09-11
+# SELECT DISTINCT ?item ?itemLabel ?kkod1 ?kkod2 ?svwp_artikel WHERE
+# {
+#   ?item wdt:P525 ?kkod1 .
+#   ?item wdt:P525 ?kkod2 .
+#   FILTER ( ?kkod1<?kkod2 )
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "sv". }
+#   OPTIONAL { ?svwp_artikel schema:about ?item; schema:isPartOf <https://sv.wikipedia.org/> }
+# }
+# ORDER BY ?itemLabel

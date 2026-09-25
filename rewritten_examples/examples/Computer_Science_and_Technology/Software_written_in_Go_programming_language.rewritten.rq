@@ -1,0 +1,52 @@
+# rewrite_status: rewritten
+#title: Software written in Go programming language
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  schema: <http://schema.org/>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT DISTINCT  ?instance_of ?instance_ofDescription ?instance_ofLabel ?official_website
+WHERE
+  { ?instance_of wdt:P31/(wdt:P279)* wd:Q341
+    OPTIONAL
+      { ?instance_of  wdt:P856  ?official_website }
+    ?instance_of  wdt:P277  wd:Q37227
+    BIND(if(bound(?instance_of), ?instance_of, "unbound") AS ?instance_of__label_subject)
+    OPTIONAL
+      { ?instance_of__label_subject
+                  schema:description  ?instance_of__description_value
+        FILTER ( lang(?instance_of__description_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?instance_of__label_subject
+                  schema:description  ?instance_of__description_value
+        FILTER ( lang(?instance_of__description_value) = "en" )
+      }
+    BIND(?instance_of__description_value AS ?instance_ofDescription)
+    BIND(if(bound(?instance_of), ?instance_of, "unbound") AS ?instance_of__label_subject__1)
+    OPTIONAL
+      { ?instance_of__label_subject__1
+                  rdfs:label  ?instance_of__label_value
+        FILTER ( lang(?instance_of__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?instance_of__label_subject__1
+                  rdfs:label  ?instance_of__label_value
+        FILTER ( lang(?instance_of__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?instance_of__label_subject__1
+                  rdfs:label  ?instance_of__label_value
+        FILTER ( lang(?instance_of__label_value) = "en" )
+      }
+    BIND(if(bound(?instance_of__label_value), ?instance_of__label_value, if(( isURI(?instance_of) && strstarts(str(?instance_of), "http://www.wikidata.org/entity/") ), strafter(str(?instance_of), "entity/"), str(?instance_of))) AS ?instance_ofLabel)
+  }
+
+# Original query:
+# #title: Software written in Go programming language
+# SELECT DISTINCT ?instance_of ?instance_ofDescription ?instance_ofLabel ?official_website WHERE {
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en". }
+#   ?instance_of (wdt:P31/(wdt:P279*)) wd:Q341.
+#   OPTIONAL { ?instance_of wdt:P856 ?official_website. }
+#   ?instance_of wdt:P277 wd:Q37227.
+# }

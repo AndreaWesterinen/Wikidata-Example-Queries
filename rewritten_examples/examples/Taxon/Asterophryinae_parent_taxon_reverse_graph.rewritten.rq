@@ -1,0 +1,74 @@
+# rewrite_status: rewritten
+#title: Asterophryinae parent taxon reverse graph
+#defaultView:Graph
+PREFIX  pathSearch: <https://qlever.cs.uni-freiburg.de/pathSearch/>
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?item ?itemLabel ?pic ?linkTo
+WHERE
+  { { SELECT  ?item (MIN(?d) AS ?depth)
+      WHERE
+        { {   { BIND(wd:Q1968598 AS ?item)
+                BIND(0 AS ?d)
+              }
+            UNION
+              { SERVICE pathSearch:
+                  { _:b0  pathSearch:algorithm  pathSearch:allPaths ;
+                          pathSearch:source     wd:Q1968598 ;
+                          pathSearch:maxDepth   3 ;
+                          pathSearch:start      ?predecessor ;
+                          pathSearch:end        ?item ;
+                          pathSearch:pathColumn  ?pc ;
+                          pathSearch:edgeColumn  ?edge
+                    { SELECT  *
+                      WHERE
+                        { ?item  wdt:P171  ?predecessor }
+                    }
+                  }
+                BIND(( ?edge + 1 ) AS ?d)
+              }
+          }
+        }
+      GROUP BY ?item
+    }
+    OPTIONAL
+      { ?item  wdt:P171  ?linkTo }
+    OPTIONAL
+      { ?item  wdt:P18  ?pic }
+    BIND(if(bound(?item), ?item, "unbound") AS ?item__label_subject)
+    OPTIONAL
+      { ?item__label_subject
+                  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?item__label_subject
+                  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "mul" )
+      }
+    BIND(if(bound(?item__label_value), ?item__label_value, if(( isURI(?item) && strstarts(str(?item), "http://www.wikidata.org/entity/") ), strafter(str(?item), "entity/"), str(?item))) AS ?itemLabel)
+  }
+
+# Original query:
+# #title: Asterophryinae parent taxon reverse graph
+# #defaultView:Graph
+# PREFIX gas: <http://www.bigdata.com/rdf/gas#>
+#
+# SELECT ?item ?itemLabel ?pic ?linkTo
+# WHERE
+# {
+#   SERVICE gas:service {
+#     gas:program gas:gasClass "com.bigdata.rdf.graph.analytics.SSSP" ;
+#                 gas:in wd:Q1968598;
+#                 gas:traversalDirection "Reverse" ;
+#                 gas:out ?item ;
+#                 gas:out1 ?depth ;
+#                 gas:maxIterations 3 ;
+#                 gas:linkType wdt:P171 .
+#   }
+#   OPTIONAL { ?item wdt:P171 ?linkTo }
+#   OPTIONAL { ?item wdt:P18 ?pic }
+#   SERVICE wikibase:label {bd:serviceParam wikibase:language "en" }
+# }

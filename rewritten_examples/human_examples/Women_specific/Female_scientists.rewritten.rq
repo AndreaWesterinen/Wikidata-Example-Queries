@@ -1,0 +1,183 @@
+# rewrite_status: rewritten
+#title: Female scientists
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  schema: <http://schema.org/>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?item ?itemLabel ?lastnameLabel ?birthdate ?deathdate ?nationalityLabel ?itemDescription
+WHERE
+  { ?item  wdt:P31  wd:Q5 ;
+           wdt:P21  wd:Q6581072 .
+    ?item wdt:P106/(wdt:P279)* wd:Q901
+    OPTIONAL
+      { ?item  wdt:P734  ?lastname }
+    OPTIONAL
+      { ?item  wdt:P569  ?birthdate }
+    OPTIONAL
+      { ?item  wdt:P570  ?deathdate }
+    OPTIONAL
+      { ?item  wdt:P27  ?nationality }
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "nl" )
+      }
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "fr" )
+      }
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "de" )
+      }
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "es" )
+      }
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "it" )
+      }
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "no" )
+      }
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "mul" )
+      }
+    BIND(if(bound(?item__label_value), ?item__label_value, if(( isURI(?item) && strstarts(str(?item), "http://www.wikidata.org/entity/") ), strafter(str(?item), "entity/"), str(?item))) AS ?itemLabel)
+    OPTIONAL
+      { ?item  schema:description  ?item__description_value
+        FILTER ( lang(?item__description_value) = "nl" )
+      }
+    OPTIONAL
+      { ?item  schema:description  ?item__description_value
+        FILTER ( lang(?item__description_value) = "en" )
+      }
+    OPTIONAL
+      { ?item  schema:description  ?item__description_value
+        FILTER ( lang(?item__description_value) = "fr" )
+      }
+    OPTIONAL
+      { ?item  schema:description  ?item__description_value
+        FILTER ( lang(?item__description_value) = "de" )
+      }
+    OPTIONAL
+      { ?item  schema:description  ?item__description_value
+        FILTER ( lang(?item__description_value) = "es" )
+      }
+    OPTIONAL
+      { ?item  schema:description  ?item__description_value
+        FILTER ( lang(?item__description_value) = "it" )
+      }
+    OPTIONAL
+      { ?item  schema:description  ?item__description_value
+        FILTER ( lang(?item__description_value) = "no" )
+      }
+    BIND(?item__description_value AS ?itemDescription)
+    BIND(if(bound(?lastname), ?lastname, "unbound") AS ?lastname__label_subject)
+    OPTIONAL
+      { ?lastname__label_subject
+                  rdfs:label  ?lastname__label_value
+        FILTER ( lang(?lastname__label_value) = "nl" )
+      }
+    OPTIONAL
+      { ?lastname__label_subject
+                  rdfs:label  ?lastname__label_value
+        FILTER ( lang(?lastname__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?lastname__label_subject
+                  rdfs:label  ?lastname__label_value
+        FILTER ( lang(?lastname__label_value) = "fr" )
+      }
+    OPTIONAL
+      { ?lastname__label_subject
+                  rdfs:label  ?lastname__label_value
+        FILTER ( lang(?lastname__label_value) = "de" )
+      }
+    OPTIONAL
+      { ?lastname__label_subject
+                  rdfs:label  ?lastname__label_value
+        FILTER ( lang(?lastname__label_value) = "es" )
+      }
+    OPTIONAL
+      { ?lastname__label_subject
+                  rdfs:label  ?lastname__label_value
+        FILTER ( lang(?lastname__label_value) = "it" )
+      }
+    OPTIONAL
+      { ?lastname__label_subject
+                  rdfs:label  ?lastname__label_value
+        FILTER ( lang(?lastname__label_value) = "no" )
+      }
+    OPTIONAL
+      { ?lastname__label_subject
+                  rdfs:label  ?lastname__label_value
+        FILTER ( lang(?lastname__label_value) = "mul" )
+      }
+    BIND(if(bound(?lastname__label_value), ?lastname__label_value, if(( isURI(?lastname) && strstarts(str(?lastname), "http://www.wikidata.org/entity/") ), strafter(str(?lastname), "entity/"), str(?lastname))) AS ?lastnameLabel)
+    BIND(if(bound(?nationality), ?nationality, "unbound") AS ?nationality__label_subject)
+    OPTIONAL
+      { ?nationality__label_subject
+                  rdfs:label  ?nationality__label_value
+        FILTER ( lang(?nationality__label_value) = "nl" )
+      }
+    OPTIONAL
+      { ?nationality__label_subject
+                  rdfs:label  ?nationality__label_value
+        FILTER ( lang(?nationality__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?nationality__label_subject
+                  rdfs:label  ?nationality__label_value
+        FILTER ( lang(?nationality__label_value) = "fr" )
+      }
+    OPTIONAL
+      { ?nationality__label_subject
+                  rdfs:label  ?nationality__label_value
+        FILTER ( lang(?nationality__label_value) = "de" )
+      }
+    OPTIONAL
+      { ?nationality__label_subject
+                  rdfs:label  ?nationality__label_value
+        FILTER ( lang(?nationality__label_value) = "es" )
+      }
+    OPTIONAL
+      { ?nationality__label_subject
+                  rdfs:label  ?nationality__label_value
+        FILTER ( lang(?nationality__label_value) = "it" )
+      }
+    OPTIONAL
+      { ?nationality__label_subject
+                  rdfs:label  ?nationality__label_value
+        FILTER ( lang(?nationality__label_value) = "no" )
+      }
+    OPTIONAL
+      { ?nationality__label_subject
+                  rdfs:label  ?nationality__label_value
+        FILTER ( lang(?nationality__label_value) = "mul" )
+      }
+    BIND(if(bound(?nationality__label_value), ?nationality__label_value, if(( isURI(?nationality) && strstarts(str(?nationality), "http://www.wikidata.org/entity/") ), strafter(str(?nationality), "entity/"), str(?nationality))) AS ?nationalityLabel)
+  }
+ORDER BY ?itemLabel
+
+# Original query:
+# #title: Female scientists
+# SELECT ?item ?itemLabel ?lastnameLabel ?birthdate ?deathdate ?nationalityLabel ?itemDescription WHERE {
+#     ?item wdt:P31 wd:Q5 .
+#     ?item wdt:P21 wd:Q6581072 .
+#     ?item wdt:P106/wdt:P279* wd:Q901 .
+#     optional { ?item wdt:P734 ?lastname . }
+#     optional { ?item wdt:P569 ?birthdate . }
+#     optional { ?item wdt:P570 ?deathdate . }
+#     optional { ?item wdt:P27 ?nationality . }
+#
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "nl,en,fr,de,es,it,no" }
+# }
+# ORDER BY ?itemLabel

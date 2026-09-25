@@ -1,0 +1,78 @@
+# rewrite_status: rewritten
+#title: Articles by Lydia Pintscher (using the wikibase:label SERVICE in both graphs)
+# NOTE - This scholarly query is written for use in WDQS-Main UI only  (query.wikidata.org).
+
+#topic: Internal Federation
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?work ?workLabel ?author ?authorLabel
+WHERE
+  { VALUES ?author { wd:Q18016466 }
+    SERVICE <https://query-scholarly-next.wikidata.org/sparql>
+      { SELECT  ?work ?workLabel ?author
+        WHERE
+          { ?work  wdt:P50  ?author
+            OPTIONAL
+              { ?work  rdfs:label  ?work__label_value
+                FILTER ( lang(?work__label_value) = "[AUTO_LANGUAGE]" )
+              }
+            OPTIONAL
+              { ?work  rdfs:label  ?work__label_value
+                FILTER ( lang(?work__label_value) = "mul" )
+              }
+            OPTIONAL
+              { ?work  rdfs:label  ?work__label_value
+                FILTER ( lang(?work__label_value) = "en" )
+              }
+            BIND(if(bound(?work__label_value), ?work__label_value, if(( isURI(?work) && strstarts(str(?work), "http://www.wikidata.org/entity/") ), strafter(str(?work), "entity/"), str(?work))) AS ?workLabel)
+          }
+      }
+    OPTIONAL
+      { ?author  rdfs:label  ?author__label_value
+        FILTER ( lang(?author__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?author  rdfs:label  ?author__label_value
+        FILTER ( lang(?author__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?author  rdfs:label  ?author__label_value
+        FILTER ( lang(?author__label_value) = "en" )
+      }
+    BIND(if(bound(?author__label_value), ?author__label_value, if(( isURI(?author) && strstarts(str(?author), "http://www.wikidata.org/entity/") ), strafter(str(?author), "entity/"), str(?author))) AS ?authorLabel)
+  }
+
+# Original query:
+# #title: Articles by Lydia Pintscher (using the wikibase:label SERVICE in both graphs)
+# # NOTE - This scholarly query is written for use in WDQS-Main UI only  (query.wikidata.org).
+#
+# #topic: Internal Federation
+# SELECT
+#   ?work ?workLabel
+#   ?author ?authorLabel
+# WHERE {
+#     # Lydia Pintscher    
+#     VALUES ?author {wd:Q18016466} . 
+#
+#    SERVICE wdsubgraph:scholarly_articles {
+#      # Note that you need to select ?workLabel here too
+#      SELECT 
+#        ?work ?workLabel
+#        ?author
+#      WHERE {
+#        ?work wdt:P50 ?author .
+#
+#        # This call returns the labels for the ?work variable
+#        SERVICE wikibase:label { 
+#          bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en". 
+#        }
+#      }
+#   } 
+#
+#   # This call returns the labels for the ?author variable
+#   SERVICE wikibase:label {
+#     bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en".
+#   }
+# }

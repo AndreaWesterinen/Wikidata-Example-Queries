@@ -1,0 +1,56 @@
+# rewrite_status: rewritten
+#title: List of popes
+PREFIX  p:    <http://www.wikidata.org/prop/>
+PREFIX  pq:   <http://www.wikidata.org/prop/qualifier/>
+PREFIX  ps:   <http://www.wikidata.org/prop/statement/>
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?link ?linkLabel ?picture ?age
+WHERE
+  { ?link  wdt:P31  wd:Q5 ;
+           p:P39    _:b0 .
+    _:b0   ps:P39   wd:Q19546 ;
+           pq:P580  ?startTime
+    OPTIONAL
+      { ?link  wdt:P569  ?dateOfBirth }
+    OPTIONAL
+      { ?link  wdt:P18  ?picture }
+    OPTIONAL
+      { ?link  wdt:P570  ?dateOfDeath }
+    BIND(( year(?dateOfDeath) - year(?dateOfBirth) ) AS ?age)
+    OPTIONAL
+      { ?link  rdfs:label  ?link__label_value
+        FILTER ( lang(?link__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?link  rdfs:label  ?link__label_value
+        FILTER ( lang(?link__label_value) = "fr" )
+      }
+    OPTIONAL
+      { ?link  rdfs:label  ?link__label_value
+        FILTER ( lang(?link__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?link  rdfs:label  ?link__label_value
+        FILTER ( lang(?link__label_value) = "mul" )
+      }
+    BIND(if(bound(?link__label_value), ?link__label_value, if(( isURI(?link) && strstarts(str(?link), "http://www.wikidata.org/entity/") ), strafter(str(?link), "entity/"), str(?link))) AS ?linkLabel)
+  }
+ORDER BY DESC(?startTime)
+
+# Original query:
+# #title: List of popes
+# SELECT ?link ?linkLabel ?picture ?age
+# WHERE
+# {
+#   ?link wdt:P31 wd:Q5 ;
+#           p:P39 [ ps:P39 wd:Q19546 ; pq:P580 ?startTime ] .
+#   OPTIONAL { ?link wdt:P569 ?dateOfBirth }
+#   OPTIONAL { ?link wdt:P18 ?picture }
+#   OPTIONAL { ?link wdt:P570 ?dateOfDeath }
+#   BIND(YEAR(?dateOfDeath) - YEAR(?dateOfBirth) as ?age)
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],fr,en" }
+# }
+# ORDER BY DESC(?startTime)

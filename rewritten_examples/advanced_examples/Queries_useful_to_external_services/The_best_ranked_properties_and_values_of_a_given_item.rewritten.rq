@@ -1,0 +1,48 @@
+# rewrite_status: rewritten
+# added 2022-08
+# title: The best ranked properties and values of a given item
+# Based on the "winwaed"'s answer on Stack Overflow: https://stackoverflow.com/questions/56486888/how-to-get-property-labels-from-wikidata-using-sparql
+
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wikibase: <http://wikiba.se/ontology#>
+
+SELECT  ?propLabel ?valueLabel
+WHERE
+  { wd:Q243  ?a                    ?value .
+    ?prop    wikibase:directClaim  ?s
+    BIND(if(bound(?prop), ?prop, "unbound") AS ?prop__label_subject)
+    OPTIONAL
+      { ?prop__label_subject
+                  rdfs:label  ?prop__label_value
+        FILTER ( lang(?prop__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?prop__label_subject
+                  rdfs:label  ?prop__label_value
+        FILTER ( lang(?prop__label_value) = "mul" )
+      }
+    BIND(if(bound(?prop__label_value), ?prop__label_value, if(( isURI(?prop) && strstarts(str(?prop), "http://www.wikidata.org/entity/") ), strafter(str(?prop), "entity/"), str(?prop))) AS ?propLabel)
+    OPTIONAL
+      { ?value  rdfs:label  ?value__label_value
+        FILTER ( lang(?value__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?value  rdfs:label  ?value__label_value
+        FILTER ( lang(?value__label_value) = "mul" )
+      }
+    BIND(if(bound(?value__label_value), ?value__label_value, if(( isURI(?value) && strstarts(str(?value), "http://www.wikidata.org/entity/") ), strafter(str(?value), "entity/"), str(?value))) AS ?valueLabel)
+  }
+
+# Original query:
+# # added 2022-08
+# # title: The best ranked properties and values of a given item
+# # Based on the "winwaed"'s answer on Stack Overflow: https://stackoverflow.com/questions/56486888/how-to-get-property-labels-from-wikidata-using-sparql
+#
+# SELECT ?propLabel ?valueLabel
+# WHERE
+# {
+#   wd:Q243 ?a ?value.
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "en". } 
+#   ?prop wikibase:directClaim ?s .
+# }

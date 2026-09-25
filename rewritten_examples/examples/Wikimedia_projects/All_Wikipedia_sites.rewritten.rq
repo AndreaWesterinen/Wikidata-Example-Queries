@@ -1,0 +1,37 @@
+# rewrite_status: rewritten
+#title: All Wikipedia sites
+# Get all Wikipedia sites
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+PREFIX  wikibase: <http://wikiba.se/ontology#>
+
+SELECT  ?item ?itemLabel ?website
+WHERE
+  { ?item     wdt:P856            ?website .
+    ?website  wikibase:wikiGroup  "wikipedia"
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "en" )
+      }
+    BIND(if(bound(?item__label_value), ?item__label_value, if(( isURI(?item) && strstarts(str(?item), "http://www.wikidata.org/entity/") ), strafter(str(?item), "entity/"), str(?item))) AS ?itemLabel)
+  }
+
+# Original query:
+# #title: All Wikipedia sites
+# # Get all Wikipedia sites
+# SELECT ?item ?itemLabel ?website
+# WHERE
+# {
+#   #?item wdt:P31 wd:Q10876391.
+#   ?item wdt:P856 ?website.
+#   ?website wikibase:wikiGroup "wikipedia".
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en". }
+# }

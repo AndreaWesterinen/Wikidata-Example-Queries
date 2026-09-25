@@ -1,0 +1,36 @@
+# rewrite_status: rewritten
+#title: Biologists with Twitter accounts
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT DISTINCT  ?personLabel (concat("https://twitter.com/", ?twitterName) AS ?twitterlink) ?pic
+WHERE
+  { ?person  wdt:P2002  ?twitterName ;
+             wdt:P106   ?occupation
+    OPTIONAL
+      { ?person  wdt:P18  ?pic }
+    ?occupation (wdt:P279)* wd:Q864503
+    OPTIONAL
+      { ?person  rdfs:label  ?person__label_value
+        FILTER ( lang(?person__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?person  rdfs:label  ?person__label_value
+        FILTER ( lang(?person__label_value) = "mul" )
+      }
+    BIND(if(bound(?person__label_value), ?person__label_value, if(( isURI(?person) && strstarts(str(?person), "http://www.wikidata.org/entity/") ), strafter(str(?person), "entity/"), str(?person))) AS ?personLabel)
+  }
+
+# Original query:
+# #title: Biologists with Twitter accounts
+# SELECT DISTINCT ?personLabel (CONCAT("https://twitter.com/",?twitterName) AS ?twitterlink) ?pic
+# WHERE {
+#   ?person wdt:P2002 ?twitterName ;
+#     wdt:P106 ?occupation .
+#   OPTIONAL { ?person wdt:P18 ?pic . }
+#   ?occupation wdt:P279* wd:Q864503 . # all subclasses of biologists
+#    SERVICE wikibase:label {
+#      bd:serviceParam wikibase:language "en"
+#    }
+# }

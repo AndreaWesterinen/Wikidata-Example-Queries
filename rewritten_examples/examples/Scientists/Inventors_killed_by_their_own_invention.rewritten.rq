@@ -1,0 +1,44 @@
+# rewrite_status: rewritten
+#title: Inventors killed by their own invention
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?inventor ?inventorLabel ?gadget ?gadgetLabel
+WHERE
+  { ?inventor  wdt:P157  ?gadget .
+    ?gadget   wdt:P61   ?inventor
+    OPTIONAL
+      { ?inventor  rdfs:label  ?inventor__label_value
+        FILTER ( lang(?inventor__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?inventor  rdfs:label  ?inventor__label_value
+        FILTER ( lang(?inventor__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?inventor  rdfs:label  ?inventor__label_value
+        FILTER ( lang(?inventor__label_value) = "en" )
+      }
+    BIND(if(bound(?inventor__label_value), ?inventor__label_value, if(( isURI(?inventor) && strstarts(str(?inventor), "http://www.wikidata.org/entity/") ), strafter(str(?inventor), "entity/"), str(?inventor))) AS ?inventorLabel)
+    OPTIONAL
+      { ?gadget  rdfs:label  ?gadget__label_value
+        FILTER ( lang(?gadget__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?gadget  rdfs:label  ?gadget__label_value
+        FILTER ( lang(?gadget__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?gadget  rdfs:label  ?gadget__label_value
+        FILTER ( lang(?gadget__label_value) = "en" )
+      }
+    BIND(if(bound(?gadget__label_value), ?gadget__label_value, if(( isURI(?gadget) && strstarts(str(?gadget), "http://www.wikidata.org/entity/") ), strafter(str(?gadget), "entity/"), str(?gadget))) AS ?gadgetLabel)
+  }
+
+# Original query:
+# #title: Inventors killed by their own invention
+# SELECT ?inventor ?inventorLabel ?gadget ?gadgetLabel WHERE {
+#   ?inventor wdt:P157 ?gadget.
+#   ?gadget wdt:P61 ?inventor.
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en". }
+# }

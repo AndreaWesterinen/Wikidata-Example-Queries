@@ -1,0 +1,50 @@
+# rewrite_status: rewritten
+#title: Map of the world's sign languages with number of practicians
+#defaultView:Map
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?sign_language ?sign_languageLabel ?indigenous_to ?coordinate_location ?practicians
+WHERE
+  { OPTIONAL
+      { ?sign_language
+                  wdt:P1098  ?practicians
+      }
+    OPTIONAL
+      { ?sign_language
+                  wdt:P17  ?country
+      }
+    OPTIONAL
+      { ?country  wdt:P625  ?coordinate_location }
+    ?sign_language
+              wdt:P31  wd:Q34228
+    BIND(if(bound(?sign_language), ?sign_language, "unbound") AS ?sign_language__label_subject)
+    OPTIONAL
+      { ?sign_language__label_subject
+                  rdfs:label  ?sign_language__label_value
+        FILTER ( lang(?sign_language__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?sign_language__label_subject
+                  rdfs:label  ?sign_language__label_value
+        FILTER ( lang(?sign_language__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?sign_language__label_subject
+                  rdfs:label  ?sign_language__label_value
+        FILTER ( lang(?sign_language__label_value) = "en" )
+      }
+    BIND(if(bound(?sign_language__label_value), ?sign_language__label_value, if(( isURI(?sign_language) && strstarts(str(?sign_language), "http://www.wikidata.org/entity/") ), strafter(str(?sign_language), "entity/"), str(?sign_language))) AS ?sign_languageLabel)
+  }
+
+# Original query:
+# #title: Map of the world's sign languages with number of practicians
+# #defaultView:Map
+# SELECT ?sign_language ?sign_languageLabel ?indigenous_to ?coordinate_location ?practicians WHERE {
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en". }
+#   OPTIONAL { ?sign_language wdt:P1098 ?practicians. }
+#   OPTIONAL { ?sign_language wdt:P17 ?country. }
+#   OPTIONAL { ?country wdt:P625 ?coordinate_location. }
+#   ?sign_language wdt:P31 wd:Q34228. 
+# }

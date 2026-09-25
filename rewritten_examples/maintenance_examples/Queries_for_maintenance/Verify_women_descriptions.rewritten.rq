@@ -1,0 +1,49 @@
+# rewrite_status: rewritten
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  schema: <http://schema.org/>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?item ?itemLabel ?occupationLabel ?itemDescription
+WHERE
+  { ?item  wdt:P31  wd:Q5 ;
+           wdt:P21  wd:Q6581072 ;
+           wdt:P27  wd:Q31
+    OPTIONAL
+      { ?item  wdt:P106  ?occupation }
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "nl" )
+      }
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "mul" )
+      }
+    BIND(if(bound(?item__label_value), ?item__label_value, if(( isURI(?item) && strstarts(str(?item), "http://www.wikidata.org/entity/") ), strafter(str(?item), "entity/"), str(?item))) AS ?itemLabel)
+    OPTIONAL
+      { ?item  schema:description  ?item__description_value
+        FILTER ( lang(?item__description_value) = "nl" )
+      }
+    BIND(?item__description_value AS ?itemDescription)
+    BIND(if(bound(?occupation), ?occupation, "unbound") AS ?occupation__label_subject)
+    OPTIONAL
+      { ?occupation__label_subject
+                  rdfs:label  ?occupation__label_value
+        FILTER ( lang(?occupation__label_value) = "nl" )
+      }
+    OPTIONAL
+      { ?occupation__label_subject
+                  rdfs:label  ?occupation__label_value
+        FILTER ( lang(?occupation__label_value) = "mul" )
+      }
+    BIND(if(bound(?occupation__label_value), ?occupation__label_value, if(( isURI(?occupation) && strstarts(str(?occupation), "http://www.wikidata.org/entity/") ), strafter(str(?occupation), "entity/"), str(?occupation))) AS ?occupationLabel)
+  }
+
+# Original query:
+# SELECT ?item ?itemLabel ?occupationLabel ?itemDescription WHERE {
+#   ?item wdt:P31 wd:Q5.
+#   ?item wdt:P21 wd:Q6581072.
+#   ?item wdt:P27 wd:Q31.
+#   optional{ ?item wdt:P106 ?occupation. }
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "nl". }
+# }

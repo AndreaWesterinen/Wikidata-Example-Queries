@@ -1,0 +1,120 @@
+# rewrite_status: rewritten
+#title: Descendants of Bach
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?human ?humanLabel ?fatherLabel ?motherLabel ?dob ?pobLabel ?famLabel ?geni
+WHERE
+  { wd:Q1339 wdt:P40/(wdt:P40)* ?human .
+    ?human  wdt:P31  wd:Q5
+    OPTIONAL
+      { ?human  wdt:P22  ?father }
+    OPTIONAL
+      { ?human  wdt:P25  ?mother }
+    OPTIONAL
+      { ?human  wdt:P569  ?dob }
+    OPTIONAL
+      { ?human  wdt:P19  ?pob }
+    OPTIONAL
+      { ?human  wdt:P2600  ?geni }
+    OPTIONAL
+      { ?human  wdt:P53  ?fam }
+    OPTIONAL
+      { ?human  rdfs:label  ?human__label_value
+        FILTER ( lang(?human__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?human  rdfs:label  ?human__label_value
+        FILTER ( lang(?human__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?human  rdfs:label  ?human__label_value
+        FILTER ( lang(?human__label_value) = "mul" )
+      }
+    BIND(if(bound(?human__label_value), ?human__label_value, if(( isURI(?human) && strstarts(str(?human), "http://www.wikidata.org/entity/") ), strafter(str(?human), "entity/"), str(?human))) AS ?humanLabel)
+    BIND(if(bound(?father), ?father, "unbound") AS ?father__label_subject)
+    OPTIONAL
+      { ?father__label_subject
+                  rdfs:label  ?father__label_value
+        FILTER ( lang(?father__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?father__label_subject
+                  rdfs:label  ?father__label_value
+        FILTER ( lang(?father__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?father__label_subject
+                  rdfs:label  ?father__label_value
+        FILTER ( lang(?father__label_value) = "mul" )
+      }
+    BIND(if(bound(?father__label_value), ?father__label_value, if(( isURI(?father) && strstarts(str(?father), "http://www.wikidata.org/entity/") ), strafter(str(?father), "entity/"), str(?father))) AS ?fatherLabel)
+    BIND(if(bound(?mother), ?mother, "unbound") AS ?mother__label_subject)
+    OPTIONAL
+      { ?mother__label_subject
+                  rdfs:label  ?mother__label_value
+        FILTER ( lang(?mother__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?mother__label_subject
+                  rdfs:label  ?mother__label_value
+        FILTER ( lang(?mother__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?mother__label_subject
+                  rdfs:label  ?mother__label_value
+        FILTER ( lang(?mother__label_value) = "mul" )
+      }
+    BIND(if(bound(?mother__label_value), ?mother__label_value, if(( isURI(?mother) && strstarts(str(?mother), "http://www.wikidata.org/entity/") ), strafter(str(?mother), "entity/"), str(?mother))) AS ?motherLabel)
+    BIND(if(bound(?pob), ?pob, "unbound") AS ?pob__label_subject)
+    OPTIONAL
+      { ?pob__label_subject
+                  rdfs:label  ?pob__label_value
+        FILTER ( lang(?pob__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?pob__label_subject
+                  rdfs:label  ?pob__label_value
+        FILTER ( lang(?pob__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?pob__label_subject
+                  rdfs:label  ?pob__label_value
+        FILTER ( lang(?pob__label_value) = "mul" )
+      }
+    BIND(if(bound(?pob__label_value), ?pob__label_value, if(( isURI(?pob) && strstarts(str(?pob), "http://www.wikidata.org/entity/") ), strafter(str(?pob), "entity/"), str(?pob))) AS ?pobLabel)
+    BIND(if(bound(?fam), ?fam, "unbound") AS ?fam__label_subject)
+    OPTIONAL
+      { ?fam__label_subject
+                  rdfs:label  ?fam__label_value
+        FILTER ( lang(?fam__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?fam__label_subject
+                  rdfs:label  ?fam__label_value
+        FILTER ( lang(?fam__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?fam__label_subject
+                  rdfs:label  ?fam__label_value
+        FILTER ( lang(?fam__label_value) = "mul" )
+      }
+    BIND(if(bound(?fam__label_value), ?fam__label_value, if(( isURI(?fam) && strstarts(str(?fam), "http://www.wikidata.org/entity/") ), strafter(str(?fam), "entity/"), str(?fam))) AS ?famLabel)
+  }
+
+# Original query:
+# #title: Descendants of Bach
+# SELECT ?human ?humanLabel ?fatherLabel ?motherLabel ?dob ?pobLabel ?famLabel ?geni
+# WHERE
+# {
+# wd:Q1339 wdt:P40/wdt:P40* ?human .
+#     ?human wdt:P31 wd:Q5 .      
+#     OPTIONAL{?human wdt:P22 ?father .}
+#     OPTIONAL{?human wdt:P25 ?mother .}
+#     OPTIONAL{?human wdt:P569 ?dob .}
+#     OPTIONAL{?human wdt:P19 ?pob .}
+#     OPTIONAL{?human wdt:P2600 ?geni .}
+#     OPTIONAL{?human wdt:P53 ?fam .}
+# SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],en" }
+# }

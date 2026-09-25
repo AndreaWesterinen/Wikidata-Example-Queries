@@ -1,0 +1,33 @@
+# rewrite_status: rewritten
+#title: All events that occured on 2001/09/11
+PREFIX  p:    <http://www.wikidata.org/prop/>
+PREFIX  ps:   <http://www.wikidata.org/prop/statement/>
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  xsd:  <http://www.w3.org/2001/XMLSchema#>
+
+SELECT  ?item ?itemLabel
+WHERE
+  { ?item p:P585/ps:P585 "2001-09-11T00:00:00Z"^^xsd:dateTime
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "en" )
+      }
+    BIND(if(bound(?item__label_value), ?item__label_value, if(( isURI(?item) && strstarts(str(?item), "http://www.wikidata.org/entity/") ), strafter(str(?item), "entity/"), str(?item))) AS ?itemLabel)
+  }
+
+# Original query:
+# #title: All events that occured on 2001/09/11
+# SELECT ?item ?itemLabel
+# WHERE
+# {
+#   ?item p:P585/ps:P585 "2001-09-11T00:00:00Z"^^xsd:dateTime
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en". }
+# }

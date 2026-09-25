@@ -1,0 +1,39 @@
+# rewrite_status: rewritten
+#title: Things located where the equator meets the prime meridian
+PREFIX  geof: <http://www.opengis.net/def/function/geosparql/>
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+PREFIX  xsd:  <http://www.w3.org/2001/XMLSchema#>
+
+SELECT  ?place ?placeLabel ?location
+WHERE
+  { wd:Q24041662  wdt:P625  ?loc00 .
+    ?place    wdt:P625  ?location
+    FILTER ( geof:distance(?loc00, ?location) <= xsd:decimal("0.001") )
+    OPTIONAL
+      { ?place  rdfs:label  ?place__label_value
+        FILTER ( lang(?place__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?place  rdfs:label  ?place__label_value
+        FILTER ( lang(?place__label_value) = "mul" )
+      }
+    BIND(if(bound(?place__label_value), ?place__label_value, if(( isURI(?place) && strstarts(str(?place), "http://www.wikidata.org/entity/") ), strafter(str(?place), "entity/"), str(?place))) AS ?placeLabel)
+  }
+ORDER BY ?placeLabel
+
+# Original query:
+# #title: Things located where the equator meets the prime meridian
+# SELECT ?place ?placeLabel ?location
+# WHERE
+# {
+#   wd:Q24041662 wdt:P625 ?loc00 .
+#   SERVICE wikibase:around {
+#     ?place wdt:P625 ?location .
+#     bd:serviceParam wikibase:center ?loc00 .
+#     bd:serviceParam wikibase:radius "0.001" .
+#   }
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "en" . }
+# }
+# ORDER BY ?placeLabel

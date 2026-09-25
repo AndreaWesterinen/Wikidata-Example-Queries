@@ -1,0 +1,10 @@
+#title: Human genes updated this week
+SELECT DISTINCT ?item ?ncbi_gene ?date_modified
+WHERE
+{
+  ?item wdt:P351 ?ncbi_gene ;
+          wdt:P703 wd:Q15978631 ;
+          schema:dateModified ?date_modified .
+    BIND (now() - ?date_modified as ?date_range)
+    FILTER (?date_range < 8)
+}

@@ -1,0 +1,40 @@
+# rewrite_status: rewritten
+#title: Properties used to link to instances of technical standard
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+PREFIX  wikibase: <http://wikiba.se/ontology#>
+
+SELECT DISTINCT  ?propertyRel ?propertyItem ?propertyItemLabel
+WHERE
+  { ?item     ?propertyRel          ?standard .
+    ?standard  wdt:P31              wd:Q317623 .
+    ?propertyItem
+              wikibase:directClaim  ?propertyRel
+    OPTIONAL
+      { ?propertyItem
+                  rdfs:label  ?propertyItem__label_value
+        FILTER ( lang(?propertyItem__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?propertyItem
+                  rdfs:label  ?propertyItem__label_value
+        FILTER ( lang(?propertyItem__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?propertyItem
+                  rdfs:label  ?propertyItem__label_value
+        FILTER ( lang(?propertyItem__label_value) = "en" )
+      }
+    BIND(if(bound(?propertyItem__label_value), ?propertyItem__label_value, if(( isURI(?propertyItem) && strstarts(str(?propertyItem), "http://www.wikidata.org/entity/") ), strafter(str(?propertyItem), "entity/"), str(?propertyItem))) AS ?propertyItemLabel)
+  }
+
+# Original query:
+# #title: Properties used to link to instances of technical standard
+# SELECT DISTINCT ?propertyRel ?propertyItem ?propertyItemLabel WHERE
+# {
+#    ?item ?propertyRel ?standard.
+#    ?standard wdt:P31 wd:Q317623.
+#    ?propertyItem wikibase:directClaim ?propertyRel
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en". }
+# }

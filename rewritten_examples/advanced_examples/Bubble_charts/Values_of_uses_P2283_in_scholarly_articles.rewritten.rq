@@ -1,0 +1,43 @@
+# rewrite_status: rewritten
+# Values of "uses" used in scholarly articles
+# Demonstrates how to turn off the optimizer and start with the lowest number of edges first.
+#defaultView:BubbleChart
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?uses ?usesLabel (COUNT(?item) AS ?c)
+WHERE
+  { ?item  wdt:P2283  ?uses ;
+           wdt:P31    wd:Q13442814
+    OPTIONAL
+      { ?uses  rdfs:label  ?uses__label_value
+        FILTER ( lang(?uses__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?uses  rdfs:label  ?uses__label_value
+        FILTER ( lang(?uses__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?uses  rdfs:label  ?uses__label_value
+        FILTER ( lang(?uses__label_value) = "mul" )
+      }
+    BIND(if(bound(?uses__label_value), ?uses__label_value, if(( isURI(?uses) && strstarts(str(?uses), "http://www.wikidata.org/entity/") ), strafter(str(?uses), "entity/"), str(?uses))) AS ?usesLabel)
+  }
+GROUP BY ?uses ?usesLabel
+ORDER BY DESC(?c)
+
+# Original query:
+# # Values of "uses" used in scholarly articles
+# # Demonstrates how to turn off the optimizer and start with the lowest number of edges first.
+# #defaultView:BubbleChart
+# SELECT ?uses ?usesLabel (count(?item) as ?c)
+# WHERE 
+# {
+#   hint:Query hint:optimizer "None".
+#   ?item wdt:P2283 ?uses. # ~20,000 edges
+#   ?item wdt:P31 wd:Q13442814. # ~37M edges
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],en". }
+# }
+# group by ?uses ?usesLabel
+# order by desc(?c)

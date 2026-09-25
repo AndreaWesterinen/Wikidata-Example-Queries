@@ -1,0 +1,68 @@
+# rewrite_status: rewritten
+#title: Candidates for the Dutch general election in 2017
+PREFIX  p:    <http://www.wikidata.org/prop/>
+PREFIX  pq:   <http://www.wikidata.org/prop/qualifier/>
+PREFIX  ps:   <http://www.wikidata.org/prop/statement/>
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?item ?itemLabel ?twitter ?LinkedIN ?politieke_partij ?politieke_partijLabel ?positie_op_lijst
+WHERE
+  { ?item  p:P3602  ?node
+    OPTIONAL
+      { ?item  wdt:P2002  ?twitter }
+    OPTIONAL
+      { ?item  wdt:P2035  ?LinkedIN }
+    ?node  ps:P3602  wd:Q16061881
+    OPTIONAL
+      { ?node  pq:P1545  ?positie_op_lijst }
+    OPTIONAL
+      { ?node  pq:P1268  ?politieke_partij }
+    OPTIONAL
+      { ?node  pq:P2035  ?LinkedIN }
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "nl" )
+      }
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "mul" )
+      }
+    BIND(if(bound(?item__label_value), ?item__label_value, if(( isURI(?item) && strstarts(str(?item), "http://www.wikidata.org/entity/") ), strafter(str(?item), "entity/"), str(?item))) AS ?itemLabel)
+    BIND(if(bound(?politieke_partij), ?politieke_partij, "unbound") AS ?politieke_partij__label_subject)
+    OPTIONAL
+      { ?politieke_partij__label_subject
+                  rdfs:label  ?politieke_partij__label_value
+        FILTER ( lang(?politieke_partij__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?politieke_partij__label_subject
+                  rdfs:label  ?politieke_partij__label_value
+        FILTER ( lang(?politieke_partij__label_value) = "nl" )
+      }
+    OPTIONAL
+      { ?politieke_partij__label_subject
+                  rdfs:label  ?politieke_partij__label_value
+        FILTER ( lang(?politieke_partij__label_value) = "mul" )
+      }
+    BIND(if(bound(?politieke_partij__label_value), ?politieke_partij__label_value, if(( isURI(?politieke_partij) && strstarts(str(?politieke_partij), "http://www.wikidata.org/entity/") ), strafter(str(?politieke_partij), "entity/"), str(?politieke_partij))) AS ?politieke_partijLabel)
+  }
+
+# Original query:
+# #title: Candidates for the Dutch general election in 2017
+# SELECT ?item ?itemLabel ?twitter ?LinkedIN ?politieke_partij ?politieke_partijLabel ?positie_op_lijst
+# WHERE {
+#   ?item p:P3602 ?node .
+#     OPTIONAL { ?item wdt:P2002 ?twitter }
+#     OPTIONAL { ?item wdt:P2035 ?LinkedIN }
+#     ?node ps:P3602 wd:Q16061881 .
+#     OPTIONAL { ?node pq:P1545 ?positie_op_lijst }
+#     OPTIONAL { ?node pq:P1268 ?politieke_partij }
+#     OPTIONAL { ?node pq:P2035 ?LinkedIN }
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],nl" }
+# }

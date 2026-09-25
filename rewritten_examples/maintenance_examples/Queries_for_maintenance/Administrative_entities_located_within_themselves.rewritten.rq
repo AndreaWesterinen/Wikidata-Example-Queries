@@ -1,0 +1,5 @@
+# rewrite_status: unchanged
+# added before 2016-10
+SELECT ?x WHERE {
+  ?x wdt:P131 ?x .
+}

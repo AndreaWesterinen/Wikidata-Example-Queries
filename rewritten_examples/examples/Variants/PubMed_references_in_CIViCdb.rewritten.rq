@@ -1,0 +1,47 @@
+# rewrite_status: rewritten
+#title: PubMed references in CIViCdb
+# variants that are associated with renal cell carcinoma
+PREFIX  pr:   <http://www.wikidata.org/prop/reference/>
+PREFIX  prov: <http://www.w3.org/ns/prov#>
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT DISTINCT  ?reference ?referenceLabel ?pmid
+WHERE
+  { ?item     wdt:P3329            ?civicId ;
+              ?property            ?object .
+    ?object   prov:wasDerivedFrom  ?provenance .
+    ?provenance  pr:P248           ?reference .
+    ?reference  wdt:P31            wd:Q13442814 ;
+              wdt:P698             ?pmid
+    OPTIONAL
+      { ?reference  rdfs:label  ?reference__label_value
+        FILTER ( lang(?reference__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?reference  rdfs:label  ?reference__label_value
+        FILTER ( lang(?reference__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?reference  rdfs:label  ?reference__label_value
+        FILTER ( lang(?reference__label_value) = "en" )
+      }
+    BIND(if(bound(?reference__label_value), ?reference__label_value, if(( isURI(?reference) && strstarts(str(?reference), "http://www.wikidata.org/entity/") ), strafter(str(?reference), "entity/"), str(?reference))) AS ?referenceLabel)
+  }
+
+# Original query:
+# #title: PubMed references in CIViCdb
+# # variants that are associated with renal cell carcinoma
+# SELECT DISTINCT ?reference ?referenceLabel ?pmid
+# WHERE
+# {
+#   ?item wdt:P3329 ?civicId ;
+#           ?property ?object .
+#     ?object prov:wasDerivedFrom ?provenance .
+#     ?provenance pr:P248 ?reference .
+#     ?reference wdt:P31 wd:Q13442814 ;
+#                wdt:P698 ?pmid .
+#
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" }
+# }

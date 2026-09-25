@@ -1,0 +1,42 @@
+# rewrite_status: rewritten
+#added before 2016-10
+
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?name ?nameLabel (COUNT(?otherName) AS ?count)
+WHERE
+  { ?name  wdt:P31   wd:Q202444 ;
+           wdt:P460  ?otherName
+    OPTIONAL
+      { ?name  rdfs:label  ?name__label_value
+        FILTER ( lang(?name__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?name  rdfs:label  ?name__label_value
+        FILTER ( lang(?name__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?name  rdfs:label  ?name__label_value
+        FILTER ( lang(?name__label_value) = "mul" )
+      }
+    BIND(if(bound(?name__label_value), ?name__label_value, if(( isURI(?name) && strstarts(str(?name), "http://www.wikidata.org/entity/") ), strafter(str(?name), "entity/"), str(?name))) AS ?nameLabel)
+  }
+GROUP BY ?name ?nameLabel
+ORDER BY DESC(?count)
+LIMIT   10
+
+# Original query:
+# #added before 2016-10
+#
+# SELECT ?name ?nameLabel (COUNT(?otherName) AS ?count)
+# WHERE
+# {
+#   ?name wdt:P31 wd:Q202444;
+#         wdt:P460 ?otherName.
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],en". }
+# }
+# GROUP BY ?name ?nameLabel
+# ORDER BY DESC(?count)
+# LIMIT 10

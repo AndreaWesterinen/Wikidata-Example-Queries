@@ -1,0 +1,39 @@
+# rewrite_status: rewritten
+#title: Countries that have sitelinks to en.wiki
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  schema: <http://schema.org/>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?country ?countryLabel ?article
+WHERE
+  { ?country  wdt:P31          wd:Q3624078 .
+    ?article  schema:about     ?country ;
+              schema:isPartOf  <https://en.wikipedia.org/>
+    OPTIONAL
+      { ?country  rdfs:label  ?country__label_value
+        FILTER ( lang(?country__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?country  rdfs:label  ?country__label_value
+        FILTER ( lang(?country__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?country  rdfs:label  ?country__label_value
+        FILTER ( lang(?country__label_value) = "en" )
+      }
+    BIND(if(bound(?country__label_value), ?country__label_value, if(( isURI(?country) && strstarts(str(?country), "http://www.wikidata.org/entity/") ), strafter(str(?country), "entity/"), str(?country))) AS ?countryLabel)
+  }
+
+# Original query:
+# #title: Countries that have sitelinks to en.wiki
+# SELECT ?country ?countryLabel ?article WHERE {
+#
+#     ?country wdt:P31 wd:Q3624078 . # sovereign state
+#     ?article schema:about ?country .
+#     ?article schema:isPartOf <https://en.wikipedia.org/>.
+#
+#     SERVICE wikibase:label {
+#        bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en"
+#     }
+# }

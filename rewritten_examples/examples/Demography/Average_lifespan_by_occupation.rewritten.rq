@@ -1,0 +1,86 @@
+# rewrite_status: rewritten
+#title: Average lifespan by occupation
+# Select the desired columns and get labels
+PREFIX  p:    <http://www.wikidata.org/prop/>
+PREFIX  psv:  <http://www.wikidata.org/prop/statement/value/>
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+PREFIX  wikibase: <http://wikiba.se/ontology#>
+
+SELECT  ?occ ?occLabel ?avgAge ?avgBirthYear ?count
+WHERE
+  { { SELECT  ?occ (COUNT(?p) AS ?count) (round(AVG(?birthYear)) AS ?avgBirthYear) (AVG(( ?deathYear - ?birthYear )) AS ?avgAge)
+      WHERE
+        { { SELECT  ?p ?occ (AVG(year(?birth)) AS ?birthYear) (AVG(year(?death)) AS ?deathYear)
+            WHERE
+              { ?p  wdt:P31   wd:Q5 ;
+                    wdt:P106  ?occ .
+                ?p p:P569/psv:P569 _:b0 .
+                _:b0  wikibase:timePrecision  9 ;
+                      wikibase:timeValue    ?birth .
+                ?p p:P570/psv:P570 _:b1 .
+                _:b1  wikibase:timePrecision  9 ;
+                      wikibase:timeValue    ?death
+              }
+            GROUP BY ?p ?occ
+          }
+        }
+      GROUP BY ?occ
+    }
+    FILTER ( ?count > 300 )
+    OPTIONAL
+      { ?occ  rdfs:label  ?occ__label_value
+        FILTER ( lang(?occ__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?occ  rdfs:label  ?occ__label_value
+        FILTER ( lang(?occ__label_value) = "mul" )
+      }
+    BIND(if(bound(?occ__label_value), ?occ__label_value, if(( isURI(?occ) && strstarts(str(?occ), "http://www.wikidata.org/entity/") ), strafter(str(?occ), "entity/"), str(?occ))) AS ?occLabel)
+  }
+ORDER BY ASC(?avgAge)
+
+# Original query:
+# #title: Average lifespan by occupation
+# # Select the desired columns and get labels
+# SELECT ?occ ?occLabel ?avgAge ?avgBirthYear ?count
+# WHERE
+# {
+#   {
+#     # Group the people by their occupation and calculate age
+#     SELECT
+#       ?occ
+#         (count(?p) as ?count)
+#         (round(avg(?birthYear)) as ?avgBirthYear)
+#         (avg(?deathYear - ?birthYear) as ?avgAge)
+#     WHERE {
+#       {
+#         # Get people with occupation + birth/death dates; combine multiple birth/death dates using avg
+#         SELECT
+#           ?p
+#             ?occ
+#             (avg(year(?birth)) as ?birthYear)
+#             (avg(year(?death)) as ?deathYear)
+#         WHERE {
+#            ?p wdt:P31 wd:Q5 ;
+#               wdt:P106 ?occ ;
+#               p:P569/psv:P569 [
+#                 wikibase:timePrecision "9"^^xsd:integer ; # precision of at least year
+#                 wikibase:timeValue ?birth ;
+#               ] ;
+#               p:P570/psv:P570 [
+#                 wikibase:timePrecision "9"^^xsd:integer ; # precision of at least year
+#                 wikibase:timeValue ?death ;
+#               ] .
+#         }
+#         GROUP BY ?p ?occ
+#       }
+#     }
+#     GROUP BY ?occ
+#   }
+#
+#   FILTER (?count > 300) # arbitrary number to weed out values with 'few' observations
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "en" . }
+# }
+# ORDER BY ASC(?avgAge)

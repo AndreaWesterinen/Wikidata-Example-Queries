@@ -1,0 +1,47 @@
+# rewrite_status: rewritten
+#title: City gates in the Dutch province of Zeeland
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?town ?townLabel ?gate ?gateLabel
+WHERE
+  { ?muni  wdt:P31   wd:Q2039348 ;
+           wdt:P131  wd:Q705 .
+    ?gate  wdt:P31   wd:Q82117 ;
+           wdt:P131  ?muni ;
+           wdt:P276  ?town
+    OPTIONAL
+      { ?town  rdfs:label  ?town__label_value
+        FILTER ( lang(?town__label_value) = "nl" )
+      }
+    OPTIONAL
+      { ?town  rdfs:label  ?town__label_value
+        FILTER ( lang(?town__label_value) = "mul" )
+      }
+    BIND(if(bound(?town__label_value), ?town__label_value, if(( isURI(?town) && strstarts(str(?town), "http://www.wikidata.org/entity/") ), strafter(str(?town), "entity/"), str(?town))) AS ?townLabel)
+    OPTIONAL
+      { ?gate  rdfs:label  ?gate__label_value
+        FILTER ( lang(?gate__label_value) = "nl" )
+      }
+    OPTIONAL
+      { ?gate  rdfs:label  ?gate__label_value
+        FILTER ( lang(?gate__label_value) = "mul" )
+      }
+    BIND(if(bound(?gate__label_value), ?gate__label_value, if(( isURI(?gate) && strstarts(str(?gate), "http://www.wikidata.org/entity/") ), strafter(str(?gate), "entity/"), str(?gate))) AS ?gateLabel)
+  }
+
+# Original query:
+# #title: City gates in the Dutch province of Zeeland
+# SELECT ?town ?townLabel ?gate ?gateLabel where {
+#   # Municipalities within the province
+#   ?muni wdt:P31 wd:Q2039348;
+#         wdt:P131 wd:Q705.
+#   # Instances of city gate located within any of the municipalities
+#   ?gate wdt:P31 wd:Q82117;
+#         wdt:P131 ?muni;
+#   # The Location (usually Town) that the gate is in
+#         wdt:P276 ?town.
+#
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "nl". }
+# }

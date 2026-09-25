@@ -1,0 +1,44 @@
+# rewrite_status: rewritten
+#title: Variant counts by predictor type
+#defaultView:BubbleChart
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+PREFIX  wikibase: <http://wikiba.se/ontology#>
+
+SELECT  ?propertyLabel (COUNT(?prognostic_type) AS ?counts)
+WHERE
+  { VALUES ?prognostic_type { wdt:P3354 wdt:P3355 wdt:P3356 wdt:P3357 wdt:P3358 wdt:P3359 }
+    ?item     wdt:P3329             ?civic_id ;
+              ?prognostic_type      ?prognostic_value .
+    ?property  wikibase:directClaim  ?prognostic_type
+    OPTIONAL
+      { ?property  rdfs:label  ?property__label_value
+        FILTER ( lang(?property__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?property  rdfs:label  ?property__label_value
+        FILTER ( lang(?property__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?property  rdfs:label  ?property__label_value
+        FILTER ( lang(?property__label_value) = "en" )
+      }
+    BIND(if(bound(?property__label_value), ?property__label_value, if(( isURI(?property) && strstarts(str(?property), "http://www.wikidata.org/entity/") ), strafter(str(?property), "entity/"), str(?property))) AS ?propertyLabel)
+  }
+GROUP BY ?propertyLabel ?prognostic_typeLabel
+ORDER BY ?counts
+
+# Original query:
+# #title: Variant counts by predictor type
+# #defaultView:BubbleChart
+# SELECT ?propertyLabel (count(?prognostic_type) as ?counts)
+# WHERE
+# {
+#   VALUES ?prognostic_type {wdt:P3354 wdt:P3355 wdt:P3356 wdt:P3357 wdt:P3358 wdt:P3359}
+#     ?item wdt:P3329 ?civic_id ;
+#           ?prognostic_type ?prognostic_value .
+#     ?property wikibase:directClaim ?prognostic_type .
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" }
+# }
+# GROUP BY ?propertyLabel ?prognostic_typeLabel
+# ORDER BY ?counts

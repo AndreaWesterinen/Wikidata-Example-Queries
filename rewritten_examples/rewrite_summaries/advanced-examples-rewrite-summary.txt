@@ -1,0 +1,30 @@
+Advanced Examples (https://www.wikidata.org/wiki/Wikidata:SPARQL_query_service/queries/examples/advanced)
+
+65 written; 19 could not be rewritten
+
+Blazegraph_error (1):
+    Sampling/Scientific_articles_without_any_description.rq (Error: Unknown error: Index: 0, Size: 0)
+
+Parse_error (12):
+  Reuse of at least one variable name from the query body in the projection variables - Invalid SPARQL:
+     Bar_chart/Battles_per_year_per_continent_and_country_last_80_years_animated.rq
+     Bar_chart/Battles_per_year_per_country_last_80_years.rq
+     Bar_chart/Built_power_plants_per_year_per_country.rq
+     Line_chart/Average_number_of_children_per_year.rq
+     Line_chart/Number_of_bands_by_year_and_genre.rq
+     Line_chart/Number_of_books_by_year_and_genre.rq
+     Samples_with_coordinates_to_illustrate_maps/Big_cities_grouped_into_map_layers_by_population.rq
+     Samples_with_coordinates_to_illustrate_maps/Map_of_museums_in_the_Netherlands_with_a_color_indicating_if_they_accept_the_Museumkaart_Q2237462.rq
+     Samples_with_coordinates_to_illustrate_maps/Monuments_and_other_heritage_items_located_1_km_around_the_users_location.rq
+     Samples_with_coordinates_to_illustrate_maps/Places_with_free_wifi.rq
+     Showcase_Queries/Data_of_Barbara_Harris_Grouped_per_item.rq
+     Timeline/Timeline_of_space_probes.rq
+
+Skipped_unsupported (6):
+  Rewriting of MWAPI is not possible:
+     Mediawiki_API/Filter_labels_using_EntitySearch_from_mwapi_service_to_provide_Full_Text_Search.rq
+     Mediawiki_API/Find_metadata_like_artist_and_license_for_an_image.rq
+     Mediawiki_API/Find_statements_with_references_containing_external_links_to_wipoint.rq
+     Mediawiki_API/Getting_pageviews_for_all_articles_in_a_category.rq
+     Mediawiki_API/Using_mwapi_to_base_a_query_on_articles_in_a_Wikipedia_category.rq
+     Samples_with_coordinates_to_illustrate_maps/Map_of_newspapers_in_the_United_States_by_presence_of_Infobox_newspaper_in_their_English_Wikipedia_article.rq

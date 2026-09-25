@@ -1,0 +1,41 @@
+# rewrite_status: rewritten
+#title: Birthplaces of astronauts
+# select all astronauts with name, image, birthdate, birthplace and coordinates of the birthplace
+
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?astronaut ?astronautLabel ?image ?birthdate ?birthplace ?coord
+WHERE
+  { ?astronaut  ?x1     wd:Q11631 ;
+              wdt:P18   ?image ;
+              wdt:P569  ?birthdate ;
+              wdt:P19   ?birthplace .
+    ?birthplace  wdt:P625  ?coord
+    OPTIONAL
+      { ?astronaut  rdfs:label  ?astronaut__label_value
+        FILTER ( lang(?astronaut__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?astronaut  rdfs:label  ?astronaut__label_value
+        FILTER ( lang(?astronaut__label_value) = "mul" )
+      }
+    BIND(if(bound(?astronaut__label_value), ?astronaut__label_value, if(( isURI(?astronaut) && strstarts(str(?astronaut), "http://www.wikidata.org/entity/") ), strafter(str(?astronaut), "entity/"), str(?astronaut))) AS ?astronautLabel)
+  }
+ORDER BY DESC(?birthdate)
+
+# Original query:
+# #title: Birthplaces of astronauts
+# # select all astronauts with name, image, birthdate, birthplace and coordinates of the birthplace
+#
+# SELECT ?astronaut ?astronautLabel ?image ?birthdate ?birthplace ?coord WHERE {
+#   ?astronaut ?x1 wd:Q11631;
+#   wdt:P18 ?image;
+#   wdt:P569 ?birthdate;
+#   wdt:P19 ?birthplace.
+#
+#   ?birthplace wdt:P625 ?coord
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "en". }
+# }
+# ORDER BY DESC(?birthdate)

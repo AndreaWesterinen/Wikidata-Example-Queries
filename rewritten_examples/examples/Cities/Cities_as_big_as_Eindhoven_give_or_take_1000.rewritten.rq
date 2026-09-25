@@ -1,0 +1,44 @@
+# rewrite_status: rewritten
+#title: Cities as big as Eindhoven give or take 1000
+#defaultView:Map
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?city ?cityLabel ?location ?populatie2
+WHERE
+  { { SELECT DISTINCT  *
+      WHERE
+        { wd:Q9832  wdt:P1082  ?populatie .
+          ?city     wdt:P1082  ?populatie2 ;
+                    wdt:P625   ?location
+          FILTER ( abs(( ?populatie - ?populatie2 )) < 1000 )
+        }
+    }
+    OPTIONAL
+      { ?city  rdfs:label  ?city__label_value
+        FILTER ( lang(?city__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?city  rdfs:label  ?city__label_value
+        FILTER ( lang(?city__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?city  rdfs:label  ?city__label_value
+        FILTER ( lang(?city__label_value) = "nl" )
+      }
+    BIND(if(bound(?city__label_value), ?city__label_value, if(( isURI(?city) && strstarts(str(?city), "http://www.wikidata.org/entity/") ), strafter(str(?city), "entity/"), str(?city))) AS ?cityLabel)
+  }
+
+# Original query:
+# #title: Cities as big as Eindhoven give or take 1000
+# #defaultView:Map
+# SELECT ?city ?cityLabel ?location ?populatie2 WHERE {
+#   { SELECT DISTINCT * WHERE {
+#     wd:Q9832 wdt:P1082 ?populatie .
+#     ?city wdt:P1082 ?populatie2 ;
+#       wdt:P625 ?location .
+#     FILTER (abs(?populatie - ?populatie2) < 1000)
+#   } }
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,nl" }
+# }

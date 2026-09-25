@@ -1,0 +1,57 @@
+# rewrite_status: rewritten
+#title: UN member states
+
+PREFIX  p:    <http://www.wikidata.org/prop/>
+PREFIX  pq:   <http://www.wikidata.org/prop/qualifier/>
+PREFIX  ps:   <http://www.wikidata.org/prop/statement/>
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+PREFIX  wikibase: <http://wikiba.se/ontology#>
+
+SELECT DISTINCT  ?state ?stateLabel
+WHERE
+  { ?state wdt:P31/(wdt:P279)* wd:Q3624078 .
+    ?state    p:P463   ?memberOfStatement .
+    ?memberOfStatement
+              a        wikibase:BestRank ;
+              ps:P463  wd:Q1065
+    FILTER ( ?state != wd:Q124653007 )
+    MINUS
+      { ?memberOfStatement
+                  pq:P582  ?endTime
+      }
+    MINUS
+      { ?state wdt:P576|wdt:P582 ?end }
+    OPTIONAL
+      { ?state  rdfs:label  ?state__label_value
+        FILTER ( lang(?state__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?state  rdfs:label  ?state__label_value
+        FILTER ( lang(?state__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?state  rdfs:label  ?state__label_value
+        FILTER ( lang(?state__label_value) = "en" )
+      }
+    BIND(if(bound(?state__label_value), ?state__label_value, if(( isURI(?state) && strstarts(str(?state), "http://www.wikidata.org/entity/") ), strafter(str(?state), "entity/"), str(?state))) AS ?stateLabel)
+  }
+ORDER BY ?stateLabel
+
+# Original query:
+# #title: UN member states
+#
+# SELECT DISTINCT ?state ?stateLabel WHERE {
+#   ?state wdt:P31/wdt:P279* wd:Q3624078;
+#          p:P463 ?memberOfStatement.
+#   ?memberOfStatement a wikibase:BestRank;
+#                      ps:P463 wd:Q1065.
+#                      
+#   FILTER( ?state != wd:Q124653007)  # Exclude "realm of United Kingdom" (duplicates "United Kingdom")
+#   MINUS { ?memberOfStatement pq:P582 ?endTime. }
+#   MINUS { ?state wdt:P576|wdt:P582 ?end. }
+#   
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" }
+# }
+# ORDER BY ?stateLabel

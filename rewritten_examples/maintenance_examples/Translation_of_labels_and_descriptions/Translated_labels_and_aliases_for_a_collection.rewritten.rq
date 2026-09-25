@@ -1,0 +1,44 @@
+# rewrite_status: rewritten
+#title:Non-English labels for Khalili Collections items
+PREFIX wd: <http://www.wikidata.org/entity/>
+PREFIX wdt: <http://www.wikidata.org/prop/direct/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+WITH %core AS {
+?work wdt:P195?/wdt:P361? wd:Q63160499. # Khalili Collections, or individual collections, or objects within collections
+    ?work (rdfs:label|skos:altLabel) ?label
+    FILTER(lang(?label) != "en")
+}
+SELECT ?lang ?count 
+WHERE { {
+  SELECT ?lang (COUNT(?label) AS ?count) WHERE {
+    { SELECT ?work ?label WHERE { INCLUDE %core } }
+    BIND(lang(?label) AS ?langcode).
+    OPTIONAL { ?language wdt:P218 ?langcode; rdfs:label ?langname FILTER(lang(?langname) = "en")}
+    BIND(IF (BOUND(?langname), ?langname, ?langcode) AS ?lang) 
+    } GROUP BY ?lang
+ } UNION {
+    SELECT ("TOTAL" AS ?lang) (COUNT(?label) AS ?count) WHERE {
+    { SELECT ?work ?label WHERE { INCLUDE %core } }
+    } }
+} order BY DESC(?count) ?lang
+
+# Original query:
+# #title:Non-English labels for Khalili Collections items
+# SELECT ?lang ?count WITH {
+#   SELECT ?work ?label WHERE {
+#     ?work wdt:P195?/wdt:P361? wd:Q63160499. # Khalili Collections, or individual collections, or objects within collections
+#     ?work (rdfs:label|skos:altLabel) ?label
+#     FILTER(lang(?label) != "en") } } AS %core
+# WHERE { {
+#   SELECT ?lang (COUNT(?label) AS ?count) WHERE {
+#     INCLUDE %core.
+#     BIND(lang(?label) AS ?langcode).
+#     OPTIONAL { ?language wdt:P218 ?langcode; rdfs:label ?langname FILTER(lang(?langname) = "en")}
+#     BIND(IF (BOUND(?langname), ?langname, ?langcode) AS ?lang) 
+#     } GROUP BY ?lang
+#  } UNION {
+#     SELECT ("TOTAL" AS ?lang) (COUNT(?label) AS ?count) WHERE {
+#     INCLUDE %core.
+#     } }
+# } order BY DESC(?count) ?lang

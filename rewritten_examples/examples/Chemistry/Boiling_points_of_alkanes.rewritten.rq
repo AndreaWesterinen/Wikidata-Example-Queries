@@ -1,0 +1,57 @@
+# rewrite_status: rewritten
+#title: Boiling points of alkanes
+PREFIX  p:    <http://www.wikidata.org/prop/>
+PREFIX  ps:   <http://www.wikidata.org/prop/statement/>
+PREFIX  psv:  <http://www.wikidata.org/prop/statement/value/>
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+PREFIX  wikibase: <http://wikiba.se/ontology#>
+
+SELECT DISTINCT  ?comp ?compLabel ?formula ?bp ?bpUnit ?bpUnitLabel
+WHERE
+  { ?comp wdt:P31/(wdt:P279)* wd:Q41581 .
+    ?comp  wdt:P274  ?formula ;
+           p:P2102   _:b0 .
+    _:b0   ps:P2102  ?bp .
+    _:b0 psv:P2102/wikibase:quantityUnit ?bpUnit
+    OPTIONAL
+      { ?comp  rdfs:label  ?comp__label_value
+        FILTER ( lang(?comp__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?comp  rdfs:label  ?comp__label_value
+        FILTER ( lang(?comp__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?comp  rdfs:label  ?comp__label_value
+        FILTER ( lang(?comp__label_value) = "en" )
+      }
+    BIND(if(bound(?comp__label_value), ?comp__label_value, if(( isURI(?comp) && strstarts(str(?comp), "http://www.wikidata.org/entity/") ), strafter(str(?comp), "entity/"), str(?comp))) AS ?compLabel)
+    OPTIONAL
+      { ?bpUnit  rdfs:label  ?bpUnit__label_value
+        FILTER ( lang(?bpUnit__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?bpUnit  rdfs:label  ?bpUnit__label_value
+        FILTER ( lang(?bpUnit__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?bpUnit  rdfs:label  ?bpUnit__label_value
+        FILTER ( lang(?bpUnit__label_value) = "en" )
+      }
+    BIND(if(bound(?bpUnit__label_value), ?bpUnit__label_value, if(( isURI(?bpUnit) && strstarts(str(?bpUnit), "http://www.wikidata.org/entity/") ), strafter(str(?bpUnit), "entity/"), str(?bpUnit))) AS ?bpUnitLabel)
+  }
+ORDER BY DESC(?bpUnit) ASC(?bp)
+
+# Original query:
+# #title: Boiling points of alkanes
+# SELECT DISTINCT ?comp ?compLabel ?formula ?bp ?bpUnit ?bpUnitLabel WHERE {
+#   ?comp wdt:P31/wdt:P279* wd:Q41581 ;
+#         wdt:P274 ?formula ;
+#         p:P2102 [
+#           ps:P2102 ?bp ;
+#           psv:P2102/wikibase:quantityUnit ?bpUnit
+#         ] .
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en". }
+# } ORDER BY DESC(?bpUnit) ASC(?bp)

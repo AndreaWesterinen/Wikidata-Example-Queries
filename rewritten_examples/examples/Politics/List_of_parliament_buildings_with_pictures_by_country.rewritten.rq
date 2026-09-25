@@ -1,0 +1,55 @@
+# rewrite_status: rewritten
+#title: List of parliament buildings with pictures by country
+
+#defaultView:ImageGrid
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?building ?buildingLabel ?country ?countryLabel ?picture
+WHERE
+  { ?building  wdt:P31  wd:Q7138926 ;
+              wdt:P18  ?picture
+    OPTIONAL
+      { ?building  wdt:P17  ?country }
+    OPTIONAL
+      { ?building  rdfs:label  ?building__label_value
+        FILTER ( lang(?building__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?building  rdfs:label  ?building__label_value
+        FILTER ( lang(?building__label_value) = "mul" )
+      }
+    BIND(if(bound(?building__label_value), ?building__label_value, if(( isURI(?building) && strstarts(str(?building), "http://www.wikidata.org/entity/") ), strafter(str(?building), "entity/"), str(?building))) AS ?buildingLabel)
+    BIND(if(bound(?country), ?country, "unbound") AS ?country__label_subject)
+    OPTIONAL
+      { ?country__label_subject
+                  rdfs:label  ?country__label_value
+        FILTER ( lang(?country__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?country__label_subject
+                  rdfs:label  ?country__label_value
+        FILTER ( lang(?country__label_value) = "mul" )
+      }
+    BIND(if(bound(?country__label_value), ?country__label_value, if(( isURI(?country) && strstarts(str(?country), "http://www.wikidata.org/entity/") ), strafter(str(?country), "entity/"), str(?country))) AS ?countryLabel)
+  }
+ORDER BY ?countryLabel
+LIMIT   188
+
+# Original query:
+# #title: List of parliament buildings with pictures by country
+#
+# #defaultView:ImageGrid
+# SELECT ?building ?buildingLabel ?country ?countryLabel ?picture
+# WHERE
+# {
+#   ?building wdt:P31 wd:Q7138926 .
+#   ?building wdt:P18 ?picture .
+#   OPTIONAL { ?building wdt:P17 ?country } . #if available
+#   SERVICE wikibase:label {
+#     bd:serviceParam wikibase:language "en" .
+#   }
+# }
+# ORDER BY ?countryLabel
+# LIMIT 188

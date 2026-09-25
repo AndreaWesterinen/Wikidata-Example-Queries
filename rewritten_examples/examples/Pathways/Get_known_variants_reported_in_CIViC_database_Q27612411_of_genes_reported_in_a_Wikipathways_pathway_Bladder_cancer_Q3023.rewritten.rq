@@ -1,0 +1,104 @@
+# rewrite_status: rewritten
+#title: Get known variants reported in CIViC database (Q27612411) of genes reported in a Wikipathways pathway: Bladder cancer (Q30230812)
+PREFIX  p:    <http://www.wikidata.org/prop/>
+PREFIX  pq:   <http://www.wikidata.org/prop/qualifier/>
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT DISTINCT  ?pathway ?pathwayLabel ?pwpart ?pwpartLabel ?variant ?variantLabel ?disease ?diseaseLabel
+WHERE
+  { VALUES ?predictor { p:P3354 p:P3355 p:P3356 p:P3357 p:P3358 p:P3359 }
+    VALUES ?predictorQualifier { pq:P2175 }
+    VALUES ?wpID { "WP2828" }
+    ?pathway  wdt:P2410  ?wpID ;
+              wdt:P527   ?pwpart .
+    ?disease (wdt:P279)+ wd:Q504775 .
+    ?variant  wdt:P3329   ?civicID ;
+              ?predictor  ?node ;
+              wdt:P3433   ?pwpart
+      { ?node  ?predictorStatement  ?drug_label ;
+               ?predictorQualifier  ?disease
+      }
+    UNION
+      { ?node  ?predictorStatement  ?disease }
+    OPTIONAL
+      { ?pathway  rdfs:label  ?pathway__label_value
+        FILTER ( lang(?pathway__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?pathway  rdfs:label  ?pathway__label_value
+        FILTER ( lang(?pathway__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?pathway  rdfs:label  ?pathway__label_value
+        FILTER ( lang(?pathway__label_value) = "en" )
+      }
+    BIND(if(bound(?pathway__label_value), ?pathway__label_value, if(( isURI(?pathway) && strstarts(str(?pathway), "http://www.wikidata.org/entity/") ), strafter(str(?pathway), "entity/"), str(?pathway))) AS ?pathwayLabel)
+    OPTIONAL
+      { ?pwpart  rdfs:label  ?pwpart__label_value
+        FILTER ( lang(?pwpart__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?pwpart  rdfs:label  ?pwpart__label_value
+        FILTER ( lang(?pwpart__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?pwpart  rdfs:label  ?pwpart__label_value
+        FILTER ( lang(?pwpart__label_value) = "en" )
+      }
+    BIND(if(bound(?pwpart__label_value), ?pwpart__label_value, if(( isURI(?pwpart) && strstarts(str(?pwpart), "http://www.wikidata.org/entity/") ), strafter(str(?pwpart), "entity/"), str(?pwpart))) AS ?pwpartLabel)
+    OPTIONAL
+      { ?variant  rdfs:label  ?variant__label_value
+        FILTER ( lang(?variant__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?variant  rdfs:label  ?variant__label_value
+        FILTER ( lang(?variant__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?variant  rdfs:label  ?variant__label_value
+        FILTER ( lang(?variant__label_value) = "en" )
+      }
+    BIND(if(bound(?variant__label_value), ?variant__label_value, if(( isURI(?variant) && strstarts(str(?variant), "http://www.wikidata.org/entity/") ), strafter(str(?variant), "entity/"), str(?variant))) AS ?variantLabel)
+    OPTIONAL
+      { ?disease  rdfs:label  ?disease__label_value
+        FILTER ( lang(?disease__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?disease  rdfs:label  ?disease__label_value
+        FILTER ( lang(?disease__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?disease  rdfs:label  ?disease__label_value
+        FILTER ( lang(?disease__label_value) = "en" )
+      }
+    BIND(if(bound(?disease__label_value), ?disease__label_value, if(( isURI(?disease) && strstarts(str(?disease), "http://www.wikidata.org/entity/") ), strafter(str(?disease), "entity/"), str(?disease))) AS ?diseaseLabel)
+  }
+
+# Original query:
+# #title: Get known variants reported in CIViC database (Q27612411) of genes reported in a Wikipathways pathway: Bladder cancer (Q30230812)
+# SELECT DISTINCT ?pathway ?pathwayLabel ?pwpart ?pwpartLabel ?variant ?variantLabel ?disease?diseaseLabel WHERE {
+#
+#    VALUES ?predictor {p:P3354 p:P3355 p:P3356 p:P3357 p:P3358 p:P3359}
+#    VALUES ?predictorQualifier {pq:P2175}
+#    VALUES ?wpID {"WP2828"}
+#
+#    ?pathway wdt:P2410 ?wpID ; # Pathways has a Wikipathways identifier
+#           wdt:P527 ?pwpart . # which contains pathways parts
+#
+#    ?disease wdt:P279+ wd:Q504775 . # The disease is a subclass of urinary bladder cancer
+#                                    # based on annotations in the Disease ontology
+#    ?variant wdt:P3329 ?civicID ; # a variant known in CIViC
+#              ?predictor ?node ; # has a predicting relation with diseases
+#                                    # labeled as being a subclass of urinary bladder cancer
+#              wdt:P3433 ?pwpart . # variant is biological variant of
+#
+#    {?node ?predictorStatement ?drug_label ;
+#               ?predictorQualifier ?disease .}
+#    UNION
+#    {
+#       ?node ?predictorStatement ?disease .
+#    }
+#    SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en". }
+# }

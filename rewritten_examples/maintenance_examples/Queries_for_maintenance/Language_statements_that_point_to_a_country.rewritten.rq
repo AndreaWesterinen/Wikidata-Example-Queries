@@ -1,0 +1,43 @@
+# rewrite_status: rewritten
+#added before 2016-10
+
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT DISTINCT  ?work ?workLabel ?languageLabel
+WHERE
+  { ?work (((wdt:P37|wdt:P103)|wdt:P364)|wdt:P407)|wdt:P1412 ?language .
+    ?language wdt:P31/(wdt:P279)* wd:Q7275
+    OPTIONAL
+      { ?work  rdfs:label  ?work__label_value
+        FILTER ( lang(?work__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?work  rdfs:label  ?work__label_value
+        FILTER ( lang(?work__label_value) = "mul" )
+      }
+    BIND(if(bound(?work__label_value), ?work__label_value, if(( isURI(?work) && strstarts(str(?work), "http://www.wikidata.org/entity/") ), strafter(str(?work), "entity/"), str(?work))) AS ?workLabel)
+    OPTIONAL
+      { ?language  rdfs:label  ?language__label_value
+        FILTER ( lang(?language__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?language  rdfs:label  ?language__label_value
+        FILTER ( lang(?language__label_value) = "mul" )
+      }
+    BIND(if(bound(?language__label_value), ?language__label_value, if(( isURI(?language) && strstarts(str(?language), "http://www.wikidata.org/entity/") ), strafter(str(?language), "entity/"), str(?language))) AS ?languageLabel)
+  }
+ORDER BY ?languageLabel
+
+# Original query:
+# #added before 2016-10
+#
+# SELECT DISTINCT ?work ?workLabel ?languageLabel
+# WHERE
+# {
+#   ?work wdt:P37|wdt:P103|wdt:P364|wdt:P407|wdt:P1412 ?language.
+#   ?language wdt:P31/wdt:P279* wd:Q7275.
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "en". }
+# }
+# ORDER BY ?languageLabel

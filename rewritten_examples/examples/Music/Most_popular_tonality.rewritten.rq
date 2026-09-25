@@ -1,0 +1,31 @@
+# rewrite_status: rewritten
+#title: Most popular tonality
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?tonalityLabel (COUNT(?tonalityLabel) AS ?count)
+WHERE
+  { ?work  wdt:P826  ?tonality
+    OPTIONAL
+      { ?tonality  rdfs:label  ?tonality__label_value
+        FILTER ( lang(?tonality__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?tonality  rdfs:label  ?tonality__label_value
+        FILTER ( lang(?tonality__label_value) = "mul" )
+      }
+    BIND(if(bound(?tonality__label_value), ?tonality__label_value, if(( isURI(?tonality) && strstarts(str(?tonality), "http://www.wikidata.org/entity/") ), strafter(str(?tonality), "entity/"), str(?tonality))) AS ?tonalityLabel)
+  }
+GROUP BY ?tonalityLabel
+ORDER BY DESC(?count)
+
+# Original query:
+# #title: Most popular tonality
+# SELECT ?tonalityLabel (COUNT(?tonalityLabel) as ?count)
+# WHERE
+# {
+#   ?work wdt:P826 ?tonality.
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "en" }
+# }
+# GROUP BY ?tonalityLabel
+# ORDER BY DESC(?count)

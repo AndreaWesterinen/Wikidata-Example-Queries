@@ -1,0 +1,58 @@
+# rewrite_status: rewritten
+#defaultView:LineChart
+PREFIX  p:    <http://www.wikidata.org/prop/>
+PREFIX  pq:   <http://www.wikidata.org/prop/qualifier/>
+PREFIX  ps:   <http://www.wikidata.org/prop/statement/>
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?country ?year ?AVGpopulation ?countryLabel
+WHERE
+  { { SELECT  ?country ?year (AVG(?population) AS ?AVGpopulation)
+      WHERE
+        { { SELECT  ?country (str(year(?date)) AS ?year) ?population
+            WHERE
+              { ?country  wdt:P47   wd:Q183 ;
+                          p:P1082   ?populationStatement .
+                ?populationStatement
+                          ps:P1082  ?population ;
+                          pq:P585   ?date
+              }
+          }
+        }
+      GROUP BY ?country ?year
+    }
+    OPTIONAL
+      { ?country  rdfs:label  ?country__label_value
+        FILTER ( lang(?country__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?country  rdfs:label  ?country__label_value
+        FILTER ( lang(?country__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?country  rdfs:label  ?country__label_value
+        FILTER ( lang(?country__label_value) = "mul" )
+      }
+    BIND(if(bound(?country__label_value), ?country__label_value, if(( isURI(?country) && strstarts(str(?country), "http://www.wikidata.org/entity/") ), strafter(str(?country), "entity/"), str(?country))) AS ?countryLabel)
+  }
+
+# Original query:
+# #defaultView:LineChart
+# SELECT ?country ?year ?AVGpopulation ?countryLabel WHERE {
+#   {
+#     SELECT ?country ?year (AVG(?population) AS ?AVGpopulation) WHERE {
+#       {
+#         SELECT ?country (str(YEAR(?date)) AS ?year) ?population WHERE {
+#           ?country wdt:P47 wd:Q183;   # shares border with Germany
+#                    p:P1082 ?populationStatement.
+#           ?populationStatement ps:P1082 ?population;
+#                                pq:P585 ?date.
+#         }
+#       }
+#     }
+#     GROUP BY ?country ?year
+#   }
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],en". }
+# }

@@ -1,0 +1,34 @@
+# rewrite_status: rewritten
+#title: E-Readers that support the mobipocket file format
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?ereader ?ereaderLabel
+WHERE
+  { ?ereader  wdt:P31    wd:Q726235 ;
+              wdt:P1072  wd:Q1941622
+    OPTIONAL
+      { ?ereader  rdfs:label  ?ereader__label_value
+        FILTER ( lang(?ereader__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?ereader  rdfs:label  ?ereader__label_value
+        FILTER ( lang(?ereader__label_value) = "mul" )
+      }
+    BIND(if(bound(?ereader__label_value), ?ereader__label_value, if(( isURI(?ereader) && strstarts(str(?ereader), "http://www.wikidata.org/entity/") ), strafter(str(?ereader), "entity/"), str(?ereader))) AS ?ereaderLabel)
+  }
+
+# Original query:
+# #title: E-Readers that support the mobipocket file format
+# SELECT ?ereader ?ereaderLabel
+#
+# WHERE {
+#   ?ereader wdt:P31 wd:Q726235 .
+#   ?ereader wdt:P1072 wd:Q1941622 .
+#
+#   SERVICE wikibase:label {
+#     bd:serviceParam wikibase:language "en" .
+#
+# }
+#   }

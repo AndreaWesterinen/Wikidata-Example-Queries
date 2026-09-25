@@ -1,0 +1,40 @@
+# rewrite_status: rewritten
+#title: Library and Information Science journals
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT DISTINCT  ?journal ?name
+WHERE
+  { ?journal  wdt:P31  wd:Q5633421
+    {   { ?journal  wdt:P921  wd:Q199655 }
+      UNION
+        { ?journal  wdt:P921  wd:Q16387 }
+      UNION
+        { ?journal  wdt:P921  wd:Q13420675 }
+    }
+    OPTIONAL
+      { ?journal  rdfs:label  ?journal__label_value
+        FILTER ( lang(?journal__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?journal  rdfs:label  ?journal__label_value
+        FILTER ( lang(?journal__label_value) = "mul" )
+      }
+    BIND(if(bound(?journal__label_value), ?journal__label_value, if(( isURI(?journal) && strstarts(str(?journal), "http://www.wikidata.org/entity/") ), strafter(str(?journal), "entity/"), str(?journal))) AS ?name)
+  }
+
+# Original query:
+# #title: Library and Information Science journals
+# SELECT DISTINCT ?journal ?name WHERE {
+#     ?journal wdt:P31 wd:Q5633421 . # is scientific journal
+#     {
+#             { ?journal wdt:P921 wd:Q199655 }   # with topic library science
+#       UNION { ?journal wdt:P921 wd:Q16387 }    # and/or topic information science
+#       UNION { ?journal wdt:P921 wd:Q13420675 } # and/or topic library and information science
+#     }
+#     SERVICE wikibase:label {
+#         bd:serviceParam wikibase:language "en" .
+#         ?journal rdfs:label ?name .
+#     }
+# }

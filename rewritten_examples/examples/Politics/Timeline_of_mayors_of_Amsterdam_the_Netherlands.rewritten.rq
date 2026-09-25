@@ -1,0 +1,44 @@
+# rewrite_status: rewritten
+#title: Timeline of mayors of Amsterdam, the Netherlands
+#defaultView:Timeline
+PREFIX  p:    <http://www.wikidata.org/prop/>
+PREFIX  pq:   <http://www.wikidata.org/prop/qualifier/>
+PREFIX  ps:   <http://www.wikidata.org/prop/statement/>
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+
+SELECT  ?mayor ?mayorLabel ?start ?end
+WHERE
+  { ?mayor    p:P39    ?position .
+    ?position  ps:P39  wd:Q13423495 ;
+              pq:P580  ?start ;
+              pq:P582  ?end
+    OPTIONAL
+      { ?mayor  rdfs:label  ?mayor__label_value
+        FILTER ( lang(?mayor__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?mayor  rdfs:label  ?mayor__label_value
+        FILTER ( lang(?mayor__label_value) = "nl" )
+      }
+    OPTIONAL
+      { ?mayor  rdfs:label  ?mayor__label_value
+        FILTER ( lang(?mayor__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?mayor  rdfs:label  ?mayor__label_value
+        FILTER ( lang(?mayor__label_value) = "mul" )
+      }
+    BIND(if(bound(?mayor__label_value), ?mayor__label_value, if(( isURI(?mayor) && strstarts(str(?mayor), "http://www.wikidata.org/entity/") ), strafter(str(?mayor), "entity/"), str(?mayor))) AS ?mayorLabel)
+  }
+
+# Original query:
+# #title: Timeline of mayors of Amsterdam, the Netherlands
+# #defaultView:Timeline
+# SELECT ?mayor ?mayorLabel ?start ?end where {
+#   ?mayor p:P39 ?position.
+#   ?position ps:P39 wd:Q13423495;
+#             pq:P580 ?start;
+#             pq:P582 ?end.
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],nl,en". }
+# }

@@ -1,0 +1,94 @@
+# rewrite_status: rewritten
+#title: Works by women that were born between 1800 and 1900, are in the WomenWriters database and are translated
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+PREFIX  xsd:  <http://www.w3.org/2001/XMLSchema#>
+
+SELECT  ?translator ?translatorLabel ?work ?workLabel ?author ?authorLabel
+WHERE
+  { ?work    wdt:P655   ?translator ;
+             wdt:P50    ?author .
+    ?author  wdt:P2533  ?wid ;
+             wdt:P21    wd:Q6581072 ;
+             wdt:P569   ?birth
+    FILTER ( ( ?birth > "1800-01-01"^^xsd:dateTime ) && ( ?birth < "1900-01-01"^^xsd:dateTime ) )
+    OPTIONAL
+      { ?translator  rdfs:label  ?translator__label_value
+        FILTER ( lang(?translator__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?translator  rdfs:label  ?translator__label_value
+        FILTER ( lang(?translator__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?translator  rdfs:label  ?translator__label_value
+        FILTER ( lang(?translator__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?translator  rdfs:label  ?translator__label_value
+        FILTER ( lang(?translator__label_value) = "nl" )
+      }
+    OPTIONAL
+      { ?translator  rdfs:label  ?translator__label_value
+        FILTER ( lang(?translator__label_value) = "fr" )
+      }
+    BIND(if(bound(?translator__label_value), ?translator__label_value, if(( isURI(?translator) && strstarts(str(?translator), "http://www.wikidata.org/entity/") ), strafter(str(?translator), "entity/"), str(?translator))) AS ?translatorLabel)
+    OPTIONAL
+      { ?work  rdfs:label  ?work__label_value
+        FILTER ( lang(?work__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?work  rdfs:label  ?work__label_value
+        FILTER ( lang(?work__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?work  rdfs:label  ?work__label_value
+        FILTER ( lang(?work__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?work  rdfs:label  ?work__label_value
+        FILTER ( lang(?work__label_value) = "nl" )
+      }
+    OPTIONAL
+      { ?work  rdfs:label  ?work__label_value
+        FILTER ( lang(?work__label_value) = "fr" )
+      }
+    BIND(if(bound(?work__label_value), ?work__label_value, if(( isURI(?work) && strstarts(str(?work), "http://www.wikidata.org/entity/") ), strafter(str(?work), "entity/"), str(?work))) AS ?workLabel)
+    OPTIONAL
+      { ?author  rdfs:label  ?author__label_value
+        FILTER ( lang(?author__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?author  rdfs:label  ?author__label_value
+        FILTER ( lang(?author__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?author  rdfs:label  ?author__label_value
+        FILTER ( lang(?author__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?author  rdfs:label  ?author__label_value
+        FILTER ( lang(?author__label_value) = "nl" )
+      }
+    OPTIONAL
+      { ?author  rdfs:label  ?author__label_value
+        FILTER ( lang(?author__label_value) = "fr" )
+      }
+    BIND(if(bound(?author__label_value), ?author__label_value, if(( isURI(?author) && strstarts(str(?author), "http://www.wikidata.org/entity/") ), strafter(str(?author), "entity/"), str(?author))) AS ?authorLabel)
+  }
+
+# Original query:
+# #title: Works by women that were born between 1800 and 1900, are in the WomenWriters database and are translated
+# SELECT ?translator ?translatorLabel ?work ?workLabel ?author ?authorLabel {
+#     ?work wdt:P655 ?translator;
+#           wdt:P50 ?author.
+#
+#     ?author wdt:P2533 ?wid;
+#             wdt:P21 wd:Q6581072;
+#             wdt:P569 ?birth;
+#
+#     FILTER (?birth > "1800-01-01"^^xsd:dateTime && ?birth < "1900-01-01"^^xsd:dateTime)
+#
+#     SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en,nl,fr". }
+# }

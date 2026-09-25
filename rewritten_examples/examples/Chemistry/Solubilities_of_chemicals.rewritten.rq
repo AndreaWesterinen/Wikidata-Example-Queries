@@ -1,0 +1,163 @@
+# rewrite_status: rewritten
+#title: Solubilities of chemicals
+PREFIX wd: <http://www.wikidata.org/entity/>
+PREFIX wdt: <http://www.wikidata.org/prop/direct/>
+PREFIX pqv: <http://www.wikidata.org/prop/qualifier/value/>
+PREFIX pr: <http://www.wikidata.org/prop/reference/>
+PREFIX wikibase: <http://wikiba.se/ontology#>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+WITH %result AS {
+?chemical ?propp ?statement .
+    ?statement a wikibase:BestRank ;
+      ?proppsv [
+        wikibase:quantityAmount ?value ;
+        wikibase:quantityUnit ?units
+      ] .
+    OPTIONAL {
+      ?statement prov:wasDerivedFrom/pr:P248 ?source .
+      OPTIONAL { ?source wdt:P356 ?doi . }
+    }
+    ?property wikibase:claim ?propp ;
+            wikibase:statementValue ?proppsv ;
+            wdt:P1629 wd:Q170731 ;
+            wdt:P31 wd:Q21077852 .
+    OPTIONAL {
+      ?statement pqv:P2076 ?temperatureNode .
+      ?temperatureNode wikibase:quantityAmount ?temperature ;
+                       wikibase:quantityUnit ?temperatureUnit .
+    }
+    OPTIONAL {
+      wd:P2178 wikibase:qualifier ?qualifierS .
+      ?qualifierS a owl:ObjectProperty .
+      ?statement ?qualifierS ?solvent .
+    }
+}
+SELECT DISTINCT  ?chemical ?chemicalLabel ?value ?units ?unitsLabel ?solvent ?solventLabel ?temperature ?temperatureUnit ?temperatureUnitLabel ?source ?sourceLabel ?doi
+WHERE
+  { { SELECT ?chemical ?value ?units ?source ?doi ?solvent ?temperature ?temperatureUnit WHERE { INCLUDE %result } GROUP BY ?chemical ?value ?units ?temperature ?temperatureUnit ?solvent ?source ?doi }BIND(if(bound(?chemical), ?chemical, "unbound") AS ?chemical__label_subject)
+    OPTIONAL
+      { ?chemical__label_subject
+                  rdfs:label  ?chemical__label_value
+        FILTER ( lang(?chemical__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?chemical__label_subject
+                  rdfs:label  ?chemical__label_value
+        FILTER ( lang(?chemical__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?chemical__label_subject
+                  rdfs:label  ?chemical__label_value
+        FILTER ( lang(?chemical__label_value) = "en" )
+      }
+    BIND(if(bound(?chemical__label_value), ?chemical__label_value, if(( isURI(?chemical) && strstarts(str(?chemical), "http://www.wikidata.org/entity/") ), strafter(str(?chemical), "entity/"), str(?chemical))) AS ?chemicalLabel)
+    BIND(if(bound(?units), ?units, "unbound") AS ?units__label_subject)
+    OPTIONAL
+      { ?units__label_subject
+                  rdfs:label  ?units__label_value
+        FILTER ( lang(?units__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?units__label_subject
+                  rdfs:label  ?units__label_value
+        FILTER ( lang(?units__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?units__label_subject
+                  rdfs:label  ?units__label_value
+        FILTER ( lang(?units__label_value) = "en" )
+      }
+    BIND(if(bound(?units__label_value), ?units__label_value, if(( isURI(?units) && strstarts(str(?units), "http://www.wikidata.org/entity/") ), strafter(str(?units), "entity/"), str(?units))) AS ?unitsLabel)
+    BIND(if(bound(?solvent), ?solvent, "unbound") AS ?solvent__label_subject)
+    OPTIONAL
+      { ?solvent__label_subject
+                  rdfs:label  ?solvent__label_value
+        FILTER ( lang(?solvent__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?solvent__label_subject
+                  rdfs:label  ?solvent__label_value
+        FILTER ( lang(?solvent__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?solvent__label_subject
+                  rdfs:label  ?solvent__label_value
+        FILTER ( lang(?solvent__label_value) = "en" )
+      }
+    BIND(if(bound(?solvent__label_value), ?solvent__label_value, if(( isURI(?solvent) && strstarts(str(?solvent), "http://www.wikidata.org/entity/") ), strafter(str(?solvent), "entity/"), str(?solvent))) AS ?solventLabel)
+    BIND(if(bound(?temperatureUnit), ?temperatureUnit, "unbound") AS ?temperatureUnit__label_subject)
+    OPTIONAL
+      { ?temperatureUnit__label_subject
+                  rdfs:label  ?temperatureUnit__label_value
+        FILTER ( lang(?temperatureUnit__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?temperatureUnit__label_subject
+                  rdfs:label  ?temperatureUnit__label_value
+        FILTER ( lang(?temperatureUnit__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?temperatureUnit__label_subject
+                  rdfs:label  ?temperatureUnit__label_value
+        FILTER ( lang(?temperatureUnit__label_value) = "en" )
+      }
+    BIND(if(bound(?temperatureUnit__label_value), ?temperatureUnit__label_value, if(( isURI(?temperatureUnit) && strstarts(str(?temperatureUnit), "http://www.wikidata.org/entity/") ), strafter(str(?temperatureUnit), "entity/"), str(?temperatureUnit))) AS ?temperatureUnitLabel)
+    BIND(if(bound(?source), ?source, "unbound") AS ?source__label_subject)
+    OPTIONAL
+      { ?source__label_subject
+                  rdfs:label  ?source__label_value
+        FILTER ( lang(?source__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?source__label_subject
+                  rdfs:label  ?source__label_value
+        FILTER ( lang(?source__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?source__label_subject
+                  rdfs:label  ?source__label_value
+        FILTER ( lang(?source__label_value) = "en" )
+      }
+    BIND(if(bound(?source__label_value), ?source__label_value, if(( isURI(?source) && strstarts(str(?source), "http://www.wikidata.org/entity/") ), strafter(str(?source), "entity/"), str(?source))) AS ?sourceLabel)
+  }
+ORDER BY ASC(?propEntityLabel)
+
+# Original query:
+# #title: Solubilities of chemicals
+# SELECT DISTINCT ?chemical ?chemicalLabel ?value ?units ?unitsLabel ?solvent ?solventLabel ?temperature ?temperatureUnit ?temperatureUnitLabel ?source ?sourceLabel ?doi
+# WITH {
+#   SELECT DISTINCT ?chemical ?value ?units ?source ?doi ?solvent ?temperature ?temperatureUnit WHERE {
+#     ?chemical ?propp ?statement .
+#     ?statement a wikibase:BestRank ;
+#       ?proppsv [
+#         wikibase:quantityAmount ?value ;
+#         wikibase:quantityUnit ?units
+#       ] .
+#     OPTIONAL {
+#       ?statement prov:wasDerivedFrom/pr:P248 ?source .
+#       OPTIONAL { ?source wdt:P356 ?doi . }
+#     }
+#     ?property wikibase:claim ?propp ;
+#             wikibase:statementValue ?proppsv ;
+#             wdt:P1629 wd:Q170731 ;
+#             wdt:P31 wd:Q21077852 .
+#     OPTIONAL {
+#       ?statement pqv:P2076 ?temperatureNode .
+#       ?temperatureNode wikibase:quantityAmount ?temperature ;
+#                        wikibase:quantityUnit ?temperatureUnit .
+#     }
+#     OPTIONAL {
+#       wd:P2178 wikibase:qualifier ?qualifierS .
+#       ?qualifierS a owl:ObjectProperty .
+#       ?statement ?qualifierS ?solvent .
+#     }
+#   } GROUP BY ?chemical ?value ?units ?temperature ?temperatureUnit ?solvent ?source ?doi
+# } AS %result
+# WHERE {
+#   INCLUDE %result
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en". }
+# }
+# ORDER BY ASC(?propEntityLabel)

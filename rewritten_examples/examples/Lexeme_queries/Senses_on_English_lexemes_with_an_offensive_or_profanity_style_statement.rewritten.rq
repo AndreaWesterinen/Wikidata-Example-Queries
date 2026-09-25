@@ -1,0 +1,46 @@
+# rewrite_status: rewritten
+#title: Senses on English lexemes with an offensive or profanity style statement
+# author: So9q, 2024-01-25
+PREFIX  dct:  <http://purl.org/dc/terms/>
+PREFIX  ontolex: <http://www.w3.org/ns/lemon/ontolex#>
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+PREFIX  wikibase: <http://wikiba.se/ontology#>
+
+SELECT  ?l ?sense ?lemma ?swearLabel
+WHERE
+  { ?l  ontolex:sense   ?sense ;
+        dct:language    wd:Q1860 ;
+        wikibase:lemma  ?lemma
+    VALUES ?swear { wd:Q184439 wd:Q545779 }
+    ?sense  wdt:P6191  ?swear
+    OPTIONAL
+      { ?swear  rdfs:label  ?swear__label_value
+        FILTER ( lang(?swear__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?swear  rdfs:label  ?swear__label_value
+        FILTER ( lang(?swear__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?swear  rdfs:label  ?swear__label_value
+        FILTER ( lang(?swear__label_value) = "en" )
+      }
+    BIND(if(bound(?swear__label_value), ?swear__label_value, if(( isURI(?swear) && strstarts(str(?swear), "http://www.wikidata.org/entity/") ), strafter(str(?swear), "entity/"), str(?swear))) AS ?swearLabel)
+  }
+
+# Original query:
+# #title: Senses on English lexemes with an offensive or profanity style statement
+# # author: So9q, 2024-01-25
+# SELECT ?l ?sense ?lemma ?swearLabel WHERE {
+#   ?l ontolex:sense ?sense ; # the sense
+#      dct:language wd:Q1860 ; # the language
+#      wikibase:lemma ?lemma . # and the lemma
+#   VALUES ?swear {
+#     wd:Q184439
+#     wd:Q545779
+#   }
+#   ?sense wdt:P6191 ?swear .
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" . }
+# }

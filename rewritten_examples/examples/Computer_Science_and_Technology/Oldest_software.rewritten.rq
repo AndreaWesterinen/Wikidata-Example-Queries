@@ -1,0 +1,41 @@
+# rewrite_status: rewritten
+#title: Oldest software
+PREFIX  p:    <http://www.wikidata.org/prop/>
+PREFIX  pq:   <http://www.wikidata.org/prop/qualifier/>
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?software ?softwareLabel ?date (round(( ( now() - ?date ) / 365.2425 )) AS ?age)
+WHERE
+  { ?software wdt:P31/(wdt:P139)* wd:Q7397
+    OPTIONAL
+      { ?software  wdt:P571  ?date }
+    OPTIONAL
+      { ?software p:P348/pq:P577 ?date }
+    FILTER bound(?date)
+    OPTIONAL
+      { ?software  rdfs:label  ?software__label_value
+        FILTER ( lang(?software__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?software  rdfs:label  ?software__label_value
+        FILTER ( lang(?software__label_value) = "mul" )
+      }
+    BIND(if(bound(?software__label_value), ?software__label_value, if(( isURI(?software) && strstarts(str(?software), "http://www.wikidata.org/entity/") ), strafter(str(?software), "entity/"), str(?software))) AS ?softwareLabel)
+  }
+ORDER BY ?date
+LIMIT   10
+
+# Original query:
+# #title: Oldest software
+# SELECT ?software ?softwareLabel ?date (ROUND((NOW() - ?date)/365.2425) AS ?age)
+# {
+#   ?software wdt:P31/wdt:P139* wd:Q7397.
+#   OPTIONAL { ?software wdt:P571 ?date. }
+#   OPTIONAL { ?software p:P348/pq:P577 ?date. }
+#   FILTER(BOUND(?date)).
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "en". }
+# }
+# ORDER BY ?date
+# LIMIT 10

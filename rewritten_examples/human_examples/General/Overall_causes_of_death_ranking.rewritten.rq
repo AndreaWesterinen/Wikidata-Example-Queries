@@ -1,0 +1,42 @@
+# rewrite_status: rewritten
+#title: Overall causes of death ranking
+#defaultView:BubbleChart
+#TEMPLATE={"template":"Overall causes of death ranking of ?thing ","variables":{"?thing": {"query":"SELECT ?id  (COUNT(?id) AS ?count) WHERE {  ?sub wdt:P509 ?y.  ?sub wdt:P31 ?id. } GROUP BY ?id "} } }
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?cid ?cause (count(*) AS ?count)
+WHERE
+  { BIND(wd:Q5 AS ?thing)
+    ?pid  wdt:P31   ?thing ;
+          wdt:P509  ?cid
+    OPTIONAL
+      { ?cid  rdfs:label  ?cid__label_value
+        FILTER ( lang(?cid__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?cid  rdfs:label  ?cid__label_value
+        FILTER ( lang(?cid__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?cid  rdfs:label  ?cid__label_value
+        FILTER ( lang(?cid__label_value) = "mul" )
+      }
+    BIND(if(bound(?cid__label_value), ?cid__label_value, if(( isURI(?cid) && strstarts(str(?cid), "http://www.wikidata.org/entity/") ), strafter(str(?cid), "entity/"), str(?cid))) AS ?cause)
+  }
+GROUP BY ?cid ?cause
+ORDER BY DESC(?count) ?cause
+
+# Original query:
+# #title: Overall causes of death ranking
+# #defaultView:BubbleChart
+# #TEMPLATE={"template":"Overall causes of death ranking of ?thing ","variables":{"?thing": {"query":"SELECT ?id  (COUNT(?id) AS ?count) WHERE {  ?sub wdt:P509 ?y.  ?sub wdt:P31 ?id. } GROUP BY ?id "} } }
+# SELECT ?cid ?cause (COUNT(*) AS ?count) WHERE {
+#   BIND(wd:Q5 AS ?thing)
+#   ?pid wdt:P31 ?thing;
+#       wdt:P509 ?cid.
+# SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],en". ?cid rdfs:label ?cause}
+# }
+# GROUP BY ?cid ?cause
+# ORDER BY DESC(?count) ?cause

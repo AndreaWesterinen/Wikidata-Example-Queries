@@ -1,0 +1,44 @@
+# rewrite_status: rewritten
+#title: Get the CIViC citation corpus
+PREFIX  p:    <http://www.wikidata.org/prop/>
+PREFIX  pr:   <http://www.wikidata.org/prop/reference/>
+PREFIX  prov: <http://www.w3.org/ns/prov#>
+PREFIX  ps:   <http://www.wikidata.org/prop/statement/>
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT DISTINCT  ?pmid ?citation ?citationLabel
+WHERE
+  { VALUES ?predictor { p:P3354 p:P3355 p:P3356 p:P3357 p:P3358 p:P3359 }
+    ?item     p:P3329              ?civicId ;
+              ?predictor           ?predictor_value .
+    ?civicId  ps:P3329             ?id .
+    ?predictor_value
+              prov:wasDerivedFrom  ?reference .
+    ?reference  pr:P248            ?citation .
+    ?citation  wdt:P698            ?pmid
+    OPTIONAL
+      { ?citation  rdfs:label  ?citation__label_value
+        FILTER ( lang(?citation__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?citation  rdfs:label  ?citation__label_value
+        FILTER ( lang(?citation__label_value) = "mul" )
+      }
+    BIND(if(bound(?citation__label_value), ?citation__label_value, if(( isURI(?citation) && strstarts(str(?citation), "http://www.wikidata.org/entity/") ), strafter(str(?citation), "entity/"), str(?citation))) AS ?citationLabel)
+  }
+
+# Original query:
+# #title: Get the CIViC citation corpus
+# SELECT DISTINCT ?pmid ?citation ?citationLabel
+# WHERE
+# {
+#   VALUES ?predictor {p:P3354 p:P3355 p:P3356 p:P3357 p:P3358 p:P3359 }
+#     ?item p:P3329 ?civicId ;
+#           ?predictor ?predictor_value .
+#     ?civicId ps:P3329 ?id .
+#     ?predictor_value prov:wasDerivedFrom ?reference .
+#     ?reference pr:P248 ?citation .
+#     ?citation wdt:P698 ?pmid ;
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "en" }
+# }

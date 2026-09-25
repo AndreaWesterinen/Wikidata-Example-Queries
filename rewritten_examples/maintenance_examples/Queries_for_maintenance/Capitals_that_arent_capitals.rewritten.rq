@@ -1,0 +1,59 @@
+# rewrite_status: rewritten
+#added before 2016-10
+
+PREFIX  p:    <http://www.wikidata.org/prop/>
+PREFIX  pq:   <http://www.wikidata.org/prop/qualifier/>
+PREFIX  ps:   <http://www.wikidata.org/prop/statement/>
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?capital ?capitalLabel ?ofLabel ?start ?end
+WHERE
+  { ?capital  p:P31   ?capitalStat .
+    ?capitalStat  ps:P31  wd:Q5119
+    OPTIONAL
+      { ?capitalStat  pq:P642  ?of }
+    OPTIONAL
+      { ?capitalStat  pq:P580  ?start }
+    OPTIONAL
+      { ?capitalStat  pq:P582  ?end }
+    MINUS
+      { _:b0  wdt:P36  ?capital }
+    OPTIONAL
+      { ?capital  rdfs:label  ?capital__label_value
+        FILTER ( lang(?capital__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?capital  rdfs:label  ?capital__label_value
+        FILTER ( lang(?capital__label_value) = "mul" )
+      }
+    BIND(if(bound(?capital__label_value), ?capital__label_value, if(( isURI(?capital) && strstarts(str(?capital), "http://www.wikidata.org/entity/") ), strafter(str(?capital), "entity/"), str(?capital))) AS ?capitalLabel)
+    BIND(if(bound(?of), ?of, "unbound") AS ?of__label_subject)
+    OPTIONAL
+      { ?of__label_subject
+                  rdfs:label  ?of__label_value
+        FILTER ( lang(?of__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?of__label_subject
+                  rdfs:label  ?of__label_value
+        FILTER ( lang(?of__label_value) = "mul" )
+      }
+    BIND(if(bound(?of__label_value), ?of__label_value, if(( isURI(?of) && strstarts(str(?of), "http://www.wikidata.org/entity/") ), strafter(str(?of), "entity/"), str(?of))) AS ?ofLabel)
+  }
+
+# Original query:
+# #added before 2016-10
+#
+# SELECT ?capital ?capitalLabel ?ofLabel ?start ?end
+# WHERE
+# {
+#   ?capital p:P31 ?capitalStat.
+#   ?capitalStat ps:P31 wd:Q5119.
+#   OPTIONAL { ?capitalStat pq:P642 ?of. }
+#   OPTIONAL { ?capitalStat pq:P580 ?start. }
+#   OPTIONAL { ?capitalStat pq:P582 ?end. }
+#   MINUS { [] wdt:P36 ?capital. }
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "en". }
+# }

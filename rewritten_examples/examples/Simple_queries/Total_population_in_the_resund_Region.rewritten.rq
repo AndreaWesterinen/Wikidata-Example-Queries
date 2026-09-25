@@ -1,0 +1,44 @@
+# rewrite_status: rewritten
+#title: Total population in the Øresund Region
+# Illustrates the SUM aggregate function
+
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT DISTINCT  ?area ?areaLabel (SUM(?folkm_ngd) AS ?total_folkm)
+WHERE
+  { ?item  wdt:P361   wd:Q297853 ;
+           wdt:P1082  ?folkm_ngd .
+    ?area  wdt:P31    wd:Q1907114 ;
+           wdt:P527   ?item
+    OPTIONAL
+      { ?area  rdfs:label  ?area__label_value
+        FILTER ( lang(?area__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?area  rdfs:label  ?area__label_value
+        FILTER ( lang(?area__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?area  rdfs:label  ?area__label_value
+        FILTER ( lang(?area__label_value) = "en" )
+      }
+    BIND(if(bound(?area__label_value), ?area__label_value, if(( isURI(?area) && strstarts(str(?area), "http://www.wikidata.org/entity/") ), strafter(str(?area), "entity/"), str(?area))) AS ?areaLabel)
+  }
+GROUP BY ?area ?areaLabel
+
+# Original query:
+# #title: Total population in the Øresund Region
+# # Illustrates the SUM aggregate function
+#
+# SELECT DISTINCT ?area ?areaLabel (sum(?folkm_ngd) as ?total_folkm) # the first two variables can be removed
+#                                                                    # if only the number is needed
+# WHERE {
+#   ?item wdt:P361 wd:Q297853. # part of (P361) Øresund Region (Q297853)
+#   ?item wdt:P1082 ?folkm_ngd. # population (P1082)
+#   ?area wdt:P31 wd:Q1907114. # instance of (P31) metropolitan area (Q1907114)
+#   ?area wdt:P527 ?item. # has part (P527)
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en". }
+# }
+# GROUP BY ?area ?areaLabel

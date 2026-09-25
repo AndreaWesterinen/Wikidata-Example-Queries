@@ -1,0 +1,54 @@
+# rewrite_status: rewritten
+#title: List of theatre plays
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?play ?playLabel
+WHERE
+  { ?play  wdt:P31  wd:Q25379
+    OPTIONAL
+      { ?play  rdfs:label  ?play__label_value
+        FILTER ( lang(?play__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?play  rdfs:label  ?play__label_value
+        FILTER ( lang(?play__label_value) = "es" )
+      }
+    OPTIONAL
+      { ?play  rdfs:label  ?play__label_value
+        FILTER ( lang(?play__label_value) = "pt" )
+      }
+    OPTIONAL
+      { ?play  rdfs:label  ?play__label_value
+        FILTER ( lang(?play__label_value) = "de" )
+      }
+    OPTIONAL
+      { ?play  rdfs:label  ?play__label_value
+        FILTER ( lang(?play__label_value) = "fr" )
+      }
+    OPTIONAL
+      { ?play  rdfs:label  ?play__label_value
+        FILTER ( lang(?play__label_value) = "ja" )
+      }
+    OPTIONAL
+      { ?play  rdfs:label  ?play__label_value
+        FILTER ( lang(?play__label_value) = "zh" )
+      }
+    OPTIONAL
+      { ?play  rdfs:label  ?play__label_value
+        FILTER ( lang(?play__label_value) = "mul" )
+      }
+    BIND(if(bound(?play__label_value), ?play__label_value, if(( isURI(?play) && strstarts(str(?play), "http://www.wikidata.org/entity/") ), strafter(str(?play), "entity/"), str(?play))) AS ?playLabel)
+  }
+LIMIT   1000
+
+# Original query:
+# #title: List of theatre plays
+# SELECT ?play ?playLabel
+# WHERE
+# {
+#   ?play wdt:P31 wd:Q25379 .
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "en,es,pt,de,fr,ja,zh" . }
+# }
+# LIMIT 1000

@@ -1,0 +1,259 @@
+# rewrite_status: rewritten
+# Tree of classes under a specified root, up to 7 levels deep
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?level1Label ?level2Label ?level3Label ?level4Label ?level5Label ?level6Label ?level7Label ?level1 ?level2 ?level3 ?level4 ?level5 ?level6 ?level7
+WHERE
+  { VALUES ?class { wd:Q8513 }
+      { ?level1  wdt:P279  ?class }
+    UNION
+      { ?level1  wdt:P279  ?class .
+        ?level2  wdt:P279  ?level1
+      }
+    UNION
+      { ?level1  wdt:P279  ?class .
+        ?level2  wdt:P279  ?level1 .
+        ?level3  wdt:P279  ?level2
+      }
+    UNION
+      { ?level1  wdt:P279  ?class .
+        ?level2  wdt:P279  ?level1 .
+        ?level3  wdt:P279  ?level2 .
+        ?level4  wdt:P279  ?level3
+      }
+    UNION
+      { ?level1  wdt:P279  ?class .
+        ?level2  wdt:P279  ?level1 .
+        ?level3  wdt:P279  ?level2 .
+        ?level4  wdt:P279  ?level3 .
+        ?level5  wdt:P279  ?level4
+      }
+    UNION
+      { ?level1  wdt:P279  ?class .
+        ?level2  wdt:P279  ?level1 .
+        ?level3  wdt:P279  ?level2 .
+        ?level4  wdt:P279  ?level3 .
+        ?level5  wdt:P279  ?level4 .
+        ?level6  wdt:P279  ?level5
+      }
+    UNION
+      { ?level1  wdt:P279  ?class .
+        ?level2  wdt:P279  ?level1 .
+        ?level3  wdt:P279  ?level2 .
+        ?level4  wdt:P279  ?level3 .
+        ?level5  wdt:P279  ?level4 .
+        ?level6  wdt:P279  ?level5 .
+        ?level7  wdt:P279  ?level6
+      }
+    OPTIONAL
+      { ?level1  rdfs:label  ?level1__label_value
+        FILTER ( lang(?level1__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?level1  rdfs:label  ?level1__label_value
+        FILTER ( lang(?level1__label_value) = "fr" )
+      }
+    OPTIONAL
+      { ?level1  rdfs:label  ?level1__label_value
+        FILTER ( lang(?level1__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?level1  rdfs:label  ?level1__label_value
+        FILTER ( lang(?level1__label_value) = "mul" )
+      }
+    BIND(if(bound(?level1__label_value), ?level1__label_value, if(( isURI(?level1) && strstarts(str(?level1), "http://www.wikidata.org/entity/") ), strafter(str(?level1), "entity/"), str(?level1))) AS ?level1Label)
+    BIND(if(bound(?level2), ?level2, "unbound") AS ?level2__label_subject)
+    OPTIONAL
+      { ?level2__label_subject
+                  rdfs:label  ?level2__label_value
+        FILTER ( lang(?level2__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?level2__label_subject
+                  rdfs:label  ?level2__label_value
+        FILTER ( lang(?level2__label_value) = "fr" )
+      }
+    OPTIONAL
+      { ?level2__label_subject
+                  rdfs:label  ?level2__label_value
+        FILTER ( lang(?level2__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?level2__label_subject
+                  rdfs:label  ?level2__label_value
+        FILTER ( lang(?level2__label_value) = "mul" )
+      }
+    BIND(if(bound(?level2__label_value), ?level2__label_value, if(( isURI(?level2) && strstarts(str(?level2), "http://www.wikidata.org/entity/") ), strafter(str(?level2), "entity/"), str(?level2))) AS ?level2Label)
+    BIND(if(bound(?level3), ?level3, "unbound") AS ?level3__label_subject)
+    OPTIONAL
+      { ?level3__label_subject
+                  rdfs:label  ?level3__label_value
+        FILTER ( lang(?level3__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?level3__label_subject
+                  rdfs:label  ?level3__label_value
+        FILTER ( lang(?level3__label_value) = "fr" )
+      }
+    OPTIONAL
+      { ?level3__label_subject
+                  rdfs:label  ?level3__label_value
+        FILTER ( lang(?level3__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?level3__label_subject
+                  rdfs:label  ?level3__label_value
+        FILTER ( lang(?level3__label_value) = "mul" )
+      }
+    BIND(if(bound(?level3__label_value), ?level3__label_value, if(( isURI(?level3) && strstarts(str(?level3), "http://www.wikidata.org/entity/") ), strafter(str(?level3), "entity/"), str(?level3))) AS ?level3Label)
+    BIND(if(bound(?level4), ?level4, "unbound") AS ?level4__label_subject)
+    OPTIONAL
+      { ?level4__label_subject
+                  rdfs:label  ?level4__label_value
+        FILTER ( lang(?level4__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?level4__label_subject
+                  rdfs:label  ?level4__label_value
+        FILTER ( lang(?level4__label_value) = "fr" )
+      }
+    OPTIONAL
+      { ?level4__label_subject
+                  rdfs:label  ?level4__label_value
+        FILTER ( lang(?level4__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?level4__label_subject
+                  rdfs:label  ?level4__label_value
+        FILTER ( lang(?level4__label_value) = "mul" )
+      }
+    BIND(if(bound(?level4__label_value), ?level4__label_value, if(( isURI(?level4) && strstarts(str(?level4), "http://www.wikidata.org/entity/") ), strafter(str(?level4), "entity/"), str(?level4))) AS ?level4Label)
+    BIND(if(bound(?level5), ?level5, "unbound") AS ?level5__label_subject)
+    OPTIONAL
+      { ?level5__label_subject
+                  rdfs:label  ?level5__label_value
+        FILTER ( lang(?level5__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?level5__label_subject
+                  rdfs:label  ?level5__label_value
+        FILTER ( lang(?level5__label_value) = "fr" )
+      }
+    OPTIONAL
+      { ?level5__label_subject
+                  rdfs:label  ?level5__label_value
+        FILTER ( lang(?level5__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?level5__label_subject
+                  rdfs:label  ?level5__label_value
+        FILTER ( lang(?level5__label_value) = "mul" )
+      }
+    BIND(if(bound(?level5__label_value), ?level5__label_value, if(( isURI(?level5) && strstarts(str(?level5), "http://www.wikidata.org/entity/") ), strafter(str(?level5), "entity/"), str(?level5))) AS ?level5Label)
+    BIND(if(bound(?level6), ?level6, "unbound") AS ?level6__label_subject)
+    OPTIONAL
+      { ?level6__label_subject
+                  rdfs:label  ?level6__label_value
+        FILTER ( lang(?level6__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?level6__label_subject
+                  rdfs:label  ?level6__label_value
+        FILTER ( lang(?level6__label_value) = "fr" )
+      }
+    OPTIONAL
+      { ?level6__label_subject
+                  rdfs:label  ?level6__label_value
+        FILTER ( lang(?level6__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?level6__label_subject
+                  rdfs:label  ?level6__label_value
+        FILTER ( lang(?level6__label_value) = "mul" )
+      }
+    BIND(if(bound(?level6__label_value), ?level6__label_value, if(( isURI(?level6) && strstarts(str(?level6), "http://www.wikidata.org/entity/") ), strafter(str(?level6), "entity/"), str(?level6))) AS ?level6Label)
+    BIND(if(bound(?level7), ?level7, "unbound") AS ?level7__label_subject)
+    OPTIONAL
+      { ?level7__label_subject
+                  rdfs:label  ?level7__label_value
+        FILTER ( lang(?level7__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?level7__label_subject
+                  rdfs:label  ?level7__label_value
+        FILTER ( lang(?level7__label_value) = "fr" )
+      }
+    OPTIONAL
+      { ?level7__label_subject
+                  rdfs:label  ?level7__label_value
+        FILTER ( lang(?level7__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?level7__label_subject
+                  rdfs:label  ?level7__label_value
+        FILTER ( lang(?level7__label_value) = "mul" )
+      }
+    BIND(if(bound(?level7__label_value), ?level7__label_value, if(( isURI(?level7) && strstarts(str(?level7), "http://www.wikidata.org/entity/") ), strafter(str(?level7), "entity/"), str(?level7))) AS ?level7Label)
+  }
+ORDER BY ?level1Label ?level2Label ?level3Label ?level4Label ?level5Label ?level6Label ?level7Label
+
+# Original query:
+# # Tree of classes under a specified root, up to 7 levels deep
+# SELECT ?level1Label ?level2Label ?level3Label ?level4Label ?level5Label ?level6Label ?level7Label ?level1 ?level2 ?level3 ?level4 ?level5 ?level6 ?level7
+# WHERE 
+# {
+#   # Adjust the class value to display a different branch of the class tree (here the class 'database')
+#   VALUES ?class { wd:Q8513 }
+#   {
+#     ?level1 wdt:P279 ?class .
+#   }
+#   UNION
+#   {
+#     ?level1 wdt:P279 ?class .
+#     ?level2 wdt:P279 ?level1 .
+#   }
+#   UNION
+#   {
+#     ?level1 wdt:P279 ?class .
+#     ?level2 wdt:P279 ?level1 .
+#     ?level3 wdt:P279 ?level2 .
+#   }
+#   UNION
+#   {
+#     ?level1 wdt:P279 ?class .
+#     ?level2 wdt:P279 ?level1 .
+#     ?level3 wdt:P279 ?level2 .
+#     ?level4 wdt:P279 ?level3 .
+#   }
+#   UNION
+#   {
+#     ?level1 wdt:P279 ?class .
+#     ?level2 wdt:P279 ?level1 .
+#     ?level3 wdt:P279 ?level2 .
+#     ?level4 wdt:P279 ?level3 .
+#     ?level5 wdt:P279 ?level4 .
+#   }
+#   UNION
+#   {
+#     ?level1 wdt:P279 ?class .
+#     ?level2 wdt:P279 ?level1 .
+#     ?level3 wdt:P279 ?level2 .
+#     ?level4 wdt:P279 ?level3 .
+#     ?level5 wdt:P279 ?level4 .
+#     ?level6 wdt:P279 ?level5 .
+#   }
+#   UNION
+#   {
+#     ?level1 wdt:P279 ?class .
+#     ?level2 wdt:P279 ?level1 .
+#     ?level3 wdt:P279 ?level2 .
+#     ?level4 wdt:P279 ?level3 .
+#     ?level5 wdt:P279 ?level4 .
+#     ?level6 wdt:P279 ?level5 .
+#     ?level7 wdt:P279 ?level6 .
+#   }
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],fr,en". }
+# }
+# ORDER BY ?level1Label ?level2Label ?level3Label ?level4Label ?level5Label ?level6Label ?level7Label

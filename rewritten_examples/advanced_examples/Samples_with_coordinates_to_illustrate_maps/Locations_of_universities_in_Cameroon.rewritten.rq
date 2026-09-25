@@ -1,0 +1,54 @@
+# rewrite_status: rewritten
+#added before 2016-10
+#defaultView:Map
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  schema: <http://schema.org/>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?universityLabel ?universityDescription ?website ?coord
+WHERE
+  { ?university wdt:P31/(wdt:P279)* wd:Q3918 .
+    ?university  wdt:P17  wd:Q1009 ;
+              wdt:P625  ?coord
+    OPTIONAL
+      { ?university  wdt:P856  ?website }
+    OPTIONAL
+      { ?university  rdfs:label  ?university__label_value
+        FILTER ( lang(?university__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?university  rdfs:label  ?university__label_value
+        FILTER ( lang(?university__label_value) = "de" )
+      }
+    OPTIONAL
+      { ?university  rdfs:label  ?university__label_value
+        FILTER ( lang(?university__label_value) = "mul" )
+      }
+    BIND(if(bound(?university__label_value), ?university__label_value, if(( isURI(?university) && strstarts(str(?university), "http://www.wikidata.org/entity/") ), strafter(str(?university), "entity/"), str(?university))) AS ?universityLabel)
+    OPTIONAL
+      { ?university  schema:description  ?university__description_value
+        FILTER ( lang(?university__description_value) = "en" )
+      }
+    OPTIONAL
+      { ?university  schema:description  ?university__description_value
+        FILTER ( lang(?university__description_value) = "de" )
+      }
+    BIND(?university__description_value AS ?universityDescription)
+  }
+
+# Original query:
+# #added before 2016-10
+# #defaultView:Map
+# SELECT ?universityLabel ?universityDescription ?website ?coord
+# WHERE {
+# 	?university wdt:P31/wdt:P279* wd:Q3918 ;
+# 		wdt:P17 wd:Q1009 ;
+# 		wdt:P625 ?coord .
+# 	OPTIONAL {
+# 		?university wdt:P856 ?website
+# 	}
+# 	SERVICE wikibase:label {
+# 		bd:serviceParam wikibase:language "en,de" .
+# 	}
+# }

@@ -1,0 +1,34 @@
+# rewrite_status: rewritten
+#added before 2016-10
+
+#defaultView:Map
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?item ?itemLabel ?_coordinate_location ?_image
+WHERE
+  { ?item wdt:P31/(wdt:P279)* wd:Q1370598 .
+    ?item  wdt:P625  ?_coordinate_location ;
+           wdt:P18   ?_image
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "mul" )
+      }
+    BIND(if(bound(?item__label_value), ?item__label_value, if(( isURI(?item) && strstarts(str(?item), "http://www.wikidata.org/entity/") ), strafter(str(?item), "entity/"), str(?item))) AS ?itemLabel)
+  }
+
+# Original query:
+# #added before 2016-10
+#
+# #defaultView:Map
+# SELECT ?item ?itemLabel ?_coordinate_location ?_image WHERE {
+#   ?item wdt:P31/wdt:P279* wd:Q1370598.
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "en". }
+#    ?item wdt:P625 ?_coordinate_location.
+#   ?item wdt:P18 ?_image.
+# }

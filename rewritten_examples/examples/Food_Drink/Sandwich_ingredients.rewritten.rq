@@ -1,0 +1,52 @@
+# rewrite_status: rewritten
+#title: Sandwich ingredients
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?sandwich ?ingredient ?sandwichLabel ?ingredientLabel
+WHERE
+  { ?sandwich (wdt:P31)?/(wdt:P279)* wd:Q28803 .
+    ?sandwich  wdt:P527  ?ingredient
+    MINUS
+      { ?ingredient (wdt:P279)* wd:Q7802 }
+    OPTIONAL
+      { ?sandwich  rdfs:label  ?sandwich__label_value
+        FILTER ( lang(?sandwich__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?sandwich  rdfs:label  ?sandwich__label_value
+        FILTER ( lang(?sandwich__label_value) = "fr" )
+      }
+    OPTIONAL
+      { ?sandwich  rdfs:label  ?sandwich__label_value
+        FILTER ( lang(?sandwich__label_value) = "mul" )
+      }
+    BIND(if(bound(?sandwich__label_value), ?sandwich__label_value, if(( isURI(?sandwich) && strstarts(str(?sandwich), "http://www.wikidata.org/entity/") ), strafter(str(?sandwich), "entity/"), str(?sandwich))) AS ?sandwichLabel)
+    OPTIONAL
+      { ?ingredient  rdfs:label  ?ingredient__label_value
+        FILTER ( lang(?ingredient__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?ingredient  rdfs:label  ?ingredient__label_value
+        FILTER ( lang(?ingredient__label_value) = "fr" )
+      }
+    OPTIONAL
+      { ?ingredient  rdfs:label  ?ingredient__label_value
+        FILTER ( lang(?ingredient__label_value) = "mul" )
+      }
+    BIND(if(bound(?ingredient__label_value), ?ingredient__label_value, if(( isURI(?ingredient) && strstarts(str(?ingredient), "http://www.wikidata.org/entity/") ), strafter(str(?ingredient), "entity/"), str(?ingredient))) AS ?ingredientLabel)
+  }
+ORDER BY ucase(str(?sandwichLabel))
+
+# Original query:
+# #title: Sandwich ingredients
+# SELECT ?sandwich ?ingredient ?sandwichLabel ?ingredientLabel
+# WHERE
+# {
+#   ?sandwich wdt:P31?/wdt:P279* wd:Q28803;
+#             wdt:P527 ?ingredient.
+#   MINUS { ?ingredient wdt:P279* wd:Q7802. }
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "en", "fr". }
+# }
+# ORDER BY UCASE(STR(?sandwichLabel))

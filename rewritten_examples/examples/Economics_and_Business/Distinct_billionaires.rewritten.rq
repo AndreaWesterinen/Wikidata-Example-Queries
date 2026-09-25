@@ -1,0 +1,55 @@
+# rewrite_status: rewritten
+#title: Distinct billionaires
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?locationLabel ?item ?itemLabel (MAX(?billion) AS ?billions)
+WHERE
+  { ?item  wdt:P2218  ?worth ;
+           wdt:P19    ?location
+    FILTER ( ?worth > 1000000000 )
+    BIND(( ?worth / 1000000000 ) AS ?billion)
+    OPTIONAL
+      { ?location  rdfs:label  ?location__label_value
+        FILTER ( lang(?location__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?location  rdfs:label  ?location__label_value
+        FILTER ( lang(?location__label_value) = "de" )
+      }
+    OPTIONAL
+      { ?location  rdfs:label  ?location__label_value
+        FILTER ( lang(?location__label_value) = "mul" )
+      }
+    BIND(if(bound(?location__label_value), ?location__label_value, if(( isURI(?location) && strstarts(str(?location), "http://www.wikidata.org/entity/") ), strafter(str(?location), "entity/"), str(?location))) AS ?locationLabel)
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "de" )
+      }
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "mul" )
+      }
+    BIND(if(bound(?item__label_value), ?item__label_value, if(( isURI(?item) && strstarts(str(?item), "http://www.wikidata.org/entity/") ), strafter(str(?item), "entity/"), str(?item))) AS ?itemLabel)
+  }
+GROUP BY ?locationLabel ?item ?itemLabel
+ORDER BY DESC(?billions)
+
+# Original query:
+# #title: Distinct billionaires
+# SELECT ?locationLabel ?item ?itemLabel (MAX(?billion) as ?billions)
+# WHERE
+# {
+#   ?item wdt:P2218 ?worth.
+#   ?item wdt:P19 ?location .
+#
+#   FILTER(?worth>1000000000).
+#   BIND(?worth/1000000000 AS ?billion).
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "en,de". }
+# }
+# GROUP BY ?locationLabel ?item ?itemLabel
+# ORDER BY DESC(?billions)

@@ -1,0 +1,44 @@
+# rewrite_status: rewritten
+#title: Candidates for the Dutch general election 2017 living abroad
+#defaultView:Map
+PREFIX  p:    <http://www.wikidata.org/prop/>
+PREFIX  ps:   <http://www.wikidata.org/prop/statement/>
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?item ?itemLabel ?coordinates
+WHERE
+  { ?item     p:P3602   ?node ;
+              wdt:P551  ?residence .
+    ?residence  wdt:P17  ?country ;
+              wdt:P625  ?coordinates .
+    ?node     ps:P3602  wd:Q16061881
+    FILTER ( ?country != wd:Q55 )
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "nl" )
+      }
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "mul" )
+      }
+    BIND(if(bound(?item__label_value), ?item__label_value, if(( isURI(?item) && strstarts(str(?item), "http://www.wikidata.org/entity/") ), strafter(str(?item), "entity/"), str(?item))) AS ?itemLabel)
+  }
+
+# Original query:
+# #title: Candidates for the Dutch general election 2017 living abroad
+# #defaultView:Map
+# SELECT ?item ?itemLabel ?coordinates WHERE {
+#   ?item p:P3602 ?node.
+#   ?item wdt:P551 ?residence .
+#   ?residence wdt:P17 ?country ;
+#              wdt:P625 ?coordinates .
+#   ?node ps:P3602 wd:Q16061881.
+#   FILTER (?country != wd:Q55)
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],nl". }
+# }

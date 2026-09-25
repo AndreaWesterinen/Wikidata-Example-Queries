@@ -1,0 +1,64 @@
+# rewrite_status: rewritten
+#title: The 100 most translated concepts in the Lexeme namespace
+# by So9q, 2019-11-21
+
+#defaultView:BubbleChart
+PREFIX wdt: <http://www.wikidata.org/prop/direct/>
+PREFIX ontolex: <http://www.w3.org/ns/lemon/ontolex#>
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+WITH %i AS {
+{ SELECT ?meaning (count(?l) as ?count)
+  WHERE {
+    ?l a ontolex:LexicalEntry ;
+      ontolex:sense ?sense.
+    ?sense wdt:P5137 ?meaning.
+  }
+  GROUP BY ?meaning
+  ORDER BY desc(?count)
+  LIMIT 100 }
+}
+SELECT  ?meaning ?meaningLabel ?count
+WHERE
+  { { SELECT ?meaning ?count WHERE { INCLUDE %i } }BIND(if(bound(?meaning), ?meaning, "unbound") AS ?meaning__label_subject)
+    OPTIONAL
+      { ?meaning__label_subject
+                  rdfs:label  ?meaning__label_value
+        FILTER ( lang(?meaning__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?meaning__label_subject
+                  rdfs:label  ?meaning__label_value
+        FILTER ( lang(?meaning__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?meaning__label_subject
+                  rdfs:label  ?meaning__label_value
+        FILTER ( lang(?meaning__label_value) = "en" )
+      }
+    BIND(if(bound(?meaning__label_value), ?meaning__label_value, if(( isURI(?meaning) && strstarts(str(?meaning), "http://www.wikidata.org/entity/") ), strafter(str(?meaning), "entity/"), str(?meaning))) AS ?meaningLabel)
+  }
+ORDER BY DESC(?count)
+
+# Original query:
+# #title: The 100 most translated concepts in the Lexeme namespace
+# # by So9q, 2019-11-21
+#
+# #defaultView:BubbleChart
+# SELECT ?meaning ?meaningLabel ?count
+# WITH {
+#   SELECT ?meaning (count(?l) as ?count)
+#   WHERE {
+#     ?l a ontolex:LexicalEntry ;
+#       ontolex:sense ?sense.
+#     ?sense wdt:P5137 ?meaning.
+#   }
+#   GROUP BY ?meaning
+#   ORDER BY desc(?count)
+#   LIMIT 100
+# } AS %i
+# WHERE {
+#   INCLUDE %i
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" . }
+# }
+# ORDER BY desc(?count)

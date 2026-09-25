@@ -1,0 +1,52 @@
+# rewrite_status: rewritten
+#added before 2016-10
+
+#defaultView:BubbleChart
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?surname ?surnameLabel ?count
+WHERE
+  { { SELECT  ?surname (COUNT(?person) AS ?count)
+      WHERE
+        { ?person wdt:P31/(wdt:P279)* wd:Q95074 .
+          ?person  wdt:P734  ?surname
+        }
+      GROUP BY ?surname
+    }
+    OPTIONAL
+      { ?surname  rdfs:label  ?surname__label_value
+        FILTER ( lang(?surname__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?surname  rdfs:label  ?surname__label_value
+        FILTER ( lang(?surname__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?surname  rdfs:label  ?surname__label_value
+        FILTER ( lang(?surname__label_value) = "mul" )
+      }
+    BIND(if(bound(?surname__label_value), ?surname__label_value, if(( isURI(?surname) && strstarts(str(?surname), "http://www.wikidata.org/entity/") ), strafter(str(?surname), "entity/"), str(?surname))) AS ?surnameLabel)
+  }
+ORDER BY DESC(?count)
+LIMIT   100
+
+# Original query:
+# #added before 2016-10
+#
+# #defaultView:BubbleChart
+# SELECT ?surname ?surnameLabel ?count
+# WHERE
+# {
+#   {
+#     SELECT ?surname (COUNT(?person) AS ?count) WHERE {
+#       ?person (wdt:P31/wdt:P279*) wd:Q95074.
+#       ?person wdt:P734 ?surname.
+#     }
+#     GROUP BY ?surname
+#   }
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],en". }
+# }
+# ORDER BY DESC(?count)
+# LIMIT 100

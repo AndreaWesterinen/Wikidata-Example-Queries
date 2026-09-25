@@ -1,0 +1,66 @@
+# rewrite_status: rewritten
+#title: Text by author containing case-insensitive title with optional cover image
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT DISTINCT  ?item ?authorLabel ?itemLabel ?image
+WHERE
+  { ?item wdt:P31/(wdt:P279)* wd:Q234460 .
+    ?author  ?label      "Bram Stoker" .
+    ?item    wdt:P50     ?author ;
+             rdfs:label  ?itemLabel
+    FILTER contains(lcase(?itemLabel), "dracula")
+    OPTIONAL
+      { ?item  wdt:P18  ?image }
+    OPTIONAL
+      { ?author  rdfs:label  ?author__label_value
+        FILTER ( lang(?author__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?author  rdfs:label  ?author__label_value
+        FILTER ( lang(?author__label_value) = "mul" )
+      }
+    BIND(if(bound(?author__label_value), ?author__label_value, if(( isURI(?author) && strstarts(str(?author), "http://www.wikidata.org/entity/") ), strafter(str(?author), "entity/"), str(?author))) AS ?authorLabel)
+    OPTIONAL
+      { SELECT  ?item ?itemLabel
+        WHERE
+          { { SELECT  ?item
+              WHERE
+                { ?item wdt:P31/(wdt:P279)* wd:Q234460 .
+                  ?author  ?label      "Bram Stoker" .
+                  ?item    wdt:P50     ?author ;
+                           rdfs:label  ?itemLabel
+                  OPTIONAL
+                    { ?item  wdt:P18  ?image }
+                }
+            }
+            OPTIONAL
+              { ?item  rdfs:label  ?item__label_value
+                FILTER ( lang(?item__label_value) = "[AUTO_LANGUAGE]" )
+              }
+            OPTIONAL
+              { ?item  rdfs:label  ?item__label_value
+                FILTER ( lang(?item__label_value) = "mul" )
+              }
+            BIND(if(bound(?item__label_value), ?item__label_value, if(( isURI(?item) && strstarts(str(?item), "http://www.wikidata.org/entity/") ), strafter(str(?item), "entity/"), str(?item))) AS ?itemLabel)
+          }
+      }
+  }
+LIMIT   50
+
+# Original query:
+# #title: Text by author containing case-insensitive title with optional cover image
+# SELECT DISTINCT ?item ?authorLabel ?itemLabel ?image where {
+#   ?item wdt:P31/wdt:P279* wd:Q234460.
+#
+#   ?author ?label 'Bram Stoker'.
+#   ?item wdt:P50 ?author.
+#
+#   ?item rdfs:label ?itemLabel.
+#   FILTER contains(lcase(?itemLabel), 'dracula').
+#
+#   OPTIONAL {?item wdt:P18 ?image.}
+#
+#   SERVICE wikibase:label {bd:serviceParam wikibase:language "[AUTO_LANGUAGE]".}
+# } LIMIT 50

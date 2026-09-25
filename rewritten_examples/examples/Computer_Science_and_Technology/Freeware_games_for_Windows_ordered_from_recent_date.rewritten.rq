@@ -1,0 +1,70 @@
+# rewrite_status: rewritten
+#title: Freeware games for Windows, ordered from recent date
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  schema: <http://schema.org/>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT DISTINCT  ?game ?gameLabel (MIN(?publication_date) AS ?publicationDateMin) (GROUP_CONCAT(?genre_label ; separator=', ') AS ?genres) ?gameDescription ?steamLink ?official_website
+WHERE
+  { ?game  wdt:P31   wd:Q7889 ;
+           wdt:P400  wd:Q1406 ;
+           wdt:P275  wd:Q178285
+    OPTIONAL
+      { ?game  wdt:P577  ?publication_date }
+    OPTIONAL
+      { ?game   wdt:P136    ?genre .
+        ?genre  rdfs:label  ?genre_label
+        FILTER ( lang(?genre_label) = "en" )
+      }
+    OPTIONAL
+      { ?game  wdt:P1733  ?steam }
+    BIND(URI(concat("https://store.steampowered.com/app/", ?steam)) AS ?steamLink)
+    OPTIONAL
+      { ?game  wdt:P856  ?official_website }
+    OPTIONAL
+      { ?game  rdfs:label  ?game__label_value
+        FILTER ( lang(?game__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?game  rdfs:label  ?game__label_value
+        FILTER ( lang(?game__label_value) = "mul" )
+      }
+    BIND(if(bound(?game__label_value), ?game__label_value, if(( isURI(?game) && strstarts(str(?game), "http://www.wikidata.org/entity/") ), strafter(str(?game), "entity/"), str(?game))) AS ?gameLabel)
+    OPTIONAL
+      { ?game  schema:description  ?game__description_value
+        FILTER ( lang(?game__description_value) = "en" )
+      }
+    BIND(?game__description_value AS ?gameDescription)
+  }
+GROUP BY ?game ?gameLabel ?publicationDateMin ?genres ?gameDescription ?steamLink ?official_website
+ORDER BY DESC(?publicationDateMin)
+
+# Original query:
+# #title: Freeware games for Windows, ordered from recent date
+# SELECT DISTINCT
+#     ?game
+#     ?gameLabel
+#     (MIN(?publication_date) as ?publicationDateMin)
+#     (GROUP_CONCAT(?genre_label; SEPARATOR=", ") as ?genres) 
+#     ?gameDescription
+#     ?steamLink
+#     ?official_website
+# WHERE {
+#     ?game wdt:P31 wd:Q7889.
+#     ?game wdt:P400 wd:Q1406.
+#     ?game wdt:P275 wd:Q178285.
+#     OPTIONAL { ?game wdt:P577 ?publication_date }
+#     OPTIONAL {
+#         ?game wdt:P136 ?genre .
+#         ?genre rdfs:label ?genre_label FILTER (lang(?genre_label) = "en").
+#     }
+#     OPTIONAL { ?game wdt:P1733 ?steam }
+#     BIND(URI(CONCAT("https://store.steampowered.com/app/", ?steam)) as ?steamLink)
+#     OPTIONAL { ?game wdt:P856 ?official_website }
+#     SERVICE wikibase:label {
+#         bd:serviceParam wikibase:language "en".
+#     }
+# }
+# GROUP BY ?game ?gameLabel ?publicationDateMin ?genres ?gameDescription ?steamLink ?official_website
+# ORDER BY DESC(?publicationDateMin)

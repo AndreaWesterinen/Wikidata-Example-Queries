@@ -1,0 +1,63 @@
+# rewrite_status: rewritten
+#title: Recent events
+PREFIX wd: <http://www.wikidata.org/entity/>
+PREFIX wdt: <http://www.wikidata.org/prop/direct/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+WITH %i AS {
+# find events
+    ?event wdt:P31/wdt:P279* wd:Q1190554.
+    # with a point in time or start date
+    OPTIONAL { ?event wdt:P585 ?date. }
+    OPTIONAL { ?event wdt:P580 ?date. }
+    # but at least one of those
+    FILTER(BOUND(?date) && DATATYPE(?date) = xsd:dateTime).
+    # not in the future, and not more than 31 days ago
+    BIND(NOW() - ?date AS ?distance).
+    FILTER(0 <= ?distance && ?distance < 31).
+}
+SELECT  ?event ?eventLabel ?date
+WHERE
+  { { SELECT ?event ?date WHERE { INCLUDE %i } LIMIT 150 }BIND(if(bound(?event), ?event, "unbound") AS ?event__label_subject)
+    OPTIONAL
+      { ?event__label_subject
+                  rdfs:label  ?event__label_value
+        FILTER ( lang(?event__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?event__label_subject
+                  rdfs:label  ?event__label_value
+        FILTER ( lang(?event__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?event__label_subject
+                  rdfs:label  ?event__label_value
+        FILTER ( lang(?event__label_value) = "en" )
+      }
+    BIND(if(bound(?event__label_value), ?event__label_value, if(( isURI(?event) && strstarts(str(?event), "http://www.wikidata.org/entity/") ), strafter(str(?event), "entity/"), str(?event))) AS ?eventLabel)
+  }
+
+# Original query:
+# #title: Recent events
+# SELECT ?event ?eventLabel ?date
+# WITH {
+#   SELECT DISTINCT ?event ?date
+#   WHERE {
+#     # find events
+#     ?event wdt:P31/wdt:P279* wd:Q1190554.
+#     # with a point in time or start date
+#     OPTIONAL { ?event wdt:P585 ?date. }
+#     OPTIONAL { ?event wdt:P580 ?date. }
+#     # but at least one of those
+#     FILTER(BOUND(?date) && DATATYPE(?date) = xsd:dateTime).
+#     # not in the future, and not more than 31 days ago
+#     BIND(NOW() - ?date AS ?distance).
+#     FILTER(0 <= ?distance && ?distance < 31).
+#   }
+#   LIMIT 150
+# } AS %i
+# WHERE {
+#   INCLUDE %i
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" . }
+# }

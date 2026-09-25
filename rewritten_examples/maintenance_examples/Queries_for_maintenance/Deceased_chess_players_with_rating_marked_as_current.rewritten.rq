@@ -1,0 +1,34 @@
+# rewrite_status: rewritten
+#title: Deceased chess players with rating marked as current
+PREFIX  p:    <http://www.wikidata.org/prop/>
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wikibase: <http://wikiba.se/ontology#>
+
+SELECT DISTINCT  ?person ?personLabel
+WHERE
+  { ?person   p:P1087        ?eloRating .
+    ?eloRating  wikibase:rank  wikibase:PreferredRank .
+    ?person   p:P570         _:b0
+    OPTIONAL
+      { ?person  rdfs:label  ?person__label_value
+        FILTER ( lang(?person__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?person  rdfs:label  ?person__label_value
+        FILTER ( lang(?person__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?person  rdfs:label  ?person__label_value
+        FILTER ( lang(?person__label_value) = "en" )
+      }
+    BIND(if(bound(?person__label_value), ?person__label_value, if(( isURI(?person) && strstarts(str(?person), "http://www.wikidata.org/entity/") ), strafter(str(?person), "entity/"), str(?person))) AS ?personLabel)
+  }
+
+# Original query:
+# #title: Deceased chess players with rating marked as current
+# SELECT DISTINCT ?person ?personLabel WHERE {
+#   ?person p:P1087 ?eloRating.
+#   ?eloRating wikibase:rank wikibase:PreferredRank.
+#   ?person p:P570 []. # date of death
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" }
+# }

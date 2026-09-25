@@ -1,0 +1,13 @@
+Maintenance Examples (https://www.wikidata.org/wiki/Wikidata:SPARQL_query_service/queries/examples/maintenance)
+
+60 written; 4 could not be rewritten
+
+Parse_error (1):
+  Reuse of at least one variable name from the query body in the projection variables - Invalid SPARQL:
+    Queries_for_maintenance/Animals_owned_by_people_holding_any_position.rq
+
+Skipped_unsupported (3):
+  Rewriting of MWAPI is not possible:
+    Queries_for_maintenance/Articles_missing_an_item_for_their_subject_CRAN_R_packages.rq
+    Queries_for_maintenance/Labels_containing_HTML_escape_sequences.rq
+    Queries_for_maintenance/String_search_All_items_having_the_string_airport_without_having_instance_of_P31_nor_subclass_of_P279.rq

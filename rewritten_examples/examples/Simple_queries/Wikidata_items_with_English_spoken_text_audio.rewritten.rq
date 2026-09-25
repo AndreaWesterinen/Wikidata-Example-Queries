@@ -1,0 +1,38 @@
+# rewrite_status: rewritten
+#title: Wikidata items with English spoken text audio
+PREFIX  p:    <http://www.wikidata.org/prop/>
+PREFIX  pq:   <http://www.wikidata.org/prop/qualifier/>
+PREFIX  ps:   <http://www.wikidata.org/prop/statement/>
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+
+SELECT DISTINCT  ?item ?itemLabel
+WHERE
+  { ?item     p:P989   ?statement .
+    ?statement  ps:P989  ?spokentext ;
+              pq:P407  ?lang
+    FILTER ( ?lang = wd:Q1860 )
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "en" )
+      }
+    BIND(if(bound(?item__label_value), ?item__label_value, if(( isURI(?item) && strstarts(str(?item), "http://www.wikidata.org/entity/") ), strafter(str(?item), "entity/"), str(?item))) AS ?itemLabel)
+  }
+
+# Original query:
+# #title: Wikidata items with English spoken text audio
+# SELECT DISTINCT ?item ?itemLabel WHERE {
+#   ?item p:P989 ?statement .# check for spoken text audio statement and exclude those without P989 value
+#   ?statement ps:P989 ?spokentext .
+#   ?statement pq:P407 ?lang . # get qualifier language
+#   FILTER(?lang = wd:Q1860) . # filter for EN
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" }
+# }

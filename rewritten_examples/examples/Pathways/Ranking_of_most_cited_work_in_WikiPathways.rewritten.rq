@@ -1,0 +1,29 @@
+# rewrite_status: rewritten
+#title: Ranking of most cited work in WikiPathways
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?citation ?citationLabel (COUNT(?pathway) AS ?times_cited)
+WHERE
+  { ?pathway  wdt:P2410  ?WikiPathwaysID ;
+              wdt:P2860  ?citation
+    OPTIONAL
+      { ?citation  rdfs:label  ?citation__label_value
+        FILTER ( lang(?citation__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?citation  rdfs:label  ?citation__label_value
+        FILTER ( lang(?citation__label_value) = "mul" )
+      }
+    BIND(if(bound(?citation__label_value), ?citation__label_value, if(( isURI(?citation) && strstarts(str(?citation), "http://www.wikidata.org/entity/") ), strafter(str(?citation), "entity/"), str(?citation))) AS ?citationLabel)
+  }
+GROUP BY ?pathway ?citation ?citationLabel
+
+# Original query:
+# #title: Ranking of most cited work in WikiPathways
+# SELECT ?citation ?citationLabel (count(?pathway) as ?times_cited) WHERE {
+#   ?pathway wdt:P2410 ?WikiPathwaysID ;
+#            wdt:P2860 ?citation .
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "en". }
+#   }
+# GROUP BY ?pathway ?citation ?citationLabel

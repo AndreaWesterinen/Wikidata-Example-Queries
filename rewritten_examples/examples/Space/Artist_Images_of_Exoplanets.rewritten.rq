@@ -1,0 +1,34 @@
+# rewrite_status: rewritten
+#title: (Artist) Images of Exoplanets
+#defaultView:ImageGrid
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?exoplanet ?exoplanetLabel ?image
+WHERE
+  { ?exoplanet  wdt:P31  wd:Q44559 ;
+              wdt:P18  ?image
+    OPTIONAL
+      { ?exoplanet  rdfs:label  ?exoplanet__label_value
+        FILTER ( lang(?exoplanet__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?exoplanet  rdfs:label  ?exoplanet__label_value
+        FILTER ( lang(?exoplanet__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?exoplanet  rdfs:label  ?exoplanet__label_value
+        FILTER ( lang(?exoplanet__label_value) = "en" )
+      }
+    BIND(if(bound(?exoplanet__label_value), ?exoplanet__label_value, if(( isURI(?exoplanet) && strstarts(str(?exoplanet), "http://www.wikidata.org/entity/") ), strafter(str(?exoplanet), "entity/"), str(?exoplanet))) AS ?exoplanetLabel)
+  }
+
+# Original query:
+# #title: (Artist) Images of Exoplanets
+# #defaultView:ImageGrid
+# SELECT ?exoplanet ?exoplanetLabel ?image WHERE {
+#   ?exoplanet wdt:P31 wd:Q44559 ;
+#              wdt:P18 ?image .
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en". }
+# }

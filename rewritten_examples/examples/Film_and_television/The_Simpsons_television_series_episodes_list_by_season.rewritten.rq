@@ -1,0 +1,56 @@
+# rewrite_status: rewritten
+#title: The Simpsons television series episodes list by season
+PREFIX  p:    <http://www.wikidata.org/prop/>
+PREFIX  pq:   <http://www.wikidata.org/prop/qualifier/>
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+PREFIX  xsd:  <http://www.w3.org/2001/XMLSchema#>
+
+SELECT  ?show ?showLabel ?seasonNumber ?episode ?episodeLabel
+WHERE
+  { BIND(wd:Q886 AS ?show)
+    ?season  wdt:P179  ?show ;
+             wdt:P527  ?episode ;
+             p:P179    _:b0 .
+    _:b0     pq:P1545  ?seasonNumber
+    OPTIONAL
+      { ?show  rdfs:label  ?show__label_value
+        FILTER ( lang(?show__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?show  rdfs:label  ?show__label_value
+        FILTER ( lang(?show__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?show  rdfs:label  ?show__label_value
+        FILTER ( lang(?show__label_value) = "en" )
+      }
+    BIND(if(bound(?show__label_value), ?show__label_value, if(( isURI(?show) && strstarts(str(?show), "http://www.wikidata.org/entity/") ), strafter(str(?show), "entity/"), str(?show))) AS ?showLabel)
+    OPTIONAL
+      { ?episode  rdfs:label  ?episode__label_value
+        FILTER ( lang(?episode__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?episode  rdfs:label  ?episode__label_value
+        FILTER ( lang(?episode__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?episode  rdfs:label  ?episode__label_value
+        FILTER ( lang(?episode__label_value) = "en" )
+      }
+    BIND(if(bound(?episode__label_value), ?episode__label_value, if(( isURI(?episode) && strstarts(str(?episode), "http://www.wikidata.org/entity/") ), strafter(str(?episode), "entity/"), str(?episode))) AS ?episodeLabel)
+  }
+ORDER BY xsd:integer(?seasonNumber)
+
+# Original query:
+# #title: The Simpsons television series episodes list by season
+# SELECT ?show ?showLabel ?seasonNumber ?episode ?episodeLabel
+# WHERE {
+#   BIND(wd:Q886 as ?show) .
+#   ?season wdt:P179 ?show;
+#           wdt:P527 ?episode;
+#           p:P179 [pq:P1545 ?seasonNumber] .
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" }
+# }
+# ORDER BY xsd:integer(?seasonNumber)

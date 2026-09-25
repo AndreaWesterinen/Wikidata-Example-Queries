@@ -1,0 +1,38 @@
+# rewrite_status: rewritten
+#defaultView:BarChart
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?genderLabel (COUNT(?gender) AS ?genderCount)
+WHERE
+  { ?item     wdt:P136  wd:Q557141 ;
+              wdt:P131  wd:Q47887 ;
+              wdt:P170  ?creator .
+    ?creator  wdt:P21   ?gender
+    OPTIONAL
+      { ?gender  rdfs:label  ?gender__label_value
+        FILTER ( lang(?gender__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?gender  rdfs:label  ?gender__label_value
+        FILTER ( lang(?gender__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?gender  rdfs:label  ?gender__label_value
+        FILTER ( lang(?gender__label_value) = "mul" )
+      }
+    BIND(if(bound(?gender__label_value), ?gender__label_value, if(( isURI(?gender) && strstarts(str(?gender), "http://www.wikidata.org/entity/") ), strafter(str(?gender), "entity/"), str(?gender))) AS ?genderLabel)
+  }
+GROUP BY ?genderLabel ?genderCount
+
+# Original query:
+# #defaultView:BarChart
+# select ?genderLabel (count(?gender) as ?genderCount) where {
+#   ?item wdt:P136 wd:Q557141;
+#         wdt:P131 wd:Q47887;
+#         wdt:P170 ?creator. 
+#     
+#   ?creator wdt:P21 ?gender.
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],en". }
+# } group by ?genderLabel ?genderCount

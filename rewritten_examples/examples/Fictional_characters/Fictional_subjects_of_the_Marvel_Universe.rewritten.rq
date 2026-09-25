@@ -1,0 +1,65 @@
+# rewrite_status: rewritten
+#title: Fictional subjects of the Marvel Universe
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?char ?charName (GROUP_CONCAT(DISTINCT ?typeLabel ; separator=', ') AS ?types) (GROUP_CONCAT(DISTINCT ?universeLabel ; separator=', ') AS ?universes)
+WHERE
+  { ?char  wdt:P1080  wd:Q931597 ;
+           wdt:P31    ?type ;
+           wdt:P1080  ?universe
+    OPTIONAL
+      { ?char  rdfs:label  ?char__label_value
+        FILTER ( lang(?char__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?char  rdfs:label  ?char__label_value
+        FILTER ( lang(?char__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?char  rdfs:label  ?char__label_value
+        FILTER ( lang(?char__label_value) = "en" )
+      }
+    BIND(if(bound(?char__label_value), ?char__label_value, if(( isURI(?char) && strstarts(str(?char), "http://www.wikidata.org/entity/") ), strafter(str(?char), "entity/"), str(?char))) AS ?charName)
+    OPTIONAL
+      { ?universe  rdfs:label  ?universe__label_value
+        FILTER ( lang(?universe__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?universe  rdfs:label  ?universe__label_value
+        FILTER ( lang(?universe__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?universe  rdfs:label  ?universe__label_value
+        FILTER ( lang(?universe__label_value) = "en" )
+      }
+    BIND(if(bound(?universe__label_value), ?universe__label_value, if(( isURI(?universe) && strstarts(str(?universe), "http://www.wikidata.org/entity/") ), strafter(str(?universe), "entity/"), str(?universe))) AS ?universeLabel)
+    OPTIONAL
+      { ?type  rdfs:label  ?type__label_value
+        FILTER ( lang(?type__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?type  rdfs:label  ?type__label_value
+        FILTER ( lang(?type__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?type  rdfs:label  ?type__label_value
+        FILTER ( lang(?type__label_value) = "en" )
+      }
+    BIND(if(bound(?type__label_value), ?type__label_value, if(( isURI(?type) && strstarts(str(?type), "http://www.wikidata.org/entity/") ), strafter(str(?type), "entity/"), str(?type))) AS ?typeLabel)
+  }
+GROUP BY ?char ?charName
+
+# Original query:
+# #title: Fictional subjects of the Marvel Universe
+# SELECT ?char ?charName (GROUP_CONCAT(DISTINCT ?typeLabel;separator=", ") AS ?types) (GROUP_CONCAT(DISTINCT ?universeLabel;separator=", ") AS ?universes)
+# WHERE {
+#   ?char wdt:P1080 wd:Q931597;
+#           wdt:P31 ?type ;
+#           wdt:P1080 ?universe .
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en".
+#                          ?char rdfs:label ?charName .
+#                          ?universe rdfs:label ?universeLabel .
+#                          ?type rdfs:label ?typeLabel .}
+# } GROUP BY ?char ?charName

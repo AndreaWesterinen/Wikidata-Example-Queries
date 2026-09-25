@@ -1,0 +1,74 @@
+# rewrite_status: rewritten
+#title: Universities of main programming language authors
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?lang ?langLabel ?human ?humanLabel ?educatedat ?educatedatLabel ?coords
+WHERE
+  { ?lang wdt:P31/(wdt:P279)* wd:Q9143 .
+    ?human  wdt:P31  wd:Q5
+      { ?lang  wdt:P287  ?human }
+    UNION
+      { ?lang  wdt:P170  ?human }
+    UNION
+      { ?lang  wdt:P943  ?human }
+    UNION
+      { ?lang  wdt:P178  ?human }
+    ?human    wdt:P69   ?educatedat .
+    ?educatedat  wdt:P625  ?coords
+    OPTIONAL
+      { ?lang  rdfs:label  ?lang__label_value
+        FILTER ( lang(?lang__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?lang  rdfs:label  ?lang__label_value
+        FILTER ( lang(?lang__label_value) = "fr" )
+      }
+    OPTIONAL
+      { ?lang  rdfs:label  ?lang__label_value
+        FILTER ( lang(?lang__label_value) = "mul" )
+      }
+    BIND(if(bound(?lang__label_value), ?lang__label_value, if(( isURI(?lang) && strstarts(str(?lang), "http://www.wikidata.org/entity/") ), strafter(str(?lang), "entity/"), str(?lang))) AS ?langLabel)
+    OPTIONAL
+      { ?human  rdfs:label  ?human__label_value
+        FILTER ( lang(?human__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?human  rdfs:label  ?human__label_value
+        FILTER ( lang(?human__label_value) = "fr" )
+      }
+    OPTIONAL
+      { ?human  rdfs:label  ?human__label_value
+        FILTER ( lang(?human__label_value) = "mul" )
+      }
+    BIND(if(bound(?human__label_value), ?human__label_value, if(( isURI(?human) && strstarts(str(?human), "http://www.wikidata.org/entity/") ), strafter(str(?human), "entity/"), str(?human))) AS ?humanLabel)
+    OPTIONAL
+      { ?educatedat  rdfs:label  ?educatedat__label_value
+        FILTER ( lang(?educatedat__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?educatedat  rdfs:label  ?educatedat__label_value
+        FILTER ( lang(?educatedat__label_value) = "fr" )
+      }
+    OPTIONAL
+      { ?educatedat  rdfs:label  ?educatedat__label_value
+        FILTER ( lang(?educatedat__label_value) = "mul" )
+      }
+    BIND(if(bound(?educatedat__label_value), ?educatedat__label_value, if(( isURI(?educatedat) && strstarts(str(?educatedat), "http://www.wikidata.org/entity/") ), strafter(str(?educatedat), "entity/"), str(?educatedat))) AS ?educatedatLabel)
+  }
+LIMIT   100
+
+# Original query:
+# #title: Universities of main programming language authors
+# SELECT ?lang ?langLabel ?human ?humanLabel ?educatedat ?educatedatLabel ?coords
+# {
+#   ?lang wdt:P31/wdt:P279* wd:Q9143 .
+#   ?human wdt:P31 wd:Q5 .
+#   { ?lang wdt:P287 ?human } UNION { ?lang wdt:P170 ?human } UNION { ?lang wdt:P943 ?human } UNION { ?lang wdt:P178 ?human } .
+#
+#   ?human wdt:P69 ?educatedat .
+#   ?educatedat wdt:P625 ?coords .
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "en,fr" }
+# }
+# LIMIT 100

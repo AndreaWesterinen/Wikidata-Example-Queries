@@ -1,0 +1,32 @@
+# rewrite_status: rewritten
+#title: Number of jurisdictions by driving side
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?sideLabel (COUNT(?jurisdiction) AS ?count)
+WHERE
+  { ?jurisdiction
+              wdt:P1622  ?side
+    OPTIONAL
+      { ?side  rdfs:label  ?side__label_value
+        FILTER ( lang(?side__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?side  rdfs:label  ?side__label_value
+        FILTER ( lang(?side__label_value) = "mul" )
+      }
+    BIND(if(bound(?side__label_value), ?side__label_value, if(( isURI(?side) && strstarts(str(?side), "http://www.wikidata.org/entity/") ), strafter(str(?side), "entity/"), str(?side))) AS ?sideLabel)
+  }
+GROUP BY ?sideLabel
+ORDER BY ?sideLabel
+
+# Original query:
+# #title: Number of jurisdictions by driving side
+# SELECT ?sideLabel (COUNT(?jurisdiction) AS ?count)
+# WHERE
+# {
+#   ?jurisdiction wdt:P1622 ?side.
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "en". }
+# }
+# GROUP BY ?sideLabel
+# ORDER BY ?sideLabel

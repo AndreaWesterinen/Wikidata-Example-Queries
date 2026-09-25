@@ -1,0 +1,51 @@
+# rewrite_status: rewritten
+#title: People of same year of birth by occupation
+#author: Leaf_plate, 2025-08-30
+#defaultView:BubbleChart
+PREFIX  p:    <http://www.wikidata.org/prop/>
+PREFIX  psv:  <http://www.wikidata.org/prop/statement/value/>
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+PREFIX  wikibase: <http://wikiba.se/ontology#>
+
+SELECT  ?occupation ?occupationLabel (COUNT(?occupation) AS ?people)
+WHERE
+  { ?item  wdt:P31  wd:Q5 .
+    ?item p:P569/psv:P569 ?birth_date_node .
+    ?birth_date_node
+              wikibase:timePrecision  9 ;
+              wikibase:timeValue    ?birth_date
+    FILTER ( year(?birth_date) = 1111 )
+    ?item  wdt:P106  ?occupation
+    OPTIONAL
+      { ?occupation  rdfs:label  ?occupation__label_value
+        FILTER ( lang(?occupation__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?occupation  rdfs:label  ?occupation__label_value
+        FILTER ( lang(?occupation__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?occupation  rdfs:label  ?occupation__label_value
+        FILTER ( lang(?occupation__label_value) = "en" )
+      }
+    BIND(if(bound(?occupation__label_value), ?occupation__label_value, if(( isURI(?occupation) && strstarts(str(?occupation), "http://www.wikidata.org/entity/") ), strafter(str(?occupation), "entity/"), str(?occupation))) AS ?occupationLabel)
+  }
+GROUP BY ?occupation ?occupationLabel
+
+# Original query:
+# #title: People of same year of birth by occupation
+# #author: Leaf_plate, 2025-08-30
+# #defaultView:BubbleChart
+# SELECT ?occupation ?occupationLabel (COUNT(?occupation) AS ?people)
+#   WHERE {
+#     ?item wdt:P31 wd:Q5.
+#     ?item p:P569/psv:P569 ?birth_date_node.
+#     ?birth_date_node wikibase:timePrecision "9"^^xsd:integer.  # Time precision = year
+#     ?birth_date_node wikibase:timeValue ?birth_date.
+#     FILTER (year(?birth_date) = 1111).  # Filtered for year 1111.
+#     ?item wdt:P106 ?occupation.
+#     SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en". }  
+# }
+# GROUP BY ?occupation ?occupationLabel

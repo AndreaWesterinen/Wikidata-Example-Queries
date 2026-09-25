@@ -1,0 +1,40 @@
+# rewrite_status: rewritten
+#defaultView:Map
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?item ?itemLabel ?coord
+WHERE
+  { ?item  wdt:P31   wd:Q130003 ;
+           wdt:P625  ?coord
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "mul" )
+      }
+    BIND(if(bound(?item__label_value), ?item__label_value, if(( isURI(?item) && strstarts(str(?item), "http://www.wikidata.org/entity/") ), strafter(str(?item), "entity/"), str(?item))) AS ?itemLabel)
+  }
+
+# Original query:
+# #defaultView:Map
+# SELECT ?item ?itemLabel ?coord #?lat ?lon
+# WHERE
+# {
+#    ?item               wdt:P31        wd:Q130003.
+#    ?item               wdt:P625         ?coord.
+#
+# #  ?item                 p:P625         ?statementnode.
+# #  ?statementnode      psv:P625         ?valuenode.
+# #  ?valuenode     wikibase:geoLatitude  ?lat.
+# #  ?valuenode     wikibase:geoLongitude ?lon.
+#
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],en". }
+# }

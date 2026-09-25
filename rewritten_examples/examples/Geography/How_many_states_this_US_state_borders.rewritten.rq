@@ -1,0 +1,52 @@
+# rewrite_status: rewritten
+#title: How many states this US state borders
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?state ?stateLabel ?borders
+WHERE
+  { { SELECT  ?state (COUNT(?otherState) AS ?borders)
+      WHERE
+        { ?state    wdt:P31  wd:Q35657 .
+          ?otherState  wdt:P47  ?state ;
+                    wdt:P31  wd:Q35657
+        }
+      GROUP BY ?state
+    }
+    OPTIONAL
+      { ?state  rdfs:label  ?state__label_value
+        FILTER ( lang(?state__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?state  rdfs:label  ?state__label_value
+        FILTER ( lang(?state__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?state  rdfs:label  ?state__label_value
+        FILTER ( lang(?state__label_value) = "en" )
+      }
+    BIND(if(bound(?state__label_value), ?state__label_value, if(( isURI(?state) && strstarts(str(?state), "http://www.wikidata.org/entity/") ), strafter(str(?state), "entity/"), str(?state))) AS ?stateLabel)
+  }
+ORDER BY DESC(?borders)
+
+# Original query:
+# #title: How many states this US state borders
+# SELECT ?state ?stateLabel ?borders
+# WHERE
+# {
+#   {
+#     SELECT ?state (COUNT(?otherState) as ?borders)
+#     WHERE
+#     {
+#     ?state wdt:P31 wd:Q35657 .
+#     ?otherState wdt:P47 ?state .
+#     ?otherState wdt:P31 wd:Q35657 .
+#     }
+#     GROUP BY ?state
+#   }
+#   SERVICE wikibase:label {
+#     bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" .
+#   }
+# }
+# ORDER BY DESC(?borders)

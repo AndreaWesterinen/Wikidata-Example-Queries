@@ -1,0 +1,51 @@
+# rewrite_status: rewritten
+#title: Countries that have adopted a cryptocurrency as legal tender
+# Countries that have adopted a cryptocurrency as legal tender
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?country ?countryLabel ?currency ?currencyLabel
+WHERE
+  { ?country  wdt:P31  wd:Q6256 ;
+              wdt:P38  ?currency .
+    ?currency wdt:P31/(wdt:P279)* wd:Q13479982
+    OPTIONAL
+      { ?country  rdfs:label  ?country__label_value
+        FILTER ( lang(?country__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?country  rdfs:label  ?country__label_value
+        FILTER ( lang(?country__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?country  rdfs:label  ?country__label_value
+        FILTER ( lang(?country__label_value) = "en" )
+      }
+    BIND(if(bound(?country__label_value), ?country__label_value, if(( isURI(?country) && strstarts(str(?country), "http://www.wikidata.org/entity/") ), strafter(str(?country), "entity/"), str(?country))) AS ?countryLabel)
+    OPTIONAL
+      { ?currency  rdfs:label  ?currency__label_value
+        FILTER ( lang(?currency__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?currency  rdfs:label  ?currency__label_value
+        FILTER ( lang(?currency__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?currency  rdfs:label  ?currency__label_value
+        FILTER ( lang(?currency__label_value) = "en" )
+      }
+    BIND(if(bound(?currency__label_value), ?currency__label_value, if(( isURI(?currency) && strstarts(str(?currency), "http://www.wikidata.org/entity/") ), strafter(str(?currency), "entity/"), str(?currency))) AS ?currencyLabel)
+  }
+
+# Original query:
+# #title: Countries that have adopted a cryptocurrency as legal tender
+# # Countries that have adopted a cryptocurrency as legal tender
+# SELECT ?country ?countryLabel ?currency ?currencyLabel
+# WHERE
+# {
+#   ?country wdt:P31 wd:Q6256.                # Instances of country
+#   ?country wdt:P38 ?currency.               # Country has currency
+#   ?currency wdt:P31/wdt:P279* wd:Q13479982. # Currency is instance or subclass of cryptocurrency
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en". }
+# }

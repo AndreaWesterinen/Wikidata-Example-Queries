@@ -1,0 +1,73 @@
+# rewrite_status: rewritten
+#title: The education of Douglas Adams, to illustrate references
+PREFIX  p:    <http://www.wikidata.org/prop/>
+PREFIX  pr:   <http://www.wikidata.org/prop/reference/>
+PREFIX  prov: <http://www.w3.org/ns/prov#>
+PREFIX  ps:   <http://www.wikidata.org/prop/statement/>
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+
+SELECT  ?education ?educationLabel ?ref ?refLabel
+WHERE
+  { wd:Q42    p:P69   ?statement .
+    ?statement  ps:P69  ?education
+    OPTIONAL
+      { ?statement  prov:wasDerivedFrom  ?refstatement .
+        ?refstatement
+                  pr:P248              ?ref
+      }
+    OPTIONAL
+      { ?education  rdfs:label  ?education__label_value
+        FILTER ( lang(?education__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?education  rdfs:label  ?education__label_value
+        FILTER ( lang(?education__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?education  rdfs:label  ?education__label_value
+        FILTER ( lang(?education__label_value) = "en" )
+      }
+    BIND(if(bound(?education__label_value), ?education__label_value, if(( isURI(?education) && strstarts(str(?education), "http://www.wikidata.org/entity/") ), strafter(str(?education), "entity/"), str(?education))) AS ?educationLabel)
+    BIND(if(bound(?ref), ?ref, "unbound") AS ?ref__label_subject)
+    OPTIONAL
+      { ?ref__label_subject
+                  rdfs:label  ?ref__label_value
+        FILTER ( lang(?ref__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?ref__label_subject
+                  rdfs:label  ?ref__label_value
+        FILTER ( lang(?ref__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?ref__label_subject
+                  rdfs:label  ?ref__label_value
+        FILTER ( lang(?ref__label_value) = "en" )
+      }
+    BIND(if(bound(?ref__label_value), ?ref__label_value, if(( isURI(?ref) && strstarts(str(?ref), "http://www.wikidata.org/entity/") ), strafter(str(?ref), "entity/"), str(?ref))) AS ?refLabel)
+  }
+
+# Original query:
+# #title: The education of Douglas Adams, to illustrate references
+# SELECT ?education ?educationLabel ?ref ?refLabel  WHERE {
+#
+# # We use the long notation to better illustrate the nature of the components.
+#      wd:Q42         p:P69                ?statement    .
+#      ?statement     ps:P69               ?education    .
+#   OPTIONAL {
+#      ?statement     prov:wasDerivedFrom  ?refstatement .
+#      ?refstatement  pr:P248              ?ref          .
+#   }
+#
+# # In short notation, this would be (without OPTIONAL) :
+# #    wd:Q42         p:P69                [ ps:P69               ?education      ;
+# #                                          prov:wasDerivedFrom 
+# #                                                               [ pr:P248  ?ref 
+# #                                                               ]
+# #                                        ] .
+# #
+# # or:  wd:Q42 p:P69 [ ps:P69 ?education; prov:wasDerivedFrom [ pr:P248 ?ref ] ] .
+# #
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en". }
+# }

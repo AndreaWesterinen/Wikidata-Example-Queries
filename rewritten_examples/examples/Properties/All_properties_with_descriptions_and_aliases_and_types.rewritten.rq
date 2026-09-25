@@ -1,0 +1,65 @@
+# rewrite_status: rewritten
+#title: All properties with descriptions and aliases and types
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  schema: <http://schema.org/>
+PREFIX  skos: <http://www.w3.org/2004/02/skos/core#>
+PREFIX  wikibase: <http://wikiba.se/ontology#>
+PREFIX  xsd:  <http://www.w3.org/2001/XMLSchema#>
+
+SELECT  ?property ?propertyType ?propertyLabel ?propertyDescription ?propertyAltLabel
+WHERE
+  { ?property  wikibase:propertyType  ?propertyType
+    OPTIONAL
+      { ?property  rdfs:label  ?property__label_value
+        FILTER ( lang(?property__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?property  rdfs:label  ?property__label_value
+        FILTER ( lang(?property__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?property  rdfs:label  ?property__label_value
+        FILTER ( lang(?property__label_value) = "en" )
+      }
+    BIND(if(bound(?property__label_value), ?property__label_value, if(( isURI(?property) && strstarts(str(?property), "http://www.wikidata.org/entity/") ), strafter(str(?property), "entity/"), str(?property))) AS ?propertyLabel)
+    OPTIONAL
+      { ?property  schema:description  ?property__description_value
+        FILTER ( lang(?property__description_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?property  schema:description  ?property__description_value
+        FILTER ( lang(?property__description_value) = "en" )
+      }
+    BIND(?property__description_value AS ?propertyDescription)
+    OPTIONAL
+      { SELECT  ?property (GROUP_CONCAT(DISTINCT ?property__alias_value ; separator=', ') AS ?propertyAltLabel)
+        WHERE
+          { { SELECT  ?property
+              WHERE
+                { ?property  wikibase:propertyType  ?propertyType }
+            }
+            OPTIONAL
+              { ?property  skos:altLabel  ?property__alias_value
+                FILTER ( lang(?property__alias_value) = "[AUTO_LANGUAGE]" )
+              }
+            OPTIONAL
+              { ?property  skos:altLabel  ?property__alias_value
+                FILTER ( lang(?property__alias_value) = "mul" )
+              }
+            OPTIONAL
+              { ?property  skos:altLabel  ?property__alias_value
+                FILTER ( lang(?property__alias_value) = "en" )
+              }
+          }
+        GROUP BY ?property
+      }
+  }
+ORDER BY ASC(xsd:integer(strafter(str(?property), "P")))
+
+# Original query:
+# #title: All properties with descriptions and aliases and types
+# SELECT ?property ?propertyType ?propertyLabel ?propertyDescription ?propertyAltLabel WHERE {
+#   ?property wikibase:propertyType ?propertyType .
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en". }
+# }
+# ORDER BY ASC(xsd:integer(STRAFTER(STR(?property), 'P')))

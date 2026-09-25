@@ -1,0 +1,42 @@
+# rewrite_status: rewritten
+#title: The education of Douglas Adams, to illustrate time qualifiers
+PREFIX  p:    <http://www.wikidata.org/prop/>
+PREFIX  pq:   <http://www.wikidata.org/prop/qualifier/>
+PREFIX  ps:   <http://www.wikidata.org/prop/statement/>
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+
+SELECT  ?education ?educationLabel ?starttime ?endtime
+WHERE
+  { wd:Q42  p:P69    _:b0 .
+    _:b0    ps:P69   ?education ;
+            pq:P580  ?starttime ;
+            pq:P582  ?endtime
+    OPTIONAL
+      { ?education  rdfs:label  ?education__label_value
+        FILTER ( lang(?education__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?education  rdfs:label  ?education__label_value
+        FILTER ( lang(?education__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?education  rdfs:label  ?education__label_value
+        FILTER ( lang(?education__label_value) = "en" )
+      }
+    BIND(if(bound(?education__label_value), ?education__label_value, if(( isURI(?education) && strstarts(str(?education), "http://www.wikidata.org/entity/") ), strafter(str(?education), "entity/"), str(?education))) AS ?educationLabel)
+  }
+ORDER BY ?starttime
+
+# Original query:
+# #title: The education of Douglas Adams, to illustrate time qualifiers
+# SELECT ?education ?educationLabel ?starttime ?endtime
+# WHERE
+# {
+#      wd:Q42 p:P69 [ps:P69 ?education;
+#                    pq:P580 ?starttime;
+#                    pq:P582 ?endtime;
+#                   ].
+#      SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en". }
+# }
+# ORDER BY ?starttime

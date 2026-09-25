@@ -1,0 +1,40 @@
+# rewrite_status: rewritten
+#title: Authors with country of citizenship United States who do not have a Goodreads identifier
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?item ?itemLabel
+WHERE
+  { ?item  wdt:P31   wd:Q5 ;
+           wdt:P27   wd:Q30 ;
+           wdt:P106  wd:Q36180
+    MINUS
+      { ?item  wdt:P2963  _:b0 }
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "en" )
+      }
+    BIND(if(bound(?item__label_value), ?item__label_value, if(( isURI(?item) && strstarts(str(?item), "http://www.wikidata.org/entity/") ), strafter(str(?item), "entity/"), str(?item))) AS ?itemLabel)
+  }
+
+# Original query:
+# #title: Authors with country of citizenship United States who do not have a Goodreads identifier
+# SELECT ?item ?itemLabel
+# WHERE
+# {
+#   ?item wdt:P31 wd:Q5. # instance of (P31) human (Q5)
+#   ?item wdt:P27 wd:Q30. # country of citizenship (P27) is United States (Q30)
+#   ?item wdt:P106 wd:Q36180. # occupation (P106) is writer (Q36180)
+#   MINUS { ?item wdt:P2963 [] } .
+#
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en". }
+# }

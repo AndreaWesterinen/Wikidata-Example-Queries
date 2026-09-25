@@ -1,0 +1,39 @@
+# rewrite_status: rewritten
+#title: Infectious diseases with their human minimum and maximum incubation time (in days)
+
+PREFIX  p:    <http://www.wikidata.org/prop/>
+PREFIX  psn:  <http://www.wikidata.org/prop/statement/value-normalized/>
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+PREFIX  wikibase: <http://wikiba.se/ontology#>
+
+SELECT  ?DiseaseLabel (( ?min / 86400 ) AS ?Minimal_Incubation_Time) (( ?max / 86400 ) AS ?Maximum_Incubation_Time)
+WHERE
+  { ?Disease wdt:P31/(wdt:P279)* wd:Q18123741 .
+    ?Disease (p:P3488/psn:P3488)/wikibase:quantityAmount ?min .
+    ?Disease (p:P3487/psn:P3487)/wikibase:quantityAmount ?max
+    OPTIONAL
+      { ?Disease  rdfs:label  ?Disease__label_value
+        FILTER ( lang(?Disease__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?Disease  rdfs:label  ?Disease__label_value
+        FILTER ( lang(?Disease__label_value) = "mul" )
+      }
+    BIND(if(bound(?Disease__label_value), ?Disease__label_value, if(( isURI(?Disease) && strstarts(str(?Disease), "http://www.wikidata.org/entity/") ), strafter(str(?Disease), "entity/"), str(?Disease))) AS ?DiseaseLabel)
+  }
+ORDER BY ?DiseaseLabel
+
+# Original query:
+# #title: Infectious diseases with their human minimum and maximum incubation time (in days)
+#
+# SELECT ?DiseaseLabel ((?min / 86400) AS ?Minimal_Incubation_Time) ((?max / 86400) AS ?Maximum_Incubation_Time)
+# WHERE {
+#   ?Disease wdt:P31/wdt:P279* wd:Q18123741 .
+#   ?Disease p:P3488/psn:P3488/wikibase:quantityAmount ?min .
+#   ?Disease p:P3487/psn:P3487/wikibase:quantityAmount ?max
+#
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE]". }
+# }
+# ORDER BY ?DiseaseLabel

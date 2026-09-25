@@ -1,0 +1,57 @@
+# rewrite_status: rewritten
+#title: Make a list of the most used authority control properties for people for painters
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  schema: <http://schema.org/>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+PREFIX  wikibase: <http://wikiba.se/ontology#>
+
+SELECT  ?propertyLabel ?propertyDescription ?count
+WHERE
+  { { SELECT  ?propertyclaim (count(*) AS ?count)
+      WHERE
+        { ?item  wdt:P106        wd:Q1028181 ;
+                 wdt:P31         wd:Q5 ;
+                 ?propertyclaim  _:b0
+        }
+      GROUP BY ?propertyclaim
+    }
+    ?property  wikibase:propertyType  wikibase:ExternalId ;
+              wdt:P31               wd:Q19595382 ;
+              wikibase:claim        ?propertyclaim
+    OPTIONAL
+      { ?property  rdfs:label  ?property__label_value
+        FILTER ( lang(?property__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?property  rdfs:label  ?property__label_value
+        FILTER ( lang(?property__label_value) = "mul" )
+      }
+    BIND(if(bound(?property__label_value), ?property__label_value, if(( isURI(?property) && strstarts(str(?property), "http://www.wikidata.org/entity/") ), strafter(str(?property), "entity/"), str(?property))) AS ?propertyLabel)
+    OPTIONAL
+      { ?property  schema:description  ?property__description_value
+        FILTER ( lang(?property__description_value) = "en" )
+      }
+    BIND(?property__description_value AS ?propertyDescription)
+  }
+ORDER BY DESC(?count)
+LIMIT   100
+
+# Original query:
+# #title: Make a list of the most used authority control properties for people for painters
+# SELECT ?propertyLabel ?propertyDescription ?count WHERE {
+#   {
+#     SELECT ?propertyclaim (COUNT(*) AS ?count) where {
+#       ?item wdt:P106 wd:Q1028181 .
+#       ?item wdt:P31 wd:Q5 .
+#       ?item ?propertyclaim [] .
+#     } GROUP BY ?propertyclaim
+#   }
+#   ?property wikibase:propertyType wikibase:ExternalId .
+#   ?property wdt:P31 wd:Q19595382 .
+#   ?property wikibase:claim ?propertyclaim .
+#   SERVICE wikibase:label { # ... include the labels
+#     bd:serviceParam wikibase:language "en" .
+#   }
+# } ORDER BY DESC (?count)
+# LIMIT 100

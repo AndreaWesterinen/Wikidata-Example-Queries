@@ -1,0 +1,31 @@
+# rewrite_status: rewritten
+#title: Show all Dutch municipalities that share a border with Alphen aan den Rijn (Q213246), ignoring rank
+PREFIX  p:    <http://www.wikidata.org/prop/>
+PREFIX  ps:   <http://www.wikidata.org/prop/statement/>
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?muni ?muniLabel
+WHERE
+  { ?muni  p:P31    _:b0 .
+    _:b0   ps:P31   wd:Q2039348 .
+    ?muni  wdt:P47  wd:Q213246
+    OPTIONAL
+      { ?muni  rdfs:label  ?muni__label_value
+        FILTER ( lang(?muni__label_value) = "nl" )
+      }
+    OPTIONAL
+      { ?muni  rdfs:label  ?muni__label_value
+        FILTER ( lang(?muni__label_value) = "mul" )
+      }
+    BIND(if(bound(?muni__label_value), ?muni__label_value, if(( isURI(?muni) && strstarts(str(?muni), "http://www.wikidata.org/entity/") ), strafter(str(?muni), "entity/"), str(?muni))) AS ?muniLabel)
+  }
+
+# Original query:
+# #title: Show all Dutch municipalities that share a border with Alphen aan den Rijn (Q213246), ignoring rank
+# SELECT ?muni ?muniLabel where {
+#   ?muni p:P31 [ps:P31 wd:Q2039348];
+#         wdt:P47 wd:Q213246.
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "nl". }
+# }

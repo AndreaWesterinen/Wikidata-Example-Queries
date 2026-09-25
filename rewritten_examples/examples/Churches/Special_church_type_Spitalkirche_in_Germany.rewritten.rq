@@ -1,0 +1,46 @@
+# rewrite_status: rewritten
+#title: Special church type "Spitalkirche" in Germany
+#defaultView:Map
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?pid ?name ?coord ?ort ?ortLabel
+WHERE
+  { ?pid  wdt:P31     wd:Q16970 ;
+          rdfs:label  ?name
+    FILTER ( lang(?name) = "de" )
+    FILTER regex(str(?name), "[Ss]pitalkirche")
+    ?pid  wdt:P131  ?ort ;
+          wdt:P17   wd:Q183 ;
+          wdt:P625  ?coord
+    OPTIONAL
+      { ?ort  rdfs:label  ?ort__label_value
+        FILTER ( lang(?ort__label_value) = "de" )
+      }
+    OPTIONAL
+      { ?ort  rdfs:label  ?ort__label_value
+        FILTER ( lang(?ort__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?ort  rdfs:label  ?ort__label_value
+        FILTER ( lang(?ort__label_value) = "mul" )
+      }
+    BIND(if(bound(?ort__label_value), ?ort__label_value, if(( isURI(?ort) && strstarts(str(?ort), "http://www.wikidata.org/entity/") ), strafter(str(?ort), "entity/"), str(?ort))) AS ?ortLabel)
+  }
+
+# Original query:
+# #title: Special church type "Spitalkirche" in Germany
+# #defaultView:Map
+# SELECT ?pid ?name ?coord ?ort ?ortLabel
+# WHERE
+# {
+#   ?pid wdt:P31 wd:Q16970.
+#   ?pid rdfs:label ?name
+#   FILTER((LANG(?name)) = "de")
+#   FILTER(REGEX(STR(?name), "[Ss]pitalkirche")).
+#   ?pid wdt:P131 ?ort.
+#   ?pid wdt:P17 wd:Q183.
+#   ?pid wdt:P625 ?coord.
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "de,en". }
+# }

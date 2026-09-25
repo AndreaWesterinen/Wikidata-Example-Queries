@@ -1,0 +1,144 @@
+# rewrite_status: rewritten
+#title: Getting basic information for one item
+
+# declare MiMoText prefixes
+PREFIX  mmd:  <http://data.mimotext.uni-trier.de/entity/>
+PREFIX  mmdt: <http://data.mimotext.uni-trier.de/prop/direct/>
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  *
+WHERE
+  { BIND(wd:Q215894 AS ?bookOnWikidata)
+    ?bookOnWikidata
+              wdt:P50     ?authorOnWikidata ;
+              wdt:P12047  ?MiMoTextID
+    OPTIONAL
+      { ?bookOnWikidata
+                  rdfs:label  ?bookOnWikidata__label_value
+        FILTER ( lang(?bookOnWikidata__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?bookOnWikidata
+                  rdfs:label  ?bookOnWikidata__label_value
+        FILTER ( lang(?bookOnWikidata__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?bookOnWikidata
+                  rdfs:label  ?bookOnWikidata__label_value
+        FILTER ( lang(?bookOnWikidata__label_value) = "en" )
+      }
+    BIND(if(bound(?bookOnWikidata__label_value), ?bookOnWikidata__label_value, if(( isURI(?bookOnWikidata) && strstarts(str(?bookOnWikidata), "http://www.wikidata.org/entity/") ), strafter(str(?bookOnWikidata), "entity/"), str(?bookOnWikidata))) AS ?bookOnWikidataLabel)
+    OPTIONAL
+      { ?authorOnWikidata
+                  rdfs:label  ?authorOnWikidata__label_value
+        FILTER ( lang(?authorOnWikidata__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?authorOnWikidata
+                  rdfs:label  ?authorOnWikidata__label_value
+        FILTER ( lang(?authorOnWikidata__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?authorOnWikidata
+                  rdfs:label  ?authorOnWikidata__label_value
+        FILTER ( lang(?authorOnWikidata__label_value) = "en" )
+      }
+    BIND(if(bound(?authorOnWikidata__label_value), ?authorOnWikidata__label_value, if(( isURI(?authorOnWikidata) && strstarts(str(?authorOnWikidata), "http://www.wikidata.org/entity/") ), strafter(str(?authorOnWikidata), "entity/"), str(?authorOnWikidata))) AS ?authorOnWikidataLabel)
+    BIND(IRI(concat(str(mmd:), ?MiMoTextID)) AS ?bookOnMiMoText)
+    SERVICE <https://query.mimotext.uni-trier.de/proxy/wdqs/bigdata/namespace/wdq/sparql>
+      { ?bookOnMiMoText
+                  mmdt:P5   ?authorOnMiMoText ;
+                  mmdt:P33  ?narrativeFormOnMiMoText
+        OPTIONAL
+          { ?bookOnMiMoText
+                      rdfs:label  ?bookOnMiMoText__label_value
+            FILTER ( lang(?bookOnMiMoText__label_value) = "[AUTO_LANGUAGE]" )
+          }
+        OPTIONAL
+          { ?bookOnMiMoText
+                      rdfs:label  ?bookOnMiMoText__label_value
+            FILTER ( lang(?bookOnMiMoText__label_value) = "mul" )
+          }
+        OPTIONAL
+          { ?bookOnMiMoText
+                      rdfs:label  ?bookOnMiMoText__label_value
+            FILTER ( lang(?bookOnMiMoText__label_value) = "en" )
+          }
+        BIND(if(bound(?bookOnMiMoText__label_value), ?bookOnMiMoText__label_value, if(( isURI(?bookOnMiMoText) && strstarts(str(?bookOnMiMoText), "http://www.wikidata.org/entity/") ), strafter(str(?bookOnMiMoText), "entity/"), str(?bookOnMiMoText))) AS ?bookOnMiMoTextLabel)
+        OPTIONAL
+          { ?authorOnMiMoText
+                      rdfs:label  ?authorOnMiMoText__label_value
+            FILTER ( lang(?authorOnMiMoText__label_value) = "[AUTO_LANGUAGE]" )
+          }
+        OPTIONAL
+          { ?authorOnMiMoText
+                      rdfs:label  ?authorOnMiMoText__label_value
+            FILTER ( lang(?authorOnMiMoText__label_value) = "mul" )
+          }
+        OPTIONAL
+          { ?authorOnMiMoText
+                      rdfs:label  ?authorOnMiMoText__label_value
+            FILTER ( lang(?authorOnMiMoText__label_value) = "en" )
+          }
+        BIND(if(bound(?authorOnMiMoText__label_value), ?authorOnMiMoText__label_value, if(( isURI(?authorOnMiMoText) && strstarts(str(?authorOnMiMoText), "http://www.wikidata.org/entity/") ), strafter(str(?authorOnMiMoText), "entity/"), str(?authorOnMiMoText))) AS ?authorOnMiMoTextLabel)
+        OPTIONAL
+          { ?narrativeFormOnMiMoText
+                      rdfs:label  ?narrativeFormOnMiMoText__label_value
+            FILTER ( lang(?narrativeFormOnMiMoText__label_value) = "[AUTO_LANGUAGE]" )
+          }
+        OPTIONAL
+          { ?narrativeFormOnMiMoText
+                      rdfs:label  ?narrativeFormOnMiMoText__label_value
+            FILTER ( lang(?narrativeFormOnMiMoText__label_value) = "mul" )
+          }
+        OPTIONAL
+          { ?narrativeFormOnMiMoText
+                      rdfs:label  ?narrativeFormOnMiMoText__label_value
+            FILTER ( lang(?narrativeFormOnMiMoText__label_value) = "en" )
+          }
+        BIND(if(bound(?narrativeFormOnMiMoText__label_value), ?narrativeFormOnMiMoText__label_value, if(( isURI(?narrativeFormOnMiMoText) && strstarts(str(?narrativeFormOnMiMoText), "http://www.wikidata.org/entity/") ), strafter(str(?narrativeFormOnMiMoText), "entity/"), str(?narrativeFormOnMiMoText))) AS ?narrativeFormOnMiMoTextLabel)
+      }
+  }
+
+# Original query:
+# #title: Getting basic information for one item
+#
+# # declare MiMoText prefixes
+# PREFIX mmd: <http://data.mimotext.uni-trier.de/entity/>
+# PREFIX mmdt: <http://data.mimotext.uni-trier.de/prop/direct/>
+#
+# SELECT * WHERE {
+#   # start with this book as an example
+#   BIND(wd:Q215894 AS ?bookOnWikidata)
+#   
+#   # select additional information on Wikidata
+#   ?bookOnWikidata wdt:P50 ?authorOnWikidata.
+#   
+#   # add labels from Wikidata
+#   SERVICE wikibase:label {
+#     bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en".
+#     ?bookOnWikidata rdfs:label ?bookOnWikidataLabel.
+#     ?authorOnWikidata rdfs:label ?authorOnWikidataLabel.
+#   }
+#   
+#   # connect to MiMoText
+#   ?bookOnWikidata wdt:P12047 ?MiMoTextID.
+#   BIND(IRI(CONCAT(STR(mmd:), ?MiMoTextID)) AS ?bookOnMiMoText)
+#   
+#   # federated subquery to MiMoText
+#   SERVICE <https://query.mimotext.uni-trier.de/proxy/wdqs/bigdata/namespace/wdq/sparql> {
+#     # select additional information on MiMoText
+#     ?bookOnMiMoText mmdt:P5 ?authorOnMiMoText;
+#                     mmdt:P33 ?narrativeFormOnMiMoText.
+#     
+#     # add labels from MiMoText (this only works because MiMoText is also a Wikibase)
+#     SERVICE wikibase:label {
+#       bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en".
+#       ?bookOnMiMoText rdfs:label ?bookOnMiMoTextLabel.
+#       ?authorOnMiMoText rdfs:label ?authorOnMiMoTextLabel.
+#       ?narrativeFormOnMiMoText rdfs:label ?narrativeFormOnMiMoTextLabel.
+#     }
+#   }
+# }

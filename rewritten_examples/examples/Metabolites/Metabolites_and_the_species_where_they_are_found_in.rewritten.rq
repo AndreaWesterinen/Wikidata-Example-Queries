@@ -1,0 +1,82 @@
+# rewrite_status: rewritten
+#title: Metabolites and the species where they are found in
+
+PREFIX  p:    <http://www.wikidata.org/prop/>
+PREFIX  pr:   <http://www.wikidata.org/prop/reference/>
+PREFIX  prov: <http://www.w3.org/ns/prov#>
+PREFIX  ps:   <http://www.wikidata.org/prop/statement/>
+PREFIX  rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+PREFIX  wikibase: <http://wikiba.se/ontology#>
+
+SELECT  ?compound ?compoundLabel ?speciesLabel ?sourceLabel ?doi ?wpid
+WHERE
+  { ?compound  wdt:P31  wd:Q11173
+    MINUS
+      { ?compound  wdt:P31  wd:Q8054 }
+    ?compound  p:P703   ?statement .
+    ?statement  rdf:type  wikibase:BestRank ;
+              ps:P703   ?species
+    OPTIONAL
+      { ?statement prov:wasDerivedFrom/pr:P248 ?source
+        OPTIONAL
+          { ?source  wdt:P2410  ?wpid }
+        OPTIONAL
+          { ?source  wdt:P356  ?doi }
+      }
+    OPTIONAL
+      { ?compound  rdfs:label  ?compound__label_value
+        FILTER ( lang(?compound__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?compound  rdfs:label  ?compound__label_value
+        FILTER ( lang(?compound__label_value) = "mul" )
+      }
+    BIND(if(bound(?compound__label_value), ?compound__label_value, if(( isURI(?compound) && strstarts(str(?compound), "http://www.wikidata.org/entity/") ), strafter(str(?compound), "entity/"), str(?compound))) AS ?compoundLabel)
+    OPTIONAL
+      { ?species  rdfs:label  ?species__label_value
+        FILTER ( lang(?species__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?species  rdfs:label  ?species__label_value
+        FILTER ( lang(?species__label_value) = "mul" )
+      }
+    BIND(if(bound(?species__label_value), ?species__label_value, if(( isURI(?species) && strstarts(str(?species), "http://www.wikidata.org/entity/") ), strafter(str(?species), "entity/"), str(?species))) AS ?speciesLabel)
+    BIND(if(bound(?source), ?source, "unbound") AS ?source__label_subject)
+    OPTIONAL
+      { ?source__label_subject
+                  rdfs:label  ?source__label_value
+        FILTER ( lang(?source__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?source__label_subject
+                  rdfs:label  ?source__label_value
+        FILTER ( lang(?source__label_value) = "mul" )
+      }
+    BIND(if(bound(?source__label_value), ?source__label_value, if(( isURI(?source) && strstarts(str(?source), "http://www.wikidata.org/entity/") ), strafter(str(?source), "entity/"), str(?source))) AS ?sourceLabel)
+  }
+ORDER BY ASC(?compound)
+
+# Original query:
+# #title: Metabolites and the species where they are found in
+#
+# PREFIX pr: <http://www.wikidata.org/prop/reference/>
+# PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+# PREFIX prov: <http://www.w3.org/ns/prov#>
+#
+# SELECT ?compound ?compoundLabel ?speciesLabel ?sourceLabel ?doi ?wpid WHERE {
+#   ?compound wdt:P31 wd:Q11173.
+#   MINUS { ?compound wdt:P31 wd:Q8054. }
+#   ?compound p:P703 ?statement.
+#   ?statement rdf:type wikibase:BestRank.
+#   ?statement ps:P703 ?species.
+#   OPTIONAL {
+#     ?statement (prov:wasDerivedFrom/pr:P248) ?source.
+#     OPTIONAL { ?source wdt:P2410 ?wpid. }
+#     OPTIONAL { ?source wdt:P356 ?doi. }
+#   }
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "en". }
+# }
+# ORDER BY ASC(?compound)

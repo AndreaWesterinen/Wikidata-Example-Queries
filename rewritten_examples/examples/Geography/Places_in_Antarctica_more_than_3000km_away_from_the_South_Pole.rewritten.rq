@@ -1,0 +1,35 @@
+# rewrite_status: rewritten
+#title: Places in Antarctica over 3000km away from the South Pole
+#defaultView:Map
+PREFIX  geof: <http://www.opengis.net/def/function/geosparql/>
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?place ?placeLabel ?location
+WHERE
+  { wd:Q933  wdt:P625  ?southPole .
+    ?place   wdt:P30   wd:Q51 ;
+             wdt:P625  ?location
+    FILTER ( geof:distance(?location, ?southPole) > 3000 )
+    OPTIONAL
+      { ?place  rdfs:label  ?place__label_value
+        FILTER ( lang(?place__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?place  rdfs:label  ?place__label_value
+        FILTER ( lang(?place__label_value) = "mul" )
+      }
+    BIND(if(bound(?place__label_value), ?place__label_value, if(( isURI(?place) && strstarts(str(?place), "http://www.wikidata.org/entity/") ), strafter(str(?place), "entity/"), str(?place))) AS ?placeLabel)
+  }
+
+# Original query:
+# #title: Places in Antarctica over 3000km away from the South Pole
+# #defaultView:Map
+# SELECT ?place ?placeLabel ?location WHERE {
+#   wd:Q933 wdt:P625 ?southPole.                         # coordinates of south pole
+#   ?place wdt:P30 wd:Q51;                               # continent: antarctica
+#          wdt:P625 ?location.
+#   FILTER(geof:distance(?location, ?southPole) > 3000). # over 3000km away from south pole
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "en". }
+# }

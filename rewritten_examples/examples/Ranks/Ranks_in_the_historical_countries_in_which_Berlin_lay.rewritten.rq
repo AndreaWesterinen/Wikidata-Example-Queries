@@ -1,0 +1,47 @@
+# rewrite_status: rewritten
+#title: Berlin's historical countries, with ranks
+PREFIX  p:    <http://www.wikidata.org/prop/>
+PREFIX  ps:   <http://www.wikidata.org/prop/statement/>
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wikibase: <http://wikiba.se/ontology#>
+
+SELECT  ?country ?countryLabel ?rank
+WHERE
+  { wd:Q64    p:P17          ?statement .
+    ?statement  ps:P17       ?country ;
+              wikibase:rank  ?rank
+    OPTIONAL
+      { ?country  rdfs:label  ?country__label_value
+        FILTER ( lang(?country__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?country  rdfs:label  ?country__label_value
+        FILTER ( lang(?country__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?country  rdfs:label  ?country__label_value
+        FILTER ( lang(?country__label_value) = "en" )
+      }
+    BIND(if(bound(?country__label_value), ?country__label_value, if(( isURI(?country) && strstarts(str(?country), "http://www.wikidata.org/entity/") ), strafter(str(?country), "entity/"), str(?country))) AS ?countryLabel)
+  }
+ORDER BY ?countryLabel
+
+# Original query:
+# #title: Berlin's historical countries, with ranks
+# SELECT ?country ?countryLabel ?rank
+# WHERE
+# {
+# # We use the long notation to better illustrate the nature of the components
+#      wd:Q64      p:P17          ?statement .
+#      ?statement  ps:P17         ?country   .
+#      ?statement  wikibase:rank  ?rank      .
+#
+# # In short notation, this would be:
+# #    wd:Q64      p:P17          [ ps:P17         ?country ;
+# #                                 wikibase:rank  ?rank
+# #                               ] .
+#
+#      SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en". }
+# }
+# ORDER BY ?countryLabel

@@ -1,0 +1,61 @@
+# rewrite_status: rewritten
+#defaultView:Map{"layer":"?instance_ofLabel"}
+PREFIX  geof: <http://www.opengis.net/def/function/geosparql/>
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+PREFIX  xsd:  <http://www.w3.org/2001/XMLSchema#>
+
+SELECT  ?place ?placeLabel ?image ?coordinate_location ?dist ?instance_of ?instance_ofLabel
+WHERE
+  { ?place  wdt:P625  ?coordinate_location
+    BIND(geof:distance("[AUTO_COORDINATES]", ?coordinate_location) AS ?dist)
+    FILTER ( ?dist <= xsd:decimal("1") )
+    OPTIONAL
+      { ?place  wdt:P18  ?image }
+    OPTIONAL
+      { ?place  wdt:P31  ?instance_of }
+    OPTIONAL
+      { ?place  rdfs:label  ?place__label_value
+        FILTER ( lang(?place__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?place  rdfs:label  ?place__label_value
+        FILTER ( lang(?place__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?place  rdfs:label  ?place__label_value
+        FILTER ( lang(?place__label_value) = "mul" )
+      }
+    BIND(if(bound(?place__label_value), ?place__label_value, if(( isURI(?place) && strstarts(str(?place), "http://www.wikidata.org/entity/") ), strafter(str(?place), "entity/"), str(?place))) AS ?placeLabel)
+    BIND(if(bound(?instance_of), ?instance_of, "unbound") AS ?instance_of__label_subject)
+    OPTIONAL
+      { ?instance_of__label_subject
+                  rdfs:label  ?instance_of__label_value
+        FILTER ( lang(?instance_of__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?instance_of__label_subject
+                  rdfs:label  ?instance_of__label_value
+        FILTER ( lang(?instance_of__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?instance_of__label_subject
+                  rdfs:label  ?instance_of__label_value
+        FILTER ( lang(?instance_of__label_value) = "mul" )
+      }
+    BIND(if(bound(?instance_of__label_value), ?instance_of__label_value, if(( isURI(?instance_of) && strstarts(str(?instance_of), "http://www.wikidata.org/entity/") ), strafter(str(?instance_of), "entity/"), str(?instance_of))) AS ?instance_ofLabel)
+  }
+
+# Original query:
+# #defaultView:Map{"layer":"?instance_ofLabel"}
+# SELECT ?place ?placeLabel ?image ?coordinate_location ?dist ?instance_of ?instance_ofLabel WHERE {
+#   SERVICE wikibase:around {
+#     ?place wdt:P625 ?coordinate_location.
+#     bd:serviceParam wikibase:center "[AUTO_COORDINATES]".
+#     bd:serviceParam wikibase:radius "1".
+#     bd:serviceParam wikibase:distance ?dist.
+#   }
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],en". }
+#   OPTIONAL { ?place wdt:P18 ?image. }
+#   OPTIONAL { ?place wdt:P31 ?instance_of. }
+# }

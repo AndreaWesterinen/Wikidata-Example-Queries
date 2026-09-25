@@ -1,0 +1,99 @@
+# rewrite_status: rewritten
+#title: Actors who played the same role more than 40 years apart
+PREFIX  p:    <http://www.wikidata.org/prop/>
+PREFIX  pq:   <http://www.wikidata.org/prop/qualifier/>
+PREFIX  ps:   <http://www.wikidata.org/prop/statement/>
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+PREFIX  xsd:  <http://www.w3.org/2001/XMLSchema#>
+
+SELECT DISTINCT  ?actor ?actorLabel ?characterLabel ?movie1Label ?movie2Label
+WHERE
+  { ?movie1  p:P161    _:b0 .
+    _:b0     ps:P161   ?actor ;
+             pq:P453   ?character .
+    ?movie1  wdt:P577  ?movie1Publication .
+    ?movie2  p:P161    _:b1 .
+    _:b1     ps:P161   ?actor ;
+             pq:P453   ?character .
+    ?movie2  wdt:P577  ?movie2Publication
+    MINUS
+      { ?movie1 wdt:P31/(wdt:P279)? wd:Q24856 }
+    MINUS
+      { ?movie2 wdt:P31/(wdt:P279)? wd:Q24856 }
+    FILTER ( ?character != wd:Q18086706 )
+    FILTER ( ( ?movie1Publication + "P40Y"^^xsd:duration ) < ?movie2Publication )
+    OPTIONAL
+      { ?actor  rdfs:label  ?actor__label_value
+        FILTER ( lang(?actor__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?actor  rdfs:label  ?actor__label_value
+        FILTER ( lang(?actor__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?actor  rdfs:label  ?actor__label_value
+        FILTER ( lang(?actor__label_value) = "en" )
+      }
+    BIND(if(bound(?actor__label_value), ?actor__label_value, if(( isURI(?actor) && strstarts(str(?actor), "http://www.wikidata.org/entity/") ), strafter(str(?actor), "entity/"), str(?actor))) AS ?actorLabel)
+    OPTIONAL
+      { ?character  rdfs:label  ?character__label_value
+        FILTER ( lang(?character__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?character  rdfs:label  ?character__label_value
+        FILTER ( lang(?character__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?character  rdfs:label  ?character__label_value
+        FILTER ( lang(?character__label_value) = "en" )
+      }
+    BIND(if(bound(?character__label_value), ?character__label_value, if(( isURI(?character) && strstarts(str(?character), "http://www.wikidata.org/entity/") ), strafter(str(?character), "entity/"), str(?character))) AS ?characterLabel)
+    OPTIONAL
+      { ?movie1  rdfs:label  ?movie1__label_value
+        FILTER ( lang(?movie1__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?movie1  rdfs:label  ?movie1__label_value
+        FILTER ( lang(?movie1__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?movie1  rdfs:label  ?movie1__label_value
+        FILTER ( lang(?movie1__label_value) = "en" )
+      }
+    BIND(if(bound(?movie1__label_value), ?movie1__label_value, if(( isURI(?movie1) && strstarts(str(?movie1), "http://www.wikidata.org/entity/") ), strafter(str(?movie1), "entity/"), str(?movie1))) AS ?movie1Label)
+    OPTIONAL
+      { ?movie2  rdfs:label  ?movie2__label_value
+        FILTER ( lang(?movie2__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?movie2  rdfs:label  ?movie2__label_value
+        FILTER ( lang(?movie2__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?movie2  rdfs:label  ?movie2__label_value
+        FILTER ( lang(?movie2__label_value) = "en" )
+      }
+    BIND(if(bound(?movie2__label_value), ?movie2__label_value, if(( isURI(?movie2) && strstarts(str(?movie2), "http://www.wikidata.org/entity/") ), strafter(str(?movie2), "entity/"), str(?movie2))) AS ?movie2Label)
+  }
+
+# Original query:
+# #title: Actors who played the same role more than 40 years apart
+# SELECT DISTINCT ?actor ?actorLabel ?characterLabel ?movie1Label ?movie2Label WHERE {
+#   ?movie1 p:P161 [
+#             ps:P161 ?actor;
+#             pq:P453 ?character
+#           ];
+#           wdt:P577 ?movie1Publication.
+#   ?movie2 p:P161 [
+#             ps:P161 ?actor;
+#             pq:P453 ?character
+#           ];
+#           wdt:P577 ?movie2Publication.
+#   MINUS{?movie1 wdt:P31/wdt:P279? wd:Q24856} # Not a series
+#   MINUS{?movie2 wdt:P31/wdt:P279? wd:Q24856} # Not a series
+#   FILTER(?character != wd:Q18086706).        # Not as "themselves"
+#   FILTER(?movie1Publication + "P40Y"^^xsd:duration < ?movie2Publication) # 40 years between them
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en". }
+# }

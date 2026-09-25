@@ -1,0 +1,52 @@
+# rewrite_status: rewritten
+#title: Who discovered the most planets? (with list)
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?discoverer ?discovererLabel (COUNT(DISTINCT ?planet) AS ?count) (GROUP_CONCAT(DISTINCT ?planetLabel ; separator=', ') AS ?planets)
+WHERE
+  { ?ppart (wdt:P279)* wd:Q634 .
+    ?planet  wdt:P31  ?ppart ;
+             wdt:P61  ?discoverer
+    OPTIONAL
+      { ?discoverer  rdfs:label  ?discoverer__label_value
+        FILTER ( lang(?discoverer__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?discoverer  rdfs:label  ?discoverer__label_value
+        FILTER ( lang(?discoverer__label_value) = "mul" )
+      }
+    BIND(if(bound(?discoverer__label_value), ?discoverer__label_value, if(( isURI(?discoverer) && strstarts(str(?discoverer), "http://www.wikidata.org/entity/") ), strafter(str(?discoverer), "entity/"), str(?discoverer))) AS ?discovererLabel)
+    OPTIONAL
+      { ?planet  rdfs:label  ?planet__label_value
+        FILTER ( lang(?planet__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?planet  rdfs:label  ?planet__label_value
+        FILTER ( lang(?planet__label_value) = "mul" )
+      }
+    BIND(if(bound(?planet__label_value), ?planet__label_value, if(( isURI(?planet) && strstarts(str(?planet), "http://www.wikidata.org/entity/") ), strafter(str(?planet), "entity/"), str(?planet))) AS ?planetLabel)
+  }
+GROUP BY ?discoverer ?discovererLabel
+ORDER BY DESC(?count)
+
+# Original query:
+# #title: Who discovered the most planets? (with list)
+# SELECT
+#   ?discoverer ?discovererLabel
+#   (COUNT(DISTINCT ?planet) as ?count)
+#   (GROUP_CONCAT(DISTINCT(?planetLabel); separator=", ") as ?planets)
+# WHERE
+# {
+#   ?ppart wdt:P279* wd:Q634 .
+#   ?planet wdt:P31 ?ppart .
+#   ?planet wdt:P61 ?discoverer .
+#   SERVICE wikibase:label {
+#     bd:serviceParam wikibase:language "en" .
+#     ?discoverer rdfs:label ?discovererLabel .
+#     ?planet rdfs:label ?planetLabel
+#   }
+# }
+# GROUP BY ?discoverer ?discovererLabel
+# ORDER BY DESC(?count)

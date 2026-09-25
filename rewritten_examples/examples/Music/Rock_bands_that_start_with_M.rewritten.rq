@@ -1,0 +1,10 @@
+# rewrite_status: unchanged
+#title: Rock bands that start with "M"
+SELECT ?band ?bandLabel
+WHERE
+{
+  ?band wdt:P31 wd:Q5741069 .
+        ?band rdfs:label ?bandLabel .
+  FILTER(LANG(?bandLabel) = "en") .
+  FILTER(STRSTARTS(?bandLabel, 'M')) .
+} ORDER BY LCASE(?bandLabel)

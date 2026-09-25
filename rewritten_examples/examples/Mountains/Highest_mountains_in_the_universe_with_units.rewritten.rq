@@ -1,0 +1,79 @@
+# rewrite_status: rewritten
+#title: Highest mountains in the universe (elevations over 8000, with units)
+#updated 2021-04-25
+
+PREFIX  p:    <http://www.wikidata.org/prop/>
+PREFIX  psv:  <http://www.wikidata.org/prop/statement/value/>
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  schema: <http://schema.org/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+PREFIX  wikibase: <http://wikiba.se/ontology#>
+
+SELECT  ?elevation ?unit ?unitLabel ?item ?itemLabel ?itemDescription ?coord
+WHERE
+  { ?psv_triples  wikibase:quantityAmount  ?elevation
+    FILTER ( ?elevation > 8000 )
+    ?psv_triples  wikibase:quantityUnit  ?unit .
+    ?p_triples  psv:P2044           ?psv_triples ;
+              a                     wikibase:BestRank .
+    ?item     p:P2044               ?p_triples ;
+              wdt:P625              ?coord
+    OPTIONAL
+      { ?unit  rdfs:label  ?unit__label_value
+        FILTER ( lang(?unit__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?unit  rdfs:label  ?unit__label_value
+        FILTER ( lang(?unit__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?unit  rdfs:label  ?unit__label_value
+        FILTER ( lang(?unit__label_value) = "en" )
+      }
+    BIND(if(bound(?unit__label_value), ?unit__label_value, if(( isURI(?unit) && strstarts(str(?unit), "http://www.wikidata.org/entity/") ), strafter(str(?unit), "entity/"), str(?unit))) AS ?unitLabel)
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "en" )
+      }
+    BIND(if(bound(?item__label_value), ?item__label_value, if(( isURI(?item) && strstarts(str(?item), "http://www.wikidata.org/entity/") ), strafter(str(?item), "entity/"), str(?item))) AS ?itemLabel)
+    OPTIONAL
+      { ?item  schema:description  ?item__description_value
+        FILTER ( lang(?item__description_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?item  schema:description  ?item__description_value
+        FILTER ( lang(?item__description_value) = "en" )
+      }
+    BIND(?item__description_value AS ?itemDescription)
+  }
+ORDER BY DESC(?elevation)
+
+# Original query:
+# #title: Highest mountains in the universe (elevations over 8000, with units)
+# #updated 2021-04-25
+#
+# SELECT ?elevation ?unit ?unitLabel ?item ?itemLabel ?itemDescription ?coord
+# WHERE
+# {
+#   ?psv_triples wikibase:quantityAmount ?elevation .
+#   filter(?elevation > 8000)
+#   ?psv_triples wikibase:quantityUnit ?unit .
+#
+#   ?p_triples psv:P2044 ?psv_triples .
+#   ?p_triples a wikibase:BestRank .
+#
+#   ?item p:P2044 ?p_triples .
+#
+#   ?item wdt:P625 ?coord .
+#
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en". }
+# }
+# ORDER BY DESC(?elevation)

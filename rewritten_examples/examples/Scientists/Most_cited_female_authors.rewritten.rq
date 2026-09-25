@@ -1,0 +1,42 @@
+# rewrite_status: rewritten
+#title: Most cited female authors
+#added 2016-12
+#defaultView:BubbleChart
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?author ?authorLabel (COUNT(?publication) AS ?count)
+WHERE
+  { ?item     wdt:P2860  ?publication .
+    ?publication  wdt:P50  ?author .
+    ?author   wdt:P21    wd:Q6581072
+    OPTIONAL
+      { ?author  rdfs:label  ?author__label_value
+        FILTER ( lang(?author__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?author  rdfs:label  ?author__label_value
+        FILTER ( lang(?author__label_value) = "mul" )
+      }
+    BIND(if(bound(?author__label_value), ?author__label_value, if(( isURI(?author) && strstarts(str(?author), "http://www.wikidata.org/entity/") ), strafter(str(?author), "entity/"), str(?author))) AS ?authorLabel)
+  }
+GROUP BY ?author ?authorLabel
+ORDER BY DESC(?count)
+
+# Original query:
+# #title: Most cited female authors
+# #added 2016-12
+# #defaultView:BubbleChart
+# SELECT ?author ?authorLabel (COUNT(?publication) AS ?count)
+# WHERE
+# {
+#     ?item wdt:P2860 ?publication . #citations
+#     ?publication wdt:P50 ?author . #authors
+#     ?author wdt:P21 wd:Q6581072. #females
+#     SERVICE wikibase:label {
+#         bd:serviceParam wikibase:language "en" .
+#     }
+# }
+# GROUP BY ?author ?authorLabel
+# ORDER BY DESC(?count)

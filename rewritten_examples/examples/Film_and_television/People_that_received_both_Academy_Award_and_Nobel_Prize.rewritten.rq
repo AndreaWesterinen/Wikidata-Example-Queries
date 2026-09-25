@@ -1,0 +1,67 @@
+# rewrite_status: rewritten
+#title: People that received both Academy Award and Nobel Prize
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT DISTINCT  ?Person ?PersonLabel ?NobelPrizeLabel ?AcademyAwardLabel
+WHERE
+  { ?NobelPrize (wdt:P279)?/(wdt:P31)? wd:Q7191 .
+    ?AcademyAward (wdt:P279)?/(wdt:P31)? wd:Q19020 .
+    ?Person (wdt:P166)? ?NobelPrize .
+    ?Person (wdt:P166)? ?AcademyAward
+    OPTIONAL
+      { ?Person  rdfs:label  ?Person__label_value
+        FILTER ( lang(?Person__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?Person  rdfs:label  ?Person__label_value
+        FILTER ( lang(?Person__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?Person  rdfs:label  ?Person__label_value
+        FILTER ( lang(?Person__label_value) = "en" )
+      }
+    BIND(if(bound(?Person__label_value), ?Person__label_value, if(( isURI(?Person) && strstarts(str(?Person), "http://www.wikidata.org/entity/") ), strafter(str(?Person), "entity/"), str(?Person))) AS ?PersonLabel)
+    OPTIONAL
+      { ?NobelPrize  rdfs:label  ?NobelPrize__label_value
+        FILTER ( lang(?NobelPrize__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?NobelPrize  rdfs:label  ?NobelPrize__label_value
+        FILTER ( lang(?NobelPrize__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?NobelPrize  rdfs:label  ?NobelPrize__label_value
+        FILTER ( lang(?NobelPrize__label_value) = "en" )
+      }
+    BIND(if(bound(?NobelPrize__label_value), ?NobelPrize__label_value, if(( isURI(?NobelPrize) && strstarts(str(?NobelPrize), "http://www.wikidata.org/entity/") ), strafter(str(?NobelPrize), "entity/"), str(?NobelPrize))) AS ?NobelPrizeLabel)
+    OPTIONAL
+      { ?AcademyAward
+                  rdfs:label  ?AcademyAward__label_value
+        FILTER ( lang(?AcademyAward__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?AcademyAward
+                  rdfs:label  ?AcademyAward__label_value
+        FILTER ( lang(?AcademyAward__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?AcademyAward
+                  rdfs:label  ?AcademyAward__label_value
+        FILTER ( lang(?AcademyAward__label_value) = "en" )
+      }
+    BIND(if(bound(?AcademyAward__label_value), ?AcademyAward__label_value, if(( isURI(?AcademyAward) && strstarts(str(?AcademyAward), "http://www.wikidata.org/entity/") ), strafter(str(?AcademyAward), "entity/"), str(?AcademyAward))) AS ?AcademyAwardLabel)
+  }
+
+# Original query:
+# #title: People that received both Academy Award and Nobel Prize
+# SELECT DISTINCT ?Person ?PersonLabel ?NobelPrizeLabel ?AcademyAwardLabel WHERE {
+#   ?NobelPrize wdt:P279?/wdt:P31? wd:Q7191 .    # subtypes of nobel prize
+#   ?AcademyAward wdt:P279?/wdt:P31? wd:Q19020 . # subtypes of academy award
+#   ?Person wdt:P166? ?NobelPrize .              # people awarded a nobel prize
+#   ?Person wdt:P166? ?AcademyAward .            # people awarded an academy award
+#   SERVICE wikibase:label {
+#     bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" .
+#   }
+# }

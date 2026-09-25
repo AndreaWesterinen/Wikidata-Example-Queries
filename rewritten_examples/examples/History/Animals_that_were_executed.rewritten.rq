@@ -1,0 +1,60 @@
+# rewrite_status: rewritten
+#title: Animals that were executed
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?animal ?animalLabel ?died ?mannerOfDeathLabel ?image
+WHERE
+  { ?animal wdt:P31/wdt:P31 wd:Q16521 .
+    ?animal  wdt:P509  ?mannerOfDeath .
+    ?mannerOfDeath (wdt:P279)* wd:Q8454
+    OPTIONAL
+      { ?animal  wdt:P570  ?died }
+    OPTIONAL
+      { ?animal  wdt:P18  ?image }
+    OPTIONAL
+      { ?animal  rdfs:label  ?animal__label_value
+        FILTER ( lang(?animal__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?animal  rdfs:label  ?animal__label_value
+        FILTER ( lang(?animal__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?animal  rdfs:label  ?animal__label_value
+        FILTER ( lang(?animal__label_value) = "en" )
+      }
+    BIND(if(bound(?animal__label_value), ?animal__label_value, if(( isURI(?animal) && strstarts(str(?animal), "http://www.wikidata.org/entity/") ), strafter(str(?animal), "entity/"), str(?animal))) AS ?animalLabel)
+    OPTIONAL
+      { ?mannerOfDeath
+                  rdfs:label  ?mannerOfDeath__label_value
+        FILTER ( lang(?mannerOfDeath__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?mannerOfDeath
+                  rdfs:label  ?mannerOfDeath__label_value
+        FILTER ( lang(?mannerOfDeath__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?mannerOfDeath
+                  rdfs:label  ?mannerOfDeath__label_value
+        FILTER ( lang(?mannerOfDeath__label_value) = "en" )
+      }
+    BIND(if(bound(?mannerOfDeath__label_value), ?mannerOfDeath__label_value, if(( isURI(?mannerOfDeath) && strstarts(str(?mannerOfDeath), "http://www.wikidata.org/entity/") ), strafter(str(?mannerOfDeath), "entity/"), str(?mannerOfDeath))) AS ?mannerOfDeathLabel)
+  }
+ORDER BY ?died
+
+# Original query:
+# #title: Animals that were executed
+# SELECT ?animal ?animalLabel ?died ?mannerOfDeathLabel ?image
+# WHERE
+# {
+#   ?animal wdt:P31/wdt:P31 wd:Q16521; # instance of some taxon (does not include human)
+#           wdt:P509 ?mannerOfDeath.
+#   ?mannerOfDeath wdt:P279* wd:Q8454. # some subclass of capital punishment
+#   OPTIONAL { ?animal wdt:P570 ?died. }
+#   OPTIONAL { ?animal wdt:P18 ?image. }
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en". }
+# }
+# ORDER BY ?died

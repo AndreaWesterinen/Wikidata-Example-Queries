@@ -1,0 +1,71 @@
+# rewrite_status: rewritten
+#title: Louvre artworks in display cases
+#defaultView:ImageGrid
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  schema: <http://schema.org/>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?item ?itemLabel ?itemDescription ?image
+WHERE
+  { { ?item  wdt:P276  ?case .
+      ?case  wdt:P31   wd:Q3561331 ;
+             wdt:P276  ?room .
+      ?room wdt:P31/(wdt:P279)* wd:Q180516 .
+      ?room  wdt:P466  ?dep .
+      ?dep (wdt:P361)+ wd:Q19675
+    }
+    OPTIONAL
+      { ?item  wdt:P18  ?image }
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "fr" )
+      }
+    BIND(if(bound(?item__label_value), ?item__label_value, if(( isURI(?item) && strstarts(str(?item), "http://www.wikidata.org/entity/") ), strafter(str(?item), "entity/"), str(?item))) AS ?itemLabel)
+    OPTIONAL
+      { ?item  schema:description  ?item__description_value
+        FILTER ( lang(?item__description_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?item  schema:description  ?item__description_value
+        FILTER ( lang(?item__description_value) = "en" )
+      }
+    OPTIONAL
+      { ?item  schema:description  ?item__description_value
+        FILTER ( lang(?item__description_value) = "fr" )
+      }
+    BIND(?item__description_value AS ?itemDescription)
+  }
+
+# Original query:
+# #title: Louvre artworks in display cases
+# #defaultView:ImageGrid
+# SELECT ?item ?itemLabel ?itemDescription ?image WHERE {
+#   # part1: objects in cases
+#   {
+#   ?item wdt:P276 ?case .
+#   ?case wdt:P31 wd:Q3561331 .
+#
+#   ?case wdt:P276 ?room .
+#   ?room wdt:P31/wdt:P279* wd:Q180516 . # wd:Q15206795
+#
+#   ?room wdt:P466 ?dep .
+#   ?dep wdt:P361+ wd:Q19675
+#   }
+#
+#   OPTIONAL { ?item wdt:P18 ?image } # Optionally with an image
+#
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en,fr" }
+# }

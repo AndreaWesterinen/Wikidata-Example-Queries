@@ -1,0 +1,88 @@
+# rewrite_status: rewritten
+#title: Eiffel Tower in art
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT DISTINCT  ?item ?itemLabel ?instanceLabel ?creatorLabel (year(?date) AS ?year) ?image
+WHERE
+  { ?item  wdt:P180  wd:Q243 ;
+           wdt:P31   ?instance
+    OPTIONAL
+      { ?item  wdt:P170  ?creator }
+    OPTIONAL
+      { ?item  wdt:P571  ?date }
+    OPTIONAL
+      { ?item  wdt:P18  ?image }
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "fr" )
+      }
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "mul" )
+      }
+    BIND(if(bound(?item__label_value), ?item__label_value, if(( isURI(?item) && strstarts(str(?item), "http://www.wikidata.org/entity/") ), strafter(str(?item), "entity/"), str(?item))) AS ?itemLabel)
+    OPTIONAL
+      { ?instance  rdfs:label  ?instance__label_value
+        FILTER ( lang(?instance__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?instance  rdfs:label  ?instance__label_value
+        FILTER ( lang(?instance__label_value) = "fr" )
+      }
+    OPTIONAL
+      { ?instance  rdfs:label  ?instance__label_value
+        FILTER ( lang(?instance__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?instance  rdfs:label  ?instance__label_value
+        FILTER ( lang(?instance__label_value) = "mul" )
+      }
+    BIND(if(bound(?instance__label_value), ?instance__label_value, if(( isURI(?instance) && strstarts(str(?instance), "http://www.wikidata.org/entity/") ), strafter(str(?instance), "entity/"), str(?instance))) AS ?instanceLabel)
+    BIND(if(bound(?creator), ?creator, "unbound") AS ?creator__label_subject)
+    OPTIONAL
+      { ?creator__label_subject
+                  rdfs:label  ?creator__label_value
+        FILTER ( lang(?creator__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?creator__label_subject
+                  rdfs:label  ?creator__label_value
+        FILTER ( lang(?creator__label_value) = "fr" )
+      }
+    OPTIONAL
+      { ?creator__label_subject
+                  rdfs:label  ?creator__label_value
+        FILTER ( lang(?creator__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?creator__label_subject
+                  rdfs:label  ?creator__label_value
+        FILTER ( lang(?creator__label_value) = "mul" )
+      }
+    BIND(if(bound(?creator__label_value), ?creator__label_value, if(( isURI(?creator) && strstarts(str(?creator), "http://www.wikidata.org/entity/") ), strafter(str(?creator), "entity/"), str(?creator))) AS ?creatorLabel)
+  }
+ORDER BY ?itemLabel
+
+# Original query:
+# #title: Eiffel Tower in art
+# SELECT DISTINCT ?item ?itemLabel ?instanceLabel ?creatorLabel (YEAR(?date) as ?year) ?image
+# WHERE
+# {
+#   ?item wdt:P180 wd:Q243 .
+#   ?item wdt:P31 ?instance .
+#   OPTIONAL { ?item wdt:P170 ?creator }
+#   OPTIONAL { ?item wdt:P571 ?date }
+#   OPTIONAL { ?item wdt:P18 ?image }
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],fr,en" . }
+# }
+# ORDER BY ?itemLabel

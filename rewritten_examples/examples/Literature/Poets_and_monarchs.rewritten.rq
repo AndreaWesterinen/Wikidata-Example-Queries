@@ -1,0 +1,72 @@
+# rewrite_status: rewritten
+#title: Poets and monarchs
+
+PREFIX  p:    <http://www.wikidata.org/prop/>
+PREFIX  pq:   <http://www.wikidata.org/prop/qualifier/>
+PREFIX  ps:   <http://www.wikidata.org/prop/statement/>
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?poetLabel ?image ?yob ?yod ?start ?end ?monarchLabel
+WHERE
+  { ?poet     p:P39    ?positionStat .
+    ?positionStat
+              ps:P39   wd:Q877838 ;
+              pq:P580  ?start ;
+              pq:P748  ?monarch
+    OPTIONAL
+      { ?positionStat
+                  pq:P582  ?end
+      }
+    OPTIONAL
+      { ?poet  wdt:P18   ?image ;
+               wdt:P569  ?dob ;
+               wdt:P570  ?dod
+      }
+    BIND(year(?dob) AS ?yob)
+    BIND(year(?dod) AS ?yod)
+    OPTIONAL
+      { ?poet  rdfs:label  ?poet__label_value
+        FILTER ( lang(?poet__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?poet  rdfs:label  ?poet__label_value
+        FILTER ( lang(?poet__label_value) = "mul" )
+      }
+    BIND(if(bound(?poet__label_value), ?poet__label_value, if(( isURI(?poet) && strstarts(str(?poet), "http://www.wikidata.org/entity/") ), strafter(str(?poet), "entity/"), str(?poet))) AS ?poetLabel)
+    OPTIONAL
+      { ?monarch  rdfs:label  ?monarch__label_value
+        FILTER ( lang(?monarch__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?monarch  rdfs:label  ?monarch__label_value
+        FILTER ( lang(?monarch__label_value) = "mul" )
+      }
+    BIND(if(bound(?monarch__label_value), ?monarch__label_value, if(( isURI(?monarch) && strstarts(str(?monarch), "http://www.wikidata.org/entity/") ), strafter(str(?monarch), "entity/"), str(?monarch))) AS ?monarchLabel)
+  }
+ORDER BY ?start DESC(?monarchLabel)
+
+# Original query:
+# #title: Poets and monarchs
+#
+# SELECT ?poetLabel ?image ?yob ?yod ?start ?end ?monarchLabel
+# WHERE
+# {
+#   ?poet p:P39 ?positionStat.
+#   ?positionStat ps:P39 wd:Q877838;
+#                 pq:P580 ?start;
+#                 pq:P748 ?monarch.
+#   OPTIONAL {
+#     ?positionStat pq:P582 ?end.
+#   }
+#   OPTIONAL {
+#     ?poet wdt:P18 ?image;
+#           wdt:P569 ?dob;
+#           wdt:P570 ?dod.
+#   }
+#   BIND(YEAR(?dob) AS ?yob).
+#   BIND(YEAR(?dod) AS ?yod).
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "en" }
+# }
+# ORDER BY ?start DESC(?monarchLabel)

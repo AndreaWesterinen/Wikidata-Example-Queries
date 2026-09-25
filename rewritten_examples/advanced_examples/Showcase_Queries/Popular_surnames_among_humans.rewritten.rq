@@ -1,0 +1,45 @@
+# rewrite_status: rewritten
+#defaultView:BubbleChart
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?surname ?surnameLabel ?count
+WHERE
+  { { SELECT  ?surname (COUNT(?human) AS ?count)
+      WHERE
+        { ?human  wdt:P734  ?surname }
+      GROUP BY ?surname
+      ORDER BY DESC(?count)
+      LIMIT   100
+    }
+    OPTIONAL
+      { ?surname  rdfs:label  ?surname__label_value
+        FILTER ( lang(?surname__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?surname  rdfs:label  ?surname__label_value
+        FILTER ( lang(?surname__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?surname  rdfs:label  ?surname__label_value
+        FILTER ( lang(?surname__label_value) = "mul" )
+      }
+    BIND(if(bound(?surname__label_value), ?surname__label_value, if(( isURI(?surname) && strstarts(str(?surname), "http://www.wikidata.org/entity/") ), strafter(str(?surname), "entity/"), str(?surname))) AS ?surnameLabel)
+  }
+ORDER BY DESC(?count)
+
+# Original query:
+# #defaultView:BubbleChart
+# SELECT ?surname ?surnameLabel ?count
+# WHERE
+# {
+#   {
+#     SELECT ?surname (COUNT(?human) AS ?count) WHERE {
+#     # ?human wdt:P31 wd:Q5.
+#       ?human wdt:P734 ?surname.
+#     }
+#     GROUP BY ?surname ORDER BY DESC(?count) LIMIT 100
+#   }
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],en". }
+# } 
+# ORDER BY DESC(?count)

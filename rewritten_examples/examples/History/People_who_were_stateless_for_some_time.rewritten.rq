@@ -1,0 +1,49 @@
+# rewrite_status: rewritten
+#title: People who were stateless for some time
+# persons who were stateless (country of citizenship: no value) for some time (start time and end time qualifiers)
+
+PREFIX  p:    <http://www.wikidata.org/prop/>
+PREFIX  pq:   <http://www.wikidata.org/prop/qualifier/>
+PREFIX  rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdno: <http://www.wikidata.org/prop/novalue/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?person ?personLabel ?start ?end
+WHERE
+  { ?person  wdt:P31   wd:Q5 ;
+             p:P27     _:b0 .
+    _:b0     rdf:type  wdno:P27 ;
+             pq:P580   ?start ;
+             pq:P582   ?end
+    OPTIONAL
+      { ?person  rdfs:label  ?person__label_value
+        FILTER ( lang(?person__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?person  rdfs:label  ?person__label_value
+        FILTER ( lang(?person__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?person  rdfs:label  ?person__label_value
+        FILTER ( lang(?person__label_value) = "en" )
+      }
+    BIND(if(bound(?person__label_value), ?person__label_value, if(( isURI(?person) && strstarts(str(?person), "http://www.wikidata.org/entity/") ), strafter(str(?person), "entity/"), str(?person))) AS ?personLabel)
+  }
+ORDER BY DESC(( ?end - ?start ))
+
+# Original query:
+# #title: People who were stateless for some time
+# # persons who were stateless (country of citizenship: no value) for some time (start time and end time qualifiers)
+#
+# SELECT ?person ?personLabel ?start ?end WHERE {
+#   ?person wdt:P31 wd:Q5;
+#           p:P27 [
+#             rdf:type wdno:P27;
+#             pq:P580 ?start;
+#             pq:P582 ?end
+#           ].
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en". }
+# }
+# ORDER BY DESC(?end - ?start)

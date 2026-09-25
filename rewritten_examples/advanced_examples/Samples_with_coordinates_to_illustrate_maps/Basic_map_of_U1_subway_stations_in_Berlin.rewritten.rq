@@ -1,0 +1,35 @@
+# rewrite_status: rewritten
+#added before 2016-10
+#defaultView:Map
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?stationLabel ?coord
+WHERE
+  { ?station  wdt:P81   wd:Q99691 ;
+              wdt:P625  ?coord
+    OPTIONAL
+      { ?station  rdfs:label  ?station__label_value
+        FILTER ( lang(?station__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?station  rdfs:label  ?station__label_value
+        FILTER ( lang(?station__label_value) = "de" )
+      }
+    OPTIONAL
+      { ?station  rdfs:label  ?station__label_value
+        FILTER ( lang(?station__label_value) = "mul" )
+      }
+    BIND(if(bound(?station__label_value), ?station__label_value, if(( isURI(?station) && strstarts(str(?station), "http://www.wikidata.org/entity/") ), strafter(str(?station), "entity/"), str(?station))) AS ?stationLabel)
+  }
+
+# Original query:
+# #added before 2016-10
+# #defaultView:Map
+# SELECT ?stationLabel ?coord
+# WHERE {
+# 	?station wdt:P81 wd:Q99691 ;
+# 		 wdt:P625 ?coord .
+# 	SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],de" }
+# }

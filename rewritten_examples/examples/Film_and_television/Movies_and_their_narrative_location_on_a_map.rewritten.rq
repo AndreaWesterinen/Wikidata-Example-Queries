@@ -1,0 +1,53 @@
+# rewrite_status: rewritten
+#title: Movies and their narrative location on a map
+#defaultView:Map
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?movie ?movieLabel ?narrative_location ?narrative_locationLabel ?coordinates
+WHERE
+  { ?movie    wdt:P840  ?narrative_location ;
+              wdt:P31   wd:Q11424 .
+    ?narrative_location
+              wdt:P625  ?coordinates
+    OPTIONAL
+      { ?movie  rdfs:label  ?movie__label_value
+        FILTER ( lang(?movie__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?movie  rdfs:label  ?movie__label_value
+        FILTER ( lang(?movie__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?movie  rdfs:label  ?movie__label_value
+        FILTER ( lang(?movie__label_value) = "en" )
+      }
+    BIND(if(bound(?movie__label_value), ?movie__label_value, if(( isURI(?movie) && strstarts(str(?movie), "http://www.wikidata.org/entity/") ), strafter(str(?movie), "entity/"), str(?movie))) AS ?movieLabel)
+    OPTIONAL
+      { ?narrative_location
+                  rdfs:label  ?narrative_location__label_value
+        FILTER ( lang(?narrative_location__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?narrative_location
+                  rdfs:label  ?narrative_location__label_value
+        FILTER ( lang(?narrative_location__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?narrative_location
+                  rdfs:label  ?narrative_location__label_value
+        FILTER ( lang(?narrative_location__label_value) = "en" )
+      }
+    BIND(if(bound(?narrative_location__label_value), ?narrative_location__label_value, if(( isURI(?narrative_location) && strstarts(str(?narrative_location), "http://www.wikidata.org/entity/") ), strafter(str(?narrative_location), "entity/"), str(?narrative_location))) AS ?narrative_locationLabel)
+  }
+
+# Original query:
+# #title: Movies and their narrative location on a map
+# #defaultView:Map
+# SELECT ?movie ?movieLabel ?narrative_location ?narrative_locationLabel ?coordinates WHERE {
+#    ?movie wdt:P840 ?narrative_location ;
+#           wdt:P31 wd:Q11424 .
+#    ?narrative_location wdt:P625 ?coordinates .
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en". }
+# }

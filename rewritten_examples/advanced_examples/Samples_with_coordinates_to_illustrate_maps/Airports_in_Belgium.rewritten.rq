@@ -1,0 +1,37 @@
+# rewrite_status: rewritten
+#List of airports in Belgium
+#defaultView:Map
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT DISTINCT  ?airport ?airportLabel ?coor
+WHERE
+  { ?airport  wdt:P31   wd:Q1248784 ;
+              ?range    wd:Q31 ;
+              wdt:P625  ?coor
+    OPTIONAL
+      { ?airport  rdfs:label  ?airport__label_value
+        FILTER ( lang(?airport__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?airport  rdfs:label  ?airport__label_value
+        FILTER ( lang(?airport__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?airport  rdfs:label  ?airport__label_value
+        FILTER ( lang(?airport__label_value) = "mul" )
+      }
+    BIND(if(bound(?airport__label_value), ?airport__label_value, if(( isURI(?airport) && strstarts(str(?airport), "http://www.wikidata.org/entity/") ), strafter(str(?airport), "entity/"), str(?airport))) AS ?airportLabel)
+  }
+
+# Original query:
+# #List of airports in Belgium
+# #defaultView:Map
+# SELECT DISTINCT ?airport ?airportLabel ?coor
+# WHERE {
+#   ?airport wdt:P31 wd:Q1248784 ;
+#           ?range wd:Q31;
+#           wdt:P625 ?coor.
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],en". }
+# }

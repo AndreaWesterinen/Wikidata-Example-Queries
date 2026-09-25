@@ -1,0 +1,54 @@
+# rewrite_status: rewritten
+#title: People who lived in the same period as another person
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  schema: <http://schema.org/>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+PREFIX  xsd:  <http://www.w3.org/2001/XMLSchema#>
+
+SELECT  ?person ?personLabel ?personDescription ?birth ?death ?age
+WHERE
+  { ?person  wdt:P31   wd:Q5 ;
+             wdt:P569  ?birth ;
+             wdt:P570  ?death
+    FILTER ( ( ?birth > "1452-04-15"^^xsd:dateTime ) && ( ?death < "1519-05-02"^^xsd:dateTime ) )
+    BIND(( year(?death) - year(?birth) ) AS ?age)
+    FILTER ( ( ?age > 10 ) && ( ?age < 100 ) )
+    OPTIONAL
+      { ?person  rdfs:label  ?person__label_value
+        FILTER ( lang(?person__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?person  rdfs:label  ?person__label_value
+        FILTER ( lang(?person__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?person  rdfs:label  ?person__label_value
+        FILTER ( lang(?person__label_value) = "en" )
+      }
+    BIND(if(bound(?person__label_value), ?person__label_value, if(( isURI(?person) && strstarts(str(?person), "http://www.wikidata.org/entity/") ), strafter(str(?person), "entity/"), str(?person))) AS ?personLabel)
+    OPTIONAL
+      { ?person  schema:description  ?person__description_value
+        FILTER ( lang(?person__description_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?person  schema:description  ?person__description_value
+        FILTER ( lang(?person__description_value) = "en" )
+      }
+    BIND(?person__description_value AS ?personDescription)
+  }
+
+# Original query:
+# #title: People who lived in the same period as another person
+# SELECT ?person ?personLabel ?personDescription ?birth ?death ?age
+# {
+#   ?person wdt:P31 wd:Q5. # instance of human
+#   ?person wdt:P569 ?birth . # birth date
+#   ?person wdt:P570 ?death . # death date
+#   hint:Prior hint:rangeSafe true . # tell the optimizer that fields doesn’t mix dates, strings, integers or other data types, which simplifies the range comparison
+#   FILTER (?birth > "1452-04-15"^^xsd:dateTime && ?death < "1519-05-02"^^xsd:dateTime) # And between these two dates
+#   bind( year(?death)-year(?birth) as ?age ) # Make a new variable called ?age that we can use
+#   FILTER (?age > 10 && ?age < 100) # Only find people with realistic ages
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en". } # used to display a label
+# }
+a

@@ -1,0 +1,56 @@
+# rewrite_status: rewritten
+#title: Streets named after a person
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?street ?streetLabel ?cityLabel ?personLabel
+WHERE
+  { ?street  wdt:P31   wd:Q79007 ;
+             wdt:P17   wd:Q142 ;
+             wdt:P131  ?city ;
+             wdt:P138  ?person .
+    ?person  wdt:P31   wd:Q5
+    OPTIONAL
+      { ?street  rdfs:label  ?street__label_value
+        FILTER ( lang(?street__label_value) = "fr" )
+      }
+    OPTIONAL
+      { ?street  rdfs:label  ?street__label_value
+        FILTER ( lang(?street__label_value) = "mul" )
+      }
+    BIND(if(bound(?street__label_value), ?street__label_value, if(( isURI(?street) && strstarts(str(?street), "http://www.wikidata.org/entity/") ), strafter(str(?street), "entity/"), str(?street))) AS ?streetLabel)
+    OPTIONAL
+      { ?city  rdfs:label  ?city__label_value
+        FILTER ( lang(?city__label_value) = "fr" )
+      }
+    OPTIONAL
+      { ?city  rdfs:label  ?city__label_value
+        FILTER ( lang(?city__label_value) = "mul" )
+      }
+    BIND(if(bound(?city__label_value), ?city__label_value, if(( isURI(?city) && strstarts(str(?city), "http://www.wikidata.org/entity/") ), strafter(str(?city), "entity/"), str(?city))) AS ?cityLabel)
+    OPTIONAL
+      { ?person  rdfs:label  ?person__label_value
+        FILTER ( lang(?person__label_value) = "fr" )
+      }
+    OPTIONAL
+      { ?person  rdfs:label  ?person__label_value
+        FILTER ( lang(?person__label_value) = "mul" )
+      }
+    BIND(if(bound(?person__label_value), ?person__label_value, if(( isURI(?person) && strstarts(str(?person), "http://www.wikidata.org/entity/") ), strafter(str(?person), "entity/"), str(?person))) AS ?personLabel)
+  }
+ORDER BY ?city
+
+# Original query:
+# #title: Streets named after a person
+# SELECT ?street ?streetLabel ?cityLabel ?personLabel
+# WHERE
+# {
+#     ?street wdt:P31 wd:Q79007 .
+#     ?street wdt:P17 wd:Q142 .
+#     ?street wdt:P131 ?city .
+#     ?street wdt:P138 ?person .
+#     ?person wdt:P31 wd:Q5
+#     SERVICE wikibase:label { bd:serviceParam wikibase:language "fr" }
+# }
+# ORDER BY ?city

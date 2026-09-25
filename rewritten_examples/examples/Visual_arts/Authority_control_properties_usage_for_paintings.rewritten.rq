@@ -1,0 +1,49 @@
+# rewrite_status: rewritten
+#title: Make a list of the most used authority control properties for works for paintings
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  schema: <http://schema.org/>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+PREFIX  wikibase: <http://wikiba.se/ontology#>
+
+SELECT  ?propertyLabel ?propertyDescription (COUNT(?propertyclaim) AS ?count)
+WHERE
+  { ?item     wdt:P31               wd:Q3305213 .
+    ?property  wikibase:propertyType  wikibase:ExternalId ;
+              wdt:P31               wd:Q44847669 ;
+              wikibase:claim        ?propertyclaim .
+    ?item     ?propertyclaim        _:b0
+    OPTIONAL
+      { ?property  rdfs:label  ?property__label_value
+        FILTER ( lang(?property__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?property  rdfs:label  ?property__label_value
+        FILTER ( lang(?property__label_value) = "mul" )
+      }
+    BIND(if(bound(?property__label_value), ?property__label_value, if(( isURI(?property) && strstarts(str(?property), "http://www.wikidata.org/entity/") ), strafter(str(?property), "entity/"), str(?property))) AS ?propertyLabel)
+    OPTIONAL
+      { ?property  schema:description  ?property__description_value
+        FILTER ( lang(?property__description_value) = "en" )
+      }
+    BIND(?property__description_value AS ?propertyDescription)
+  }
+GROUP BY ?propertyLabel ?propertyDescription
+ORDER BY DESC(?count)
+LIMIT   100
+
+# Original query:
+# #title: Make a list of the most used authority control properties for works for paintings
+# SELECT ?propertyLabel ?propertyDescription (COUNT(?propertyclaim) AS ?count) WHERE {
+#   ?item wdt:P31 wd:Q3305213 .
+#
+#   ?property wikibase:propertyType wikibase:ExternalId .
+#   ?property wdt:P31 wd:Q44847669 .
+#   ?property wikibase:claim ?propertyclaim .
+#
+#   ?item ?propertyclaim [] .
+#   SERVICE wikibase:label { # ... include the labels
+#     bd:serviceParam wikibase:language "en" .
+#   }
+# } GROUP BY ?propertyLabel ?propertyDescription ORDER BY DESC (?count)
+# LIMIT 100

@@ -1,0 +1,40 @@
+# rewrite_status: rewritten
+#added before 2016-10
+
+# Human settlements without an article in any language version of Wikipedia
+#defaultView:Map
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  schema: <http://schema.org/>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT DISTINCT  ?city ?cityLabel ?coor
+WHERE
+  { VALUES ?type { wd:Q3957 wd:Q515 wd:Q532 wd:Q486972 }
+    ?city  wdt:P31   wd:Q3957 ;
+           wdt:P625  ?coor
+    FILTER NOT EXISTS { ?article  schema:about  ?city }
+    OPTIONAL
+      { ?city  rdfs:label  ?city__label_value
+        FILTER ( lang(?city__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?city  rdfs:label  ?city__label_value
+        FILTER ( lang(?city__label_value) = "mul" )
+      }
+    BIND(if(bound(?city__label_value), ?city__label_value, if(( isURI(?city) && strstarts(str(?city), "http://www.wikidata.org/entity/") ), strafter(str(?city), "entity/"), str(?city))) AS ?cityLabel)
+  }
+
+# Original query:
+# #added before 2016-10
+#
+# # Human settlements without an article in any language version of Wikipedia
+# #defaultView:Map
+# SELECT DISTINCT ?city ?cityLabel ?coor WHERE {
+#     VALUES ?type { wd:Q3957 wd:Q515 wd:Q532 wd:Q486972 } .
+#     ?city wdt:P31 wd:Q3957 ;
+#           wdt:P625 ?coor .
+#
+#     FILTER NOT EXISTS {?article schema:about ?city } .
+#     SERVICE wikibase:label { bd:serviceParam wikibase:language "en" } .
+# }

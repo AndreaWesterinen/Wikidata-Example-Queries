@@ -1,0 +1,52 @@
+# rewrite_status: rewritten
+#title: Websites with OpenAPI endpoints
+PREFIX  pq:   <http://www.wikidata.org/prop/qualifier/>
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+PREFIX  wikibase: <http://wikiba.se/ontology#>
+
+SELECT  ?database ?databaseLabel ?license ?licenseLabel ?value
+WHERE
+  { ?database  ?p  ?wds
+    OPTIONAL
+      { ?database  wdt:P275  ?license }
+    ?wds  ?v                    ?value .
+    ?wdP  wikibase:statementProperty  ?v ;
+          wikibase:claim        ?p .
+    ?wds  pq:P31                wd:Q27075870
+    OPTIONAL
+      { ?database  rdfs:label  ?database__label_value
+        FILTER ( lang(?database__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?database  rdfs:label  ?database__label_value
+        FILTER ( lang(?database__label_value) = "mul" )
+      }
+    BIND(if(bound(?database__label_value), ?database__label_value, if(( isURI(?database) && strstarts(str(?database), "http://www.wikidata.org/entity/") ), strafter(str(?database), "entity/"), str(?database))) AS ?databaseLabel)
+    BIND(if(bound(?license), ?license, "unbound") AS ?license__label_subject)
+    OPTIONAL
+      { ?license__label_subject
+                  rdfs:label  ?license__label_value
+        FILTER ( lang(?license__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?license__label_subject
+                  rdfs:label  ?license__label_value
+        FILTER ( lang(?license__label_value) = "mul" )
+      }
+    BIND(if(bound(?license__label_value), ?license__label_value, if(( isURI(?license) && strstarts(str(?license), "http://www.wikidata.org/entity/") ), strafter(str(?license), "entity/"), str(?license))) AS ?licenseLabel)
+  }
+ORDER BY ASC(?databaseLabel)
+
+# Original query:
+# #title: Websites with OpenAPI endpoints
+# SELECT ?database ?databaseLabel ?license ?licenseLabel ?value WHERE {
+#   ?database ?p ?wds .
+#   OPTIONAL { ?database wdt:P275 ?license }
+#   ?wds ?v ?value.
+#   ?wdP wikibase:statementProperty ?v.
+#   ?wdP wikibase:claim ?p.
+#   ?wds pq:P31 wd:Q27075870.
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "en". }
+# } ORDER BY ASC(?databaseLabel)

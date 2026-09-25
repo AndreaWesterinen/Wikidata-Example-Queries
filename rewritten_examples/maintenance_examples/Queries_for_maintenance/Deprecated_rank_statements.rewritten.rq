@@ -1,0 +1,56 @@
+# rewrite_status: rewritten
+#added before 2016-10
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wikibase: <http://wikiba.se/ontology#>
+
+SELECT  ?wdLabel ?wdPLabel ?valueLabel ?wd ?wdP ?wds ?value
+WHERE
+  { ?wds  wikibase:rank         wikibase:DeprecatedRank .
+    ?wd   ?p                    ?wds .
+    ?wds  ?v                    ?value .
+    ?wdP  wikibase:statementProperty  ?v ;
+          wikibase:claim        ?p
+    OPTIONAL
+      { ?wd  rdfs:label  ?wd__label_value
+        FILTER ( lang(?wd__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?wd  rdfs:label  ?wd__label_value
+        FILTER ( lang(?wd__label_value) = "mul" )
+      }
+    BIND(if(bound(?wd__label_value), ?wd__label_value, if(( isURI(?wd) && strstarts(str(?wd), "http://www.wikidata.org/entity/") ), strafter(str(?wd), "entity/"), str(?wd))) AS ?wdLabel)
+    OPTIONAL
+      { ?wdP  rdfs:label  ?wdP__label_value
+        FILTER ( lang(?wdP__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?wdP  rdfs:label  ?wdP__label_value
+        FILTER ( lang(?wdP__label_value) = "mul" )
+      }
+    BIND(if(bound(?wdP__label_value), ?wdP__label_value, if(( isURI(?wdP) && strstarts(str(?wdP), "http://www.wikidata.org/entity/") ), strafter(str(?wdP), "entity/"), str(?wdP))) AS ?wdPLabel)
+    OPTIONAL
+      { ?value  rdfs:label  ?value__label_value
+        FILTER ( lang(?value__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?value  rdfs:label  ?value__label_value
+        FILTER ( lang(?value__label_value) = "mul" )
+      }
+    BIND(if(bound(?value__label_value), ?value__label_value, if(( isURI(?value) && strstarts(str(?value), "http://www.wikidata.org/entity/") ), strafter(str(?value), "entity/"), str(?value))) AS ?valueLabel)
+  }
+LIMIT   100
+
+# Original query:
+# #added before 2016-10
+# SELECT ?wdLabel ?wdPLabel ?valueLabel ?wd ?wdP ?wds ?value
+# WHERE
+# {
+# 	hint:Query hint:optimizer "None" .
+# 	?wds wikibase:rank wikibase:DeprecatedRank .
+# 	?wd ?p ?wds .
+# 	?wds ?v ?value .
+# 	?wdP wikibase:statementProperty ?v .
+# 	?wdP wikibase:claim ?p .
+# 	SERVICE wikibase:label { bd:serviceParam wikibase:language "en" }
+# }
+# LIMIT 100

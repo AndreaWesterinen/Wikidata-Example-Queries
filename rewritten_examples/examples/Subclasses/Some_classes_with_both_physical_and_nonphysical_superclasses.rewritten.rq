@@ -1,0 +1,61 @@
+# rewrite_status: rewritten
+#title: Some classes with both physical and non-physical super-classes
+# This gives a list of classes whose super-classes include both "physical entity" and "non-physical entity".
+# One of these is, presumably, in error.
+# Due to timeouts, it is necessary to explicitly limit the depth.
+
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT DISTINCT  ?item ?itemLabel
+WHERE
+  { { SELECT  ?item
+      WHERE
+        { ?item (((wdt:P279/wdt:P279)/(wdt:P279)?)/(wdt:P279)?)/(wdt:P279)? wd:Q7048977 .
+          ?item (((wdt:P279/wdt:P279)/(wdt:P279)?)/(wdt:P279)?)/(wdt:P279)? wd:Q112276019
+        }
+      LIMIT   300
+    }
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "es" )
+      }
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "fr" )
+      }
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "de" )
+      }
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "mul" )
+      }
+    BIND(if(bound(?item__label_value), ?item__label_value, if(( isURI(?item) && strstarts(str(?item), "http://www.wikidata.org/entity/") ), strafter(str(?item), "entity/"), str(?item))) AS ?itemLabel)
+  }
+ORDER BY ?itemLabel
+
+# Original query:
+# #title: Some classes with both physical and non-physical super-classes
+# # This gives a list of classes whose super-classes include both "physical entity" and "non-physical entity".
+# # One of these is, presumably, in error.
+# # Due to timeouts, it is necessary to explicitly limit the depth.
+#
+# SELECT DISTINCT ?item ?itemLabel WHERE {
+#   {
+#     SELECT ?item WHERE { ?item (wdt:P279/wdt:P279/(wdt:P279?)/(wdt:P279?)/(wdt:P279?)) wd:Q7048977, wd:Q112276019. }
+#     LIMIT 300
+#   }
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],en,es,fr,de,mul". }
+# }
+# ORDER BY (?itemLabel)

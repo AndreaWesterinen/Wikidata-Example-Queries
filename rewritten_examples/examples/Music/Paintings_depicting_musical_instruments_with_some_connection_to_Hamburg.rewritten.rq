@@ -1,0 +1,26 @@
+# rewrite_status: rewritten
+#title: Paintings depicting musical instruments with some connection to Hamburg
+#defaultView:ImageGrid
+PREFIX wd: <http://www.wikidata.org/entity/>
+PREFIX wdt: <http://www.wikidata.org/prop/direct/>
+SELECT DISTINCT ?item ?image {
+  ?object wdt:P279* wd:Q34379 .
+  ?item wdt:P180 ?object .
+  ?item wdt:P31/wdt:P279* wd:Q3305213 .
+  ?item wdt:P18 ?image .
+  ?item ?prop ?hhlink .
+  ?hhlink ?prop2 wd:Q1055 .
+}
+
+# Original query:
+# #title: Paintings depicting musical instruments with some connection to Hamburg
+# #defaultView:ImageGrid
+# SELECT DISTINCT ?item ?image {
+#   hint:Query hint:optimizer "None" .
+#   ?object wdt:P279* wd:Q34379 .
+#   ?item wdt:P180 ?object .
+#   ?item wdt:P31/wdt:P279* wd:Q3305213 .
+#   ?item wdt:P18 ?image .
+#   ?item ?prop ?hhlink .
+#   ?hhlink ?prop2 wd:Q1055 .
+# }

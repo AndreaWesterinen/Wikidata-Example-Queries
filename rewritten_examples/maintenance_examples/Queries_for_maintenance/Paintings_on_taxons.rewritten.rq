@@ -1,0 +1,48 @@
+# rewrite_status: rewritten
+#added before 2016-10
+
+PREFIX  p:    <http://www.wikidata.org/prop/>
+PREFIX  pq:   <http://www.wikidata.org/prop/qualifier/>
+PREFIX  ps:   <http://www.wikidata.org/prop/statement/>
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?material ?painting ?materialLabel ?paintingLabel
+WHERE
+  { ?painting wdt:P31/(wdt:P279)* wd:Q3305213 .
+    ?painting  p:P186  _:b0 .
+    _:b0      ps:P186  ?material ;
+              pq:P518  wd:Q861259 .
+    ?material  wdt:P31  wd:Q16521
+    OPTIONAL
+      { ?material  rdfs:label  ?material__label_value
+        FILTER ( lang(?material__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?material  rdfs:label  ?material__label_value
+        FILTER ( lang(?material__label_value) = "mul" )
+      }
+    BIND(if(bound(?material__label_value), ?material__label_value, if(( isURI(?material) && strstarts(str(?material), "http://www.wikidata.org/entity/") ), strafter(str(?material), "entity/"), str(?material))) AS ?materialLabel)
+    OPTIONAL
+      { ?painting  rdfs:label  ?painting__label_value
+        FILTER ( lang(?painting__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?painting  rdfs:label  ?painting__label_value
+        FILTER ( lang(?painting__label_value) = "mul" )
+      }
+    BIND(if(bound(?painting__label_value), ?painting__label_value, if(( isURI(?painting) && strstarts(str(?painting), "http://www.wikidata.org/entity/") ), strafter(str(?painting), "entity/"), str(?painting))) AS ?paintingLabel)
+  }
+
+# Original query:
+# #added before 2016-10
+#
+# SELECT ?material ?painting ?materialLabel ?paintingLabel
+# WHERE
+# {
+#   ?painting wdt:P31/wdt:P279* wd:Q3305213;
+#             p:P186 [ ps:P186 ?material; pq:P518 wd:Q861259 ].
+#   ?material wdt:P31 wd:Q16521.
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "en". }
+# }

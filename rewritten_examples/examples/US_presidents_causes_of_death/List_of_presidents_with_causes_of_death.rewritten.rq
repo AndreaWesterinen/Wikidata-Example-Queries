@@ -1,0 +1,48 @@
+# rewrite_status: rewritten
+#title: List of presidents with causes of death
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?h ?hLabel ?cause ?causeLabel (year(?date) AS ?year)
+WHERE
+  { ?h  wdt:P39   wd:Q11696 ;
+        wdt:P509  ?cause ;
+        wdt:P570  ?date
+    OPTIONAL
+      { ?h  rdfs:label  ?h__label_value
+        FILTER ( lang(?h__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?h  rdfs:label  ?h__label_value
+        FILTER ( lang(?h__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?h  rdfs:label  ?h__label_value
+        FILTER ( lang(?h__label_value) = "en" )
+      }
+    BIND(if(bound(?h__label_value), ?h__label_value, if(( isURI(?h) && strstarts(str(?h), "http://www.wikidata.org/entity/") ), strafter(str(?h), "entity/"), str(?h))) AS ?hLabel)
+    OPTIONAL
+      { ?cause  rdfs:label  ?cause__label_value
+        FILTER ( lang(?cause__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?cause  rdfs:label  ?cause__label_value
+        FILTER ( lang(?cause__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?cause  rdfs:label  ?cause__label_value
+        FILTER ( lang(?cause__label_value) = "en" )
+      }
+    BIND(if(bound(?cause__label_value), ?cause__label_value, if(( isURI(?cause) && strstarts(str(?cause), "http://www.wikidata.org/entity/") ), strafter(str(?cause), "entity/"), str(?cause))) AS ?causeLabel)
+  }
+ORDER BY ?year
+
+# Original query:
+# #title: List of presidents with causes of death
+# SELECT ?h ?hLabel ?cause ?causeLabel (YEAR(?date) AS ?year) WHERE {
+# ?h wdt:P39 wd:Q11696;
+#    wdt:P509 ?cause;
+#    wdt:P570 ?date
+# SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en". }
+# } ORDER BY ?year

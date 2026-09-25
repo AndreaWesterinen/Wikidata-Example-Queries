@@ -1,0 +1,38 @@
+# rewrite_status: rewritten
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?publisher ?publisherLabel ?work
+WHERE
+  { ?work     wdt:P123  ?publisher .
+    ?publisher  wdt:P31  wd:Q4167410
+    OPTIONAL
+      { ?publisher  rdfs:label  ?publisher__label_value
+        FILTER ( lang(?publisher__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?publisher  rdfs:label  ?publisher__label_value
+        FILTER ( lang(?publisher__label_value) = "fr" )
+      }
+    OPTIONAL
+      { ?publisher  rdfs:label  ?publisher__label_value
+        FILTER ( lang(?publisher__label_value) = "de" )
+      }
+    OPTIONAL
+      { ?publisher  rdfs:label  ?publisher__label_value
+        FILTER ( lang(?publisher__label_value) = "mul" )
+      }
+    BIND(if(bound(?publisher__label_value), ?publisher__label_value, if(( isURI(?publisher) && strstarts(str(?publisher), "http://www.wikidata.org/entity/") ), strafter(str(?publisher), "entity/"), str(?publisher))) AS ?publisherLabel)
+  }
+
+# Original query:
+# SELECT ?publisher ?publisherLabel ?work WHERE {
+#   # entities used as publisher
+#   ?work wdt:P123 ?publisher .
+#   # but that are actually a disambiguation page
+#   ?publisher wdt:P31 wd:Q4167410 .
+#   SERVICE wikibase:label {
+#     bd:serviceParam wikibase:language "en,fr,de" .
+#   }
+# }

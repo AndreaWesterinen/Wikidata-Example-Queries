@@ -1,0 +1,51 @@
+# rewrite_status: rewritten
+#title: Pokémon!
+# Updated 2020-06-17
+
+# Gotta catch 'em all
+PREFIX  p:    <http://www.wikidata.org/prop/>
+PREFIX  pq:   <http://www.wikidata.org/prop/qualifier/>
+PREFIX  ps:   <http://www.wikidata.org/prop/statement/>
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT DISTINCT  ?pokemon ?pokemonLabel ?pokedexNumber
+WHERE
+  { ?pokemon wdt:P31/(wdt:P279)* wd:Q3966183 .
+    ?pokemon  p:P1685   ?statement .
+    ?statement  ps:P1685  ?pokedexNumber ;
+              pq:P972   wd:Q20005020
+    FILTER ( ! contains(str(?pokedexNumber), "wikidata.org/.well-known/genid") )
+    OPTIONAL
+      { ?pokemon  rdfs:label  ?pokemon__label_value
+        FILTER ( lang(?pokemon__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?pokemon  rdfs:label  ?pokemon__label_value
+        FILTER ( lang(?pokemon__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?pokemon  rdfs:label  ?pokemon__label_value
+        FILTER ( lang(?pokemon__label_value) = "en" )
+      }
+    BIND(if(bound(?pokemon__label_value), ?pokemon__label_value, if(( isURI(?pokemon) && strstarts(str(?pokemon), "http://www.wikidata.org/entity/") ), strafter(str(?pokemon), "entity/"), str(?pokemon))) AS ?pokemonLabel)
+  }
+ORDER BY ?pokedexNumber
+
+# Original query:
+# #title: Pokémon!
+# # Updated 2020-06-17
+#
+# # Gotta catch 'em all
+# SELECT DISTINCT ?pokemon ?pokemonLabel ?pokedexNumber
+# WHERE
+# {
+#     ?pokemon wdt:P31/wdt:P279* wd:Q3966183 .
+#     ?pokemon p:P1685 ?statement.
+#     ?statement ps:P1685 ?pokedexNumber;
+#               pq:P972 wd:Q20005020.
+#     FILTER (! wikibase:isSomeValue(?pokedexNumber) )
+#     SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" }
+# }
+# ORDER BY (?pokedexNumber)

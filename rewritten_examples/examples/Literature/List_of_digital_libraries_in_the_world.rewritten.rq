@@ -1,0 +1,67 @@
+# rewrite_status: rewritten
+#title: List of digital libraries in the world
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT DISTINCT  ?item ?itemLabel ?website
+WHERE
+  { ?item wdt:P31/(wdt:P279)* wd:Q212805
+    OPTIONAL
+      { ?item  wdt:P856  ?website }
+    MINUS
+      { ?item  wdt:P576  _:b0 }
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "es" )
+      }
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "ca" )
+      }
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "fr" )
+      }
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "de" )
+      }
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "pl" )
+      }
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "uk" )
+      }
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "ru" )
+      }
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "he" )
+      }
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "mul" )
+      }
+    BIND(if(bound(?item__label_value), ?item__label_value, if(( isURI(?item) && strstarts(str(?item), "http://www.wikidata.org/entity/") ), strafter(str(?item), "entity/"), str(?item))) AS ?itemLabel)
+  }
+ORDER BY ?itemLabel
+
+# Original query:
+# #title: List of digital libraries in the world
+# SELECT DISTINCT ?item ?itemLabel ?website
+# WHERE {
+# ?item wdt:P31/wdt:P279* wd:Q212805 # digital libraries or subtypes
+# OPTIONAL { ?item wdt:P856 ?website } # Official URL if known
+# MINUS { ?item wdt:P576 [] } # Exclude those that have shut down
+# SERVICE wikibase:label { bd:serviceParam wikibase:language "en, es, ca, fr, de, pl, uk, ru, he" }
+# }
+# ORDER BY ?itemLabel

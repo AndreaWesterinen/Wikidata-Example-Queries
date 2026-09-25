@@ -1,0 +1,26 @@
+# rewrite_status: rewritten
+#title: Population growth in Suriname from 1960 onward
+#defaultView:LineChart
+PREFIX  p:    <http://www.wikidata.org/prop/>
+PREFIX  pq:   <http://www.wikidata.org/prop/qualifier/>
+PREFIX  ps:   <http://www.wikidata.org/prop/statement/>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+
+SELECT  ?year ?population
+WHERE
+  { wd:Q730  p:P1082   ?p .
+    ?p       pq:P585   ?year ;
+             ps:P1082  ?population
+  }
+ORDER BY ?year
+
+# Original query:
+# #title: Population growth in Suriname from 1960 onward
+# #defaultView:LineChart
+# SELECT ?year ?population {
+#   wd:Q730 p:P1082 ?p .
+#   ?p pq:P585 ?year ;
+#      ps:P1082 ?population .
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "en" }
+# }
+# ORDER BY ?year

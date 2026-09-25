@@ -1,0 +1,121 @@
+# rewrite_status: rewritten
+#title: Timeline of death of mathematicans and their theorems
+#defaultView:Timeline
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?genderLabel ?theorem ?theoremLabel ?nameLabel ?death ?formula
+WHERE
+  { ?theorem  wdt:P31    wd:Q65943 ;
+              wdt:P138   ?name .
+    ?name     wdt:P570   ?death ;
+              wdt:P21    ?gender .
+    ?theorem  wdt:P2534  ?formula
+    BIND(if(bound(?gender), ?gender, "unbound") AS ?gender__label_subject)
+    OPTIONAL
+      { ?gender__label_subject
+                  rdfs:label  ?gender__label_value
+        FILTER ( lang(?gender__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?gender__label_subject
+                  rdfs:label  ?gender__label_value
+        FILTER ( lang(?gender__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?gender__label_subject
+                  rdfs:label  ?gender__label_value
+        FILTER ( lang(?gender__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?gender__label_subject
+                  rdfs:label  ?gender__label_value
+        FILTER ( lang(?gender__label_value) = "de" )
+      }
+    OPTIONAL
+      { ?gender__label_subject
+                  rdfs:label  ?gender__label_value
+        FILTER ( lang(?gender__label_value) = "pl" )
+      }
+    BIND(if(bound(?gender__label_value), ?gender__label_value, if(( isURI(?gender) && strstarts(str(?gender), "http://www.wikidata.org/entity/") ), strafter(str(?gender), "entity/"), str(?gender))) AS ?genderLabel)
+    BIND(if(bound(?theorem), ?theorem, "unbound") AS ?theorem__label_subject)
+    OPTIONAL
+      { ?theorem__label_subject
+                  rdfs:label  ?theorem__label_value
+        FILTER ( lang(?theorem__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?theorem__label_subject
+                  rdfs:label  ?theorem__label_value
+        FILTER ( lang(?theorem__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?theorem__label_subject
+                  rdfs:label  ?theorem__label_value
+        FILTER ( lang(?theorem__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?theorem__label_subject
+                  rdfs:label  ?theorem__label_value
+        FILTER ( lang(?theorem__label_value) = "de" )
+      }
+    OPTIONAL
+      { ?theorem__label_subject
+                  rdfs:label  ?theorem__label_value
+        FILTER ( lang(?theorem__label_value) = "pl" )
+      }
+    BIND(if(bound(?theorem__label_value), ?theorem__label_value, if(( isURI(?theorem) && strstarts(str(?theorem), "http://www.wikidata.org/entity/") ), strafter(str(?theorem), "entity/"), str(?theorem))) AS ?theoremLabel)
+    BIND(if(bound(?name), ?name, "unbound") AS ?name__label_subject)
+    OPTIONAL
+      { ?name__label_subject
+                  rdfs:label  ?name__label_value
+        FILTER ( lang(?name__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?name__label_subject
+                  rdfs:label  ?name__label_value
+        FILTER ( lang(?name__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?name__label_subject
+                  rdfs:label  ?name__label_value
+        FILTER ( lang(?name__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?name__label_subject
+                  rdfs:label  ?name__label_value
+        FILTER ( lang(?name__label_value) = "de" )
+      }
+    OPTIONAL
+      { ?name__label_subject
+                  rdfs:label  ?name__label_value
+        FILTER ( lang(?name__label_value) = "pl" )
+      }
+    BIND(if(bound(?name__label_value), ?name__label_value, if(( isURI(?name) && strstarts(str(?name), "http://www.wikidata.org/entity/") ), strafter(str(?name), "entity/"), str(?name))) AS ?nameLabel)
+  }
+ORDER BY DESC(?death)
+LIMIT   100
+
+# Original query:
+# #title: Timeline of death of mathematicans and their theorems
+# #defaultView:Timeline
+# SELECT
+#   ?genderLabel
+#   ?theorem
+#   ?theoremLabel
+#   ?nameLabel
+#   ?death
+#   ?formula
+# WHERE {
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en,de,pl". }
+#   ?theorem wdt:P31 wd:Q65943;
+#            wdt:P138 ?name.
+#   ?name    wdt:P570 ?death;
+#            wdt:P21 ?gender .
+#   # OPTIONAL{
+#   ?theorem wdt:P2534 ?formula.
+#   # }
+# }
+# ORDER BY DESC(?death)
+# LIMIT 100

@@ -1,0 +1,59 @@
+# rewrite_status: rewritten
+#title: Winner of the Academy Awards by Award and Time
+PREFIX  p:    <http://www.wikidata.org/prop/>
+PREFIX  pq:   <http://www.wikidata.org/prop/qualifier/>
+PREFIX  ps:   <http://www.wikidata.org/prop/statement/>
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT DISTINCT  ?item ?itemLabel ?awardLabel ?time
+WHERE
+  { ?item wdt:P106/(wdt:P279)* wd:Q3455803 .
+    ?item     p:P166    ?awardStat .
+    ?awardStat  pq:P805  ?award ;
+              ps:P166   wd:Q103360 .
+    ?award    wdt:P585  ?time
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "en" )
+      }
+    BIND(if(bound(?item__label_value), ?item__label_value, if(( isURI(?item) && strstarts(str(?item), "http://www.wikidata.org/entity/") ), strafter(str(?item), "entity/"), str(?item))) AS ?itemLabel)
+    OPTIONAL
+      { ?award  rdfs:label  ?award__label_value
+        FILTER ( lang(?award__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?award  rdfs:label  ?award__label_value
+        FILTER ( lang(?award__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?award  rdfs:label  ?award__label_value
+        FILTER ( lang(?award__label_value) = "en" )
+      }
+    BIND(if(bound(?award__label_value), ?award__label_value, if(( isURI(?award) && strstarts(str(?award), "http://www.wikidata.org/entity/") ), strafter(str(?award), "entity/"), str(?award))) AS ?awardLabel)
+  }
+ORDER BY DESC(?time)
+
+# Original query:
+# #title: Winner of the Academy Awards by Award and Time
+# SELECT DISTINCT ?item ?itemLabel ?awardLabel ?time
+# {
+#     ?item wdt:P106/wdt:P279* wd:Q3455803 ; # Items with the Occupation(P106) of Director(Q3455803) or a subclass(P279)
+#           p:P166 ?awardStat .              # ... with an awarded(P166) statement
+#     ?awardStat pq:P805 ?award ;            # Get the award (which is "subject of" XXth Academy Awards)
+#                ps:P166 wd:Q103360 .        # ... that has the value Academy Award for Best Director(Q103360)
+#     ?award wdt:P585 ?time .                # the "point of time" of the Academy Award
+#     SERVICE wikibase:label {               # ... include the labels
+#         bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en"
+#     }
+# }
+# ORDER BY DESC(?time)

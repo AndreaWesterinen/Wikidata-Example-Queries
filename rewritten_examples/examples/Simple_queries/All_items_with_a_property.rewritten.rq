@@ -1,0 +1,55 @@
+# rewrite_status: rewritten
+#title: All items with a property
+# Sample to query all values of a property
+# Property talk pages on Wikidata include basic queries adapted to each property
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?item ?itemLabel ?value ?valueLabel
+WHERE
+  { ?item  wdt:P1800  ?value
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "en" )
+      }
+    BIND(if(bound(?item__label_value), ?item__label_value, if(( isURI(?item) && strstarts(str(?item), "http://www.wikidata.org/entity/") ), strafter(str(?item), "entity/"), str(?item))) AS ?itemLabel)
+    OPTIONAL
+      { ?value  rdfs:label  ?value__label_value
+        FILTER ( lang(?value__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?value  rdfs:label  ?value__label_value
+        FILTER ( lang(?value__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?value  rdfs:label  ?value__label_value
+        FILTER ( lang(?value__label_value) = "en" )
+      }
+    BIND(if(bound(?value__label_value), ?value__label_value, if(( isURI(?value) && strstarts(str(?value), "http://www.wikidata.org/entity/") ), strafter(str(?value), "entity/"), str(?value))) AS ?valueLabel)
+  }
+LIMIT   10
+
+# Original query:
+# #title: All items with a property
+# # Sample to query all values of a property
+# # Property talk pages on Wikidata include basic queries adapted to each property
+# SELECT
+#   ?item ?itemLabel
+#   ?value ?valueLabel
+# # valueLabel is only useful for properties with item-datatype
+# WHERE
+# {
+#   ?item wdt:P1800 ?value
+#   # change P1800 to another property
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en". }
+# }
+# # remove or change limit for more results
+# LIMIT 10

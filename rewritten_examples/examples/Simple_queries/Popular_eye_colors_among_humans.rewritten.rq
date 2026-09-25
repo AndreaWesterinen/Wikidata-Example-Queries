@@ -1,0 +1,45 @@
+# rewrite_status: rewritten
+#title: Popular eye colors among humans
+# illustrates bubblechart view, count
+#defaultView:BubbleChart
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?eyeColor ?eyeColorLabel ?rgb (COUNT(?human) AS ?count)
+WHERE
+  { ?human  wdt:P31    wd:Q5 ;
+            wdt:P1340  ?eyeColor
+    OPTIONAL
+      { ?eyeColor  wdt:P465  ?rgb }
+    OPTIONAL
+      { ?eyeColor  rdfs:label  ?eyeColor__label_value
+        FILTER ( lang(?eyeColor__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?eyeColor  rdfs:label  ?eyeColor__label_value
+        FILTER ( lang(?eyeColor__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?eyeColor  rdfs:label  ?eyeColor__label_value
+        FILTER ( lang(?eyeColor__label_value) = "en" )
+      }
+    BIND(if(bound(?eyeColor__label_value), ?eyeColor__label_value, if(( isURI(?eyeColor) && strstarts(str(?eyeColor), "http://www.wikidata.org/entity/") ), strafter(str(?eyeColor), "entity/"), str(?eyeColor))) AS ?eyeColorLabel)
+  }
+GROUP BY ?eyeColor ?eyeColorLabel ?rgb
+ORDER BY DESC(?count)
+
+# Original query:
+# #title: Popular eye colors among humans
+# # illustrates bubblechart view, count
+# #defaultView:BubbleChart
+# SELECT ?eyeColor ?eyeColorLabel ?rgb (COUNT(?human) AS ?count)
+# WHERE
+# {
+#   ?human wdt:P31 wd:Q5.
+#   ?human wdt:P1340 ?eyeColor.
+#   OPTIONAL { ?eyeColor wdt:P465 ?rgb. }
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en". }
+# }
+# GROUP BY ?eyeColor ?eyeColorLabel ?rgb
+# ORDER BY DESC(?count)

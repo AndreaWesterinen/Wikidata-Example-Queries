@@ -1,0 +1,60 @@
+# rewrite_status: rewritten
+#title: All pKa data in Wikidata and the source titles
+PREFIX  p:    <http://www.wikidata.org/prop/>
+PREFIX  pr:   <http://www.wikidata.org/prop/reference/>
+PREFIX  prov: <http://www.w3.org/ns/prov#>
+PREFIX  ps:   <http://www.wikidata.org/prop/statement/>
+PREFIX  rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+PREFIX  wikibase: <http://wikiba.se/ontology#>
+
+SELECT  ?compound ?compoundLabel ?pKa ?source ?sourceLabel ?doi
+WHERE
+  { ?compound  wdt:P31  wd:Q11173 ;
+              p:P1117   ?statement .
+    ?statement  rdf:type  wikibase:BestRank ;
+              ps:P1117  ?pKa
+    OPTIONAL
+      { ?statement prov:wasDerivedFrom/pr:P248 ?source
+        OPTIONAL
+          { ?source  wdt:P356  ?doi }
+      }
+    OPTIONAL
+      { ?compound  rdfs:label  ?compound__label_value
+        FILTER ( lang(?compound__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?compound  rdfs:label  ?compound__label_value
+        FILTER ( lang(?compound__label_value) = "mul" )
+      }
+    BIND(if(bound(?compound__label_value), ?compound__label_value, if(( isURI(?compound) && strstarts(str(?compound), "http://www.wikidata.org/entity/") ), strafter(str(?compound), "entity/"), str(?compound))) AS ?compoundLabel)
+    BIND(if(bound(?source), ?source, "unbound") AS ?source__label_subject)
+    OPTIONAL
+      { ?source__label_subject
+                  rdfs:label  ?source__label_value
+        FILTER ( lang(?source__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?source__label_subject
+                  rdfs:label  ?source__label_value
+        FILTER ( lang(?source__label_value) = "mul" )
+      }
+    BIND(if(bound(?source__label_value), ?source__label_value, if(( isURI(?source) && strstarts(str(?source), "http://www.wikidata.org/entity/") ), strafter(str(?source), "entity/"), str(?source))) AS ?sourceLabel)
+  }
+
+# Original query:
+# #title: All pKa data in Wikidata and the source titles
+# SELECT ?compound ?compoundLabel ?pKa ?source ?sourceLabel ?doi
+# WHERE
+# {
+#   ?compound wdt:P31 wd:Q11173 ; p:P1117 ?statement .
+#   ?statement rdf:type wikibase:BestRank ;
+#     ps:P1117 ?pKa .
+#   OPTIONAL {
+#     ?statement prov:wasDerivedFrom/pr:P248 ?source .
+#     OPTIONAL { ?source wdt:P356 ?doi . }
+#   }
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "en". } #English label
+# }

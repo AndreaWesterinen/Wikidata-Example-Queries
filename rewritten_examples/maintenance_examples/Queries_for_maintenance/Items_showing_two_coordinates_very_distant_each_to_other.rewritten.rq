@@ -1,0 +1,54 @@
+# rewrite_status: rewritten
+PREFIX  geof: <http://www.opengis.net/def/function/geosparql/>
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+PREFIX  wikibase: <http://wikiba.se/ontology#>
+
+SELECT  ?item ?itemLabel ?location1 ?location2 ?distance
+WHERE
+  { ?item wdt:P31/(wdt:P279)* wd:Q3887 .
+    ?item  wdt:P625  ?location1 ;
+           wdt:P625  ?location2
+    BIND(geof:distance(?location1, ?location2) AS ?distance)
+    OPTIONAL
+      { ?item     <http://www.wikidata.org/prop/P625>  ?location1__stmt .
+        ?location1__stmt
+                  <http://www.wikidata.org/prop/statement/P625>  ?location1 .
+        ?location1__stmt <http://www.wikidata.org/prop/statement/value/P625>/wikibase:geoLongitude ?location1__lon .
+        ?location1__stmt <http://www.wikidata.org/prop/statement/value/P625>/wikibase:geoLatitude ?location1__lat
+      }
+    OPTIONAL
+      { ?item     <http://www.wikidata.org/prop/P625>  ?location2__stmt .
+        ?location2__stmt
+                  <http://www.wikidata.org/prop/statement/P625>  ?location2 .
+        ?location2__stmt <http://www.wikidata.org/prop/statement/value/P625>/wikibase:geoLongitude ?location2__lon .
+        ?location2__stmt <http://www.wikidata.org/prop/statement/value/P625>/wikibase:geoLatitude ?location2__lat
+      }
+    FILTER ( ( ?location1__lon < ?location2__lon ) || ( ( ?location1__lon = ?location2__lon ) && ( ?location1__lat < ?location2__lat ) ) )
+    FILTER ( ?distance > 80 )
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "mul" )
+      }
+    BIND(if(bound(?item__label_value), ?item__label_value, if(( isURI(?item) && strstarts(str(?item), "http://www.wikidata.org/entity/") ), strafter(str(?item), "entity/"), str(?item))) AS ?itemLabel)
+  }
+ORDER BY DESC(?distance)
+
+# Original query:
+# SELECT ?item ?itemLabel ?location1 ?location2 ?distance WHERE {
+#   ?item wdt:P31/wdt:P279* wd:Q3887 ;
+#     wdt:P625 ?location1 , ?location2 .        
+#   BIND(geof:distance(?location1, ?location2) AS ?distance ) 
+#   FILTER(((geof:longitude(?location1)) < (geof:longitude(?location2))) || (((geof:longitude(?location1)) = (geof:longitude(?location2))) && ((geof:latitude(?location1)) < (geof:latitude(?location2)))))
+#   FILTER(?distance > 80  )     
+#  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],en". }
+# }order by desc (?distance )

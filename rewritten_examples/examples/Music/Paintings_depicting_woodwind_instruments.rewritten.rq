@@ -1,0 +1,75 @@
+# rewrite_status: rewritten
+#title: Paintings depicting woodwind instruments
+#defaultView:ImageGrid
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?item ?itemLabel ?object ?objectLabel ?artistLabel ?image
+WHERE
+  { ?item wdt:P31/(wdt:P279)* wd:Q3305213 .
+    ?item  wdt:P180  ?object .
+    ?object (wdt:P279)* wd:Q181247
+    OPTIONAL
+      { ?item  wdt:P170  ?artistitem }
+    BIND(if(contains(str(?artistitem), "wikidata.org/.well-known/genid"), "Artist unknown", ?artistitem) AS ?artist)
+    ?item  wdt:P18  ?image
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "en" )
+      }
+    BIND(if(bound(?item__label_value), ?item__label_value, if(( isURI(?item) && strstarts(str(?item), "http://www.wikidata.org/entity/") ), strafter(str(?item), "entity/"), str(?item))) AS ?itemLabel)
+    OPTIONAL
+      { ?object  rdfs:label  ?object__label_value
+        FILTER ( lang(?object__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?object  rdfs:label  ?object__label_value
+        FILTER ( lang(?object__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?object  rdfs:label  ?object__label_value
+        FILTER ( lang(?object__label_value) = "en" )
+      }
+    BIND(if(bound(?object__label_value), ?object__label_value, if(( isURI(?object) && strstarts(str(?object), "http://www.wikidata.org/entity/") ), strafter(str(?object), "entity/"), str(?object))) AS ?objectLabel)
+    BIND(if(bound(?artist), ?artist, "unbound") AS ?artist__label_subject)
+    OPTIONAL
+      { ?artist__label_subject
+                  rdfs:label  ?artist__label_value
+        FILTER ( lang(?artist__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?artist__label_subject
+                  rdfs:label  ?artist__label_value
+        FILTER ( lang(?artist__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?artist__label_subject
+                  rdfs:label  ?artist__label_value
+        FILTER ( lang(?artist__label_value) = "en" )
+      }
+    BIND(if(bound(?artist__label_value), ?artist__label_value, if(( isURI(?artist) && strstarts(str(?artist), "http://www.wikidata.org/entity/") ), strafter(str(?artist), "entity/"), str(?artist))) AS ?artistLabel)
+  }
+
+# Original query:
+# #title: Paintings depicting woodwind instruments
+# #defaultView:ImageGrid
+# SELECT ?item ?itemLabel ?object ?objectLabel ?artistLabel ?image
+# WHERE
+# {
+#   ?item wdt:P31/wdt:P279* wd:Q3305213 . # Painting or sub-type of painting
+#   ?item wdt:P180 ?object .
+#   ?object wdt:P279* wd:Q181247 .
+#   OPTIONAL {?item wdt:P170 ?artistitem}
+#   BIND (IF(wikibase:isSomeValue(?artistitem), "Artist unknown", ?artistitem) AS ?artist).
+#   ?item wdt:P18 ?image .
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" }
+# }

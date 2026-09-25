@@ -1,0 +1,89 @@
+# rewrite_status: rewritten
+#added before 2016-10
+
+#defaultView:TreeMap
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?show ?showLabel ?season ?cleanSeasonLabel ?episode ?episodeLabel
+WHERE
+  {   { BIND(wd:Q886 AS ?show)
+        ?season  wdt:P361    ?show ;
+                 rdfs:label  ?_seasonLabel
+        FILTER ( lang(?_seasonLabel) = "en" )
+        BIND(substr(?_seasonLabel, 0, ( strlen(?_seasonLabel) - 23 )) AS ?cleanSeasonLabel)
+        ?episode  wdt:P361  ?season
+      }
+    UNION
+      { BIND(wd:Q16538 AS ?show)
+        ?season  wdt:P361    ?show ;
+                 rdfs:label  ?_seasonLabel
+        FILTER ( lang(?_seasonLabel) = "en" )
+        BIND(substr(?_seasonLabel, 0, ( strlen(?_seasonLabel) - 20 )) AS ?cleanSeasonLabel)
+        ?episode  wdt:P361  ?season
+      }
+    UNION
+      { BIND(wd:Q147235 AS ?show)
+        ?season  wdt:P361    ?show ;
+                 rdfs:label  ?_seasonLabel
+        FILTER ( lang(?_seasonLabel) = "en" )
+        BIND(concat("S", substr(?_seasonLabel, 25)) AS ?cleanSeasonLabel)
+        ?episode  wdt:P361  ?season
+      }
+    OPTIONAL
+      { ?show  rdfs:label  ?show__label_value
+        FILTER ( lang(?show__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?show  rdfs:label  ?show__label_value
+        FILTER ( lang(?show__label_value) = "mul" )
+      }
+    BIND(if(bound(?show__label_value), ?show__label_value, if(( isURI(?show) && strstarts(str(?show), "http://www.wikidata.org/entity/") ), strafter(str(?show), "entity/"), str(?show))) AS ?showLabel)
+    OPTIONAL
+      { ?episode  rdfs:label  ?episode__label_value
+        FILTER ( lang(?episode__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?episode  rdfs:label  ?episode__label_value
+        FILTER ( lang(?episode__label_value) = "mul" )
+      }
+    BIND(if(bound(?episode__label_value), ?episode__label_value, if(( isURI(?episode) && strstarts(str(?episode), "http://www.wikidata.org/entity/") ), strafter(str(?episode), "entity/"), str(?episode))) AS ?episodeLabel)
+  }
+
+# Original query:
+# #added before 2016-10
+#
+# #defaultView:TreeMap
+# SELECT ?show ?showLabel  ?season ?cleanSeasonLabel ?episode ?episodeLabel
+# WHERE
+# {
+# 	{
+# 		BIND(wd:Q886 as ?show) .
+# 		?season wdt:P361 ?show .
+# 		?season rdfs:label ?_seasonLabel.
+# 		FILTER((LANG(?_seasonLabel)) = "en")
+# 		BIND(SUBSTR(?_seasonLabel, 0, STRLEN(?_seasonLabel)-23) AS ?cleanSeasonLabel)
+# 		?episode wdt:P361 ?season .
+# 	} 
+# 	UNION
+# 	{
+# 		BIND(wd:Q16538 as ?show) .
+# 		?season wdt:P361 ?show .
+# 		?season rdfs:label ?_seasonLabel.
+# 		FILTER((LANG(?_seasonLabel)) = "en")
+# 		BIND(SUBSTR(?_seasonLabel, 0, STRLEN(?_seasonLabel)-20) AS ?cleanSeasonLabel)
+# 		?episode wdt:P361 ?season .
+# 	}  
+# 	UNION
+# 	{
+# 		BIND(wd:Q147235 as ?show) .
+# 		?season wdt:P361 ?show .
+# 		?season rdfs:label ?_seasonLabel.
+# 		FILTER((LANG(?_seasonLabel)) = "en")
+# 		BIND(CONCAT("S", SUBSTR(?_seasonLabel, 25)) AS ?cleanSeasonLabel)
+# 		?episode wdt:P361 ?season .
+# 	}
+#
+# 	SERVICE wikibase:label {  bd:serviceParam wikibase:language "en" }
+# }

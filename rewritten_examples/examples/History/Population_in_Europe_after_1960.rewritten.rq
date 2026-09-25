@@ -1,0 +1,47 @@
+# rewrite_status: rewritten
+#title: Population in Europe after 1960
+PREFIX  p:    <http://www.wikidata.org/prop/>
+PREFIX  pq:   <http://www.wikidata.org/prop/qualifier/>
+PREFIX  ps:   <http://www.wikidata.org/prop/statement/>
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?objectLabel (year(?date) AS ?year) ?population (?objectLabel AS ?Location)
+WHERE
+  { wd:Q458   wdt:P150  ?object .
+    ?object   p:P1082   ?populationStatement .
+    ?populationStatement
+              ps:P1082  ?population ;
+              pq:P585   ?date
+    OPTIONAL
+      { ?object  rdfs:label  ?object__label_value
+        FILTER ( lang(?object__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?object  rdfs:label  ?object__label_value
+        FILTER ( lang(?object__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?object  rdfs:label  ?object__label_value
+        FILTER ( lang(?object__label_value) = "en" )
+      }
+    BIND(if(bound(?object__label_value), ?object__label_value, if(( isURI(?object) && strstarts(str(?object), "http://www.wikidata.org/entity/") ), strafter(str(?object), "entity/"), str(?object))) AS ?objectLabel)
+    FILTER ( year(?date) >= 1960 )
+  }
+ORDER BY ?objectLabel ?year
+
+# Original query:
+# #title: Population in Europe after 1960
+# SELECT ?objectLabel (YEAR(?date) as ?year)
+#        ?population (?objectLabel as ?Location)
+# WHERE
+# {
+#         wd:Q458 wdt:P150 ?object . # European Union contains administrative territorial entity
+#         ?object p:P1082 ?populationStatement .
+#         ?populationStatement ps:P1082 ?population ;
+#                              pq:P585 ?date .
+#         SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" }
+#   FILTER (YEAR(?date) >= 1960)
+# }
+# ORDER BY ?objectLabel ?year

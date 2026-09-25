@@ -1,0 +1,37 @@
+# rewrite_status: rewritten
+#title: Rivers in Antarctica
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?river ?riverLabel ?location
+WHERE
+  { ?river wdt:P31/(wdt:P279)* wd:Q355304 .
+    ?river  wdt:P30  wd:Q51
+    OPTIONAL
+      { ?river  wdt:P625  ?location }
+    OPTIONAL
+      { ?river  rdfs:label  ?river__label_value
+        FILTER ( lang(?river__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?river  rdfs:label  ?river__label_value
+        FILTER ( lang(?river__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?river  rdfs:label  ?river__label_value
+        FILTER ( lang(?river__label_value) = "en" )
+      }
+    BIND(if(bound(?river__label_value), ?river__label_value, if(( isURI(?river) && strstarts(str(?river), "http://www.wikidata.org/entity/") ), strafter(str(?river), "entity/"), str(?river))) AS ?riverLabel)
+  }
+
+# Original query:
+# #title: Rivers in Antarctica
+# SELECT ?river ?riverLabel ?location
+# WHERE
+# {
+#   ?river wdt:P31/wdt:P279* wd:Q355304; # watercourse; includes a few creeks – use wd:Q4022 for rivers only
+#          wdt:P30 wd:Q51.
+#   OPTIONAL { ?river wdt:P625 ?location. }
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en". }
+# }

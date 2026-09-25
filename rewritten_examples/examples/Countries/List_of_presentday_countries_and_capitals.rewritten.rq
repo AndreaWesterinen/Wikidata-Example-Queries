@@ -1,0 +1,61 @@
+# rewrite_status: rewritten
+#title: List of present-day countries and capital(s)
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT DISTINCT  ?country ?countryLabel ?capital ?capitalLabel
+WHERE
+  { ?country  wdt:P31  wd:Q3624078
+    FILTER NOT EXISTS { ?country  wdt:P31  wd:Q3024240 }
+    FILTER NOT EXISTS { ?country  wdt:P31  wd:Q28171280 }
+    OPTIONAL
+      { ?country  wdt:P36  ?capital }
+    OPTIONAL
+      { ?country  rdfs:label  ?country__label_value
+        FILTER ( lang(?country__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?country  rdfs:label  ?country__label_value
+        FILTER ( lang(?country__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?country  rdfs:label  ?country__label_value
+        FILTER ( lang(?country__label_value) = "en" )
+      }
+    BIND(if(bound(?country__label_value), ?country__label_value, if(( isURI(?country) && strstarts(str(?country), "http://www.wikidata.org/entity/") ), strafter(str(?country), "entity/"), str(?country))) AS ?countryLabel)
+    BIND(if(bound(?capital), ?capital, "unbound") AS ?capital__label_subject)
+    OPTIONAL
+      { ?capital__label_subject
+                  rdfs:label  ?capital__label_value
+        FILTER ( lang(?capital__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?capital__label_subject
+                  rdfs:label  ?capital__label_value
+        FILTER ( lang(?capital__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?capital__label_subject
+                  rdfs:label  ?capital__label_value
+        FILTER ( lang(?capital__label_value) = "en" )
+      }
+    BIND(if(bound(?capital__label_value), ?capital__label_value, if(( isURI(?capital) && strstarts(str(?capital), "http://www.wikidata.org/entity/") ), strafter(str(?capital), "entity/"), str(?capital))) AS ?capitalLabel)
+  }
+ORDER BY ?countryLabel
+
+# Original query:
+# #title: List of present-day countries and capital(s)
+# SELECT DISTINCT ?country ?countryLabel ?capital ?capitalLabel
+# WHERE
+# {
+#   ?country wdt:P31 wd:Q3624078 .
+#   #not a former country
+#   FILTER NOT EXISTS {?country wdt:P31 wd:Q3024240}
+#   #and no an ancient civilisation (needed to exclude ancient Egypt)
+#   FILTER NOT EXISTS {?country wdt:P31 wd:Q28171280}
+#   OPTIONAL { ?country wdt:P36 ?capital } .
+#
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" }
+# }
+# ORDER BY ?countryLabel

@@ -1,0 +1,29 @@
+# rewrite_status: rewritten
+#Instances of actual languages (e.g. "instance of Hindi", often incorrectly set to indicate the language of something or to request a sitelink)
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?item ?itemLabel
+WHERE
+  { ?item wdt:P31/(wdt:P31)* wd:Q34770
+    FILTER NOT EXISTS { ?item  wdt:P31  wd:Q34770 }
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "mul" )
+      }
+    BIND(if(bound(?item__label_value), ?item__label_value, if(( isURI(?item) && strstarts(str(?item), "http://www.wikidata.org/entity/") ), strafter(str(?item), "entity/"), str(?item))) AS ?itemLabel)
+  }
+
+# Original query:
+# #Instances of actual languages (e.g. "instance of Hindi", often incorrectly set to indicate the language of something or to request a sitelink)
+# SELECT ?item ?itemLabel
+# WHERE {
+#   ?item wdt:P31/wdt:P31* wd:Q34770 .
+#   FILTER NOT EXISTS {?item wdt:P31 wd:Q34770}
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "en" }
+# }

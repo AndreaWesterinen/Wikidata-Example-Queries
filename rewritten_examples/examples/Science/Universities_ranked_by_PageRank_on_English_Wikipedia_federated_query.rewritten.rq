@@ -1,0 +1,42 @@
+# rewrite_status: rewritten
+#title: Universities ranked by PageRank on English Wikipedia (federated query)
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  vrank: <http://purl.org/voc/vrank#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT DISTINCT  ?uni ?uniLabel ?pr
+WHERE
+  { ?uni wdt:P31/(wdt:P279)* wd:Q3918
+    SERVICE <http://dbpedia.org/sparql>
+      { ?uni vrank:hasRank/vrank:rankValue ?pr }
+    OPTIONAL
+      { ?uni  rdfs:label  ?uni__label_value
+        FILTER ( lang(?uni__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?uni  rdfs:label  ?uni__label_value
+        FILTER ( lang(?uni__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?uni  rdfs:label  ?uni__label_value
+        FILTER ( lang(?uni__label_value) = "en" )
+      }
+    BIND(if(bound(?uni__label_value), ?uni__label_value, if(( isURI(?uni) && strstarts(str(?uni), "http://www.wikidata.org/entity/") ), strafter(str(?uni), "entity/"), str(?uni))) AS ?uniLabel)
+  }
+ORDER BY DESC(?pr)
+LIMIT   50
+
+# Original query:
+# #title: Universities ranked by PageRank on English Wikipedia (federated query)
+# PREFIX vrank:<http://purl.org/voc/vrank#>
+#
+# SELECT DISTINCT ?uni ?uniLabel ?pr WHERE {
+#   ?uni wdt:P31/wdt:P279* wd:Q3918.
+#   SERVICE <http://dbpedia.org/sparql> {
+#     ?uni vrank:hasRank/vrank:rankValue ?pr
+#   }
+#   SERVICE wikibase:label {
+#     bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en".
+#   }
+# } ORDER BY DESC(?pr) LIMIT 50

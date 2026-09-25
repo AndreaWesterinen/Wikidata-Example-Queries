@@ -1,0 +1,41 @@
+# rewrite_status: rewritten
+#title: Items geographically located around the Wikimedia Foundation office, sorted by distance
+PREFIX  geo:  <http://www.opengis.net/ont/geosparql#>
+PREFIX  geof: <http://www.opengis.net/def/function/geosparql/>
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+PREFIX  xsd:  <http://www.w3.org/2001/XMLSchema#>
+
+SELECT  ?place ?location ?distance ?placeLabel
+WHERE
+  { ?place  wdt:P625  ?location
+    BIND(geof:distance("Point(-122.402251 37.789246)"^^geo:wktLiteral, ?location) AS ?distance)
+    FILTER ( ?distance <= xsd:decimal("1") )
+    OPTIONAL
+      { ?place  rdfs:label  ?place__label_value
+        FILTER ( lang(?place__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?place  rdfs:label  ?place__label_value
+        FILTER ( lang(?place__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?place  rdfs:label  ?place__label_value
+        FILTER ( lang(?place__label_value) = "en" )
+      }
+    BIND(if(bound(?place__label_value), ?place__label_value, if(( isURI(?place) && strstarts(str(?place), "http://www.wikidata.org/entity/") ), strafter(str(?place), "entity/"), str(?place))) AS ?placeLabel)
+  }
+ORDER BY ?distance
+LIMIT   100
+
+# Original query:
+# #title: Items geographically located around the Wikimedia Foundation office, sorted by distance
+# SELECT ?place ?location ?distance ?placeLabel WHERE {
+#     SERVICE wikibase:around {
+#       ?place wdt:P625 ?location .
+#       bd:serviceParam wikibase:center "Point(-122.402251 37.789246)"^^geo:wktLiteral .
+#       bd:serviceParam wikibase:radius "1" .
+#       bd:serviceParam wikibase:distance ?distance .
+#     }
+#     SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en". }
+# } ORDER BY ?distance LIMIT 100

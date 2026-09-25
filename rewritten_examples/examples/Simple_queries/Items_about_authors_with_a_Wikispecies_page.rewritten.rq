@@ -1,0 +1,61 @@
+# rewrite_status: rewritten
+#title: Items about authors with a Wikispecies page
+PREFIX wd: <http://www.wikidata.org/entity/>
+PREFIX wdt: <http://www.wikidata.org/prop/direct/>
+PREFIX schema: <http://schema.org/>
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+WITH %i AS {
+{ SELECT ?author (COUNT(?paper) AS ?count)
+  WHERE {
+    ?article schema:about ?author ;
+      schema:isPartOf <https://species.wikimedia.org/> .
+    ?author wdt:P31 wd:Q5.
+    ?paper wdt:P50 ?author.
+  }
+  GROUP BY ?author
+  ORDER BY DESC(?count)
+  LIMIT 200 }
+}
+SELECT  ?author ?authorLabel ?count
+WHERE
+  { { SELECT ?author ?count WHERE { INCLUDE %i } }BIND(if(bound(?author), ?author, "unbound") AS ?author__label_subject)
+    OPTIONAL
+      { ?author__label_subject
+                  rdfs:label  ?author__label_value
+        FILTER ( lang(?author__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?author__label_subject
+                  rdfs:label  ?author__label_value
+        FILTER ( lang(?author__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?author__label_subject
+                  rdfs:label  ?author__label_value
+        FILTER ( lang(?author__label_value) = "en" )
+      }
+    BIND(if(bound(?author__label_value), ?author__label_value, if(( isURI(?author) && strstarts(str(?author), "http://www.wikidata.org/entity/") ), strafter(str(?author), "entity/"), str(?author))) AS ?authorLabel)
+  }
+ORDER BY DESC(?count)
+
+# Original query:
+# #title: Items about authors with a Wikispecies page
+# SELECT ?author ?authorLabel ?count
+# WITH {
+#   SELECT ?author (COUNT(?paper) AS ?count)
+#   WHERE {
+#     ?article schema:about ?author ;
+#       schema:isPartOf <https://species.wikimedia.org/> .
+#     ?author wdt:P31 wd:Q5.
+#     ?paper wdt:P50 ?author.
+#   }
+#   GROUP BY ?author
+#   ORDER BY DESC(?count)
+#   LIMIT 200
+# } AS %i
+# WHERE {
+#   INCLUDE %i
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" . }
+# }
+# ORDER BY DESC(?count)

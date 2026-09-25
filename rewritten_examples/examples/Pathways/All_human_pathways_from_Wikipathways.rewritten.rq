@@ -1,0 +1,32 @@
+# rewrite_status: rewritten
+#title: All human pathways from Wikipathways
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?pathway ?pathwayLabel ?wpid
+WHERE
+  { ?pathway  wdt:P2410  ?wpid ;
+              wdt:P703   wd:Q15978631
+    OPTIONAL
+      { ?pathway  rdfs:label  ?pathway__label_value
+        FILTER ( lang(?pathway__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?pathway  rdfs:label  ?pathway__label_value
+        FILTER ( lang(?pathway__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?pathway  rdfs:label  ?pathway__label_value
+        FILTER ( lang(?pathway__label_value) = "en" )
+      }
+    BIND(if(bound(?pathway__label_value), ?pathway__label_value, if(( isURI(?pathway) && strstarts(str(?pathway), "http://www.wikidata.org/entity/") ), strafter(str(?pathway), "entity/"), str(?pathway))) AS ?pathwayLabel)
+  }
+
+# Original query:
+# #title: All human pathways from Wikipathways
+# SELECT ?pathway ?pathwayLabel ?wpid WHERE {
+#    ?pathway wdt:P2410 ?wpid ;
+#             wdt:P703 wd:Q15978631 .
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en". }
+# }

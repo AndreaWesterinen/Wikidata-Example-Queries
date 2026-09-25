@@ -1,0 +1,60 @@
+# rewrite_status: rewritten
+#title: Variants that are associated with renal cell carcinoma
+# variants that are associated with renal cell carcinoma
+PREFIX  p:    <http://www.wikidata.org/prop/>
+PREFIX  pq:   <http://www.wikidata.org/prop/qualifier/>
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT DISTINCT  ?civic_id ?item ?itemLabel
+WHERE
+  { VALUES ?property { wdt:P3356 wdt:P3357 wdt:P3358 wdt:P3359 }
+    ?item  wdt:P3329  ?civic_id
+      { ?item  ?property  wd:Q1164529 }
+    UNION
+      { ?item  p:P3354   ?o .
+        ?o     pq:P2175  wd:Q1164529
+      }
+    UNION
+      { ?item  p:P3354   ?o .
+        ?o     pq:P2175  wd:Q1164529
+      }
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "en" )
+      }
+    BIND(if(bound(?item__label_value), ?item__label_value, if(( isURI(?item) && strstarts(str(?item), "http://www.wikidata.org/entity/") ), strafter(str(?item), "entity/"), str(?item))) AS ?itemLabel)
+  }
+
+# Original query:
+# #title: Variants that are associated with renal cell carcinoma
+# # variants that are associated with renal cell carcinoma
+# SELECT DISTINCT ?civic_id ?item ?itemLabel
+# WHERE
+# {
+#   VALUES ?property {
+#                       wdt:P3356 # positive diagnostic predictor
+#                       wdt:P3357 # negative diagnostic predictor
+#                       wdt:P3358 # positive prognostic predicator
+#                       wdt:P3359 # negative prognostic predictor
+#                      }
+#     ?item wdt:P3329 ?civic_id .
+#     {?item ?property wd:Q1164529.} # wd:Q1164529 = renal cell carcinoma
+#     UNION
+#     {?item p:P3354 ?o . # positive therapeutic predictor
+#      ?o pq:P2175 wd:Q1164529 .}
+#     UNION
+#     {?item p:P3354 ?o . # negative therapeutic predictor
+#      ?o pq:P2175 wd:Q1164529 .}
+#
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" }
+# }

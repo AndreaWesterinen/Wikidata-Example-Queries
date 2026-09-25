@@ -1,0 +1,59 @@
+# rewrite_status: rewritten
+#title: Cities connected to Paramaribo (Suriname) by main roads
+
+#defaultView:Map
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT DISTINCT  ?connection ?connectionLabel ?connectedWith ?connectedWithLabel ?coor
+WHERE
+  { VALUES ?city { wd:Q3001 }
+    ?connection (wdt:P2789)+ ?city .
+    ?connection (wdt:P2789)+ ?connectedWith .
+    ?connectedWith
+              wdt:P625  ?coor
+    OPTIONAL
+      { ?connection  rdfs:label  ?connection__label_value
+        FILTER ( lang(?connection__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?connection  rdfs:label  ?connection__label_value
+        FILTER ( lang(?connection__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?connection  rdfs:label  ?connection__label_value
+        FILTER ( lang(?connection__label_value) = "en" )
+      }
+    BIND(if(bound(?connection__label_value), ?connection__label_value, if(( isURI(?connection) && strstarts(str(?connection), "http://www.wikidata.org/entity/") ), strafter(str(?connection), "entity/"), str(?connection))) AS ?connectionLabel)
+    OPTIONAL
+      { ?connectedWith
+                  rdfs:label  ?connectedWith__label_value
+        FILTER ( lang(?connectedWith__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?connectedWith
+                  rdfs:label  ?connectedWith__label_value
+        FILTER ( lang(?connectedWith__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?connectedWith
+                  rdfs:label  ?connectedWith__label_value
+        FILTER ( lang(?connectedWith__label_value) = "en" )
+      }
+    BIND(if(bound(?connectedWith__label_value), ?connectedWith__label_value, if(( isURI(?connectedWith) && strstarts(str(?connectedWith), "http://www.wikidata.org/entity/") ), strafter(str(?connectedWith), "entity/"), str(?connectedWith))) AS ?connectedWithLabel)
+  }
+
+# Original query:
+# #title: Cities connected to Paramaribo (Suriname) by main roads
+#
+# #defaultView:Map
+# SELECT DISTINCT ?connection ?connectionLabel ?connectedWith ?connectedWithLabel ?coor
+# WHERE
+# {
+#   VALUES ?city {wd:Q3001} # wd:Q3001 = Paramaribo}
+#   ?connection wdt:P2789+ ?city ;
+#               wdt:P2789+ ?connectedWith .
+#   ?connectedWith wdt:P625 ?coor .
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en". }
+#   }

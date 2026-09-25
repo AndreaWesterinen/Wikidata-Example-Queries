@@ -1,0 +1,36 @@
+# rewrite_status: rewritten
+#defaultView:Map
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?label ?coord ?subj
+WHERE
+  { ?subj  wdt:P31  wd:Q839954 .
+    ?subj wdt:P31/(wdt:P279)* wd:Q23413 .
+    ?subj  wdt:P625  ?coord
+    OPTIONAL
+      { ?subj  rdfs:label  ?subj__label_value
+        FILTER ( lang(?subj__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?subj  rdfs:label  ?subj__label_value
+        FILTER ( lang(?subj__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?subj  rdfs:label  ?subj__label_value
+        FILTER ( lang(?subj__label_value) = "mul" )
+      }
+    BIND(if(bound(?subj__label_value), ?subj__label_value, if(( isURI(?subj) && strstarts(str(?subj), "http://www.wikidata.org/entity/") ), strafter(str(?subj), "entity/"), str(?subj))) AS ?label)
+  }
+
+# Original query:
+# #defaultView:Map
+# SELECT ?label ?coord ?subj
+# WHERE {
+#    ?subj wdt:P31 wd:Q839954 ; # instance of archaeological site
+#          wdt:P31/wdt:P279* wd:Q23413 ;  # instance or subclass of castle
+#          wdt:P625 ?coord .
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],en". 
+#                          ?subj rdfs:label ?label}
+# }

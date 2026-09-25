@@ -1,0 +1,49 @@
+# rewrite_status: rewritten
+#Whose birthday is today?
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  schema: <http://schema.org/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?entity ?entityLabel ?entityDescription (year(?date) AS ?year)
+WHERE
+  { BIND(month(now()) AS ?nowMonth)
+    BIND(day(now()) AS ?nowDay)
+    ?entity  wdt:P569  ?date
+    FILTER ( ( month(?date) = ?nowMonth ) && ( day(?date) = ?nowDay ) )
+    OPTIONAL
+      { ?entity  rdfs:label  ?entity__label_value
+        FILTER ( lang(?entity__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?entity  rdfs:label  ?entity__label_value
+        FILTER ( lang(?entity__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?entity  rdfs:label  ?entity__label_value
+        FILTER ( lang(?entity__label_value) = "mul" )
+      }
+    BIND(if(bound(?entity__label_value), ?entity__label_value, if(( isURI(?entity) && strstarts(str(?entity), "http://www.wikidata.org/entity/") ), strafter(str(?entity), "entity/"), str(?entity))) AS ?entityLabel)
+    OPTIONAL
+      { ?entity  schema:description  ?entity__description_value
+        FILTER ( lang(?entity__description_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?entity  schema:description  ?entity__description_value
+        FILTER ( lang(?entity__description_value) = "en" )
+      }
+    BIND(?entity__description_value AS ?entityDescription)
+  }
+LIMIT   20
+
+# Original query:
+# #Whose birthday is today?
+# SELECT ?entity ?entityLabel ?entityDescription (YEAR(?date) as ?year)
+# WHERE {
+#     BIND(MONTH(NOW()) AS ?nowMonth)
+#     BIND(DAY(NOW()) AS ?nowDay)
+#     ?entity wdt:P569 ?date .
+#     FILTER (MONTH(?date) = ?nowMonth && DAY(?date) = ?nowDay)
+#
+# SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],en". }   
+# }
+# LIMIT 20

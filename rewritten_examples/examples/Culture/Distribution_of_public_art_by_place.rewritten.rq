@@ -1,0 +1,32 @@
+# rewrite_status: rewritten
+#title: Distribution of public art by place
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?place ?placeLabel (count(*) AS ?count)
+WHERE
+  { ?item  wdt:P136  wd:Q557141 ;
+           wdt:P131  ?place
+    OPTIONAL
+      { ?place  rdfs:label  ?place__label_value
+        FILTER ( lang(?place__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?place  rdfs:label  ?place__label_value
+        FILTER ( lang(?place__label_value) = "mul" )
+      }
+    BIND(if(bound(?place__label_value), ?place__label_value, if(( isURI(?place) && strstarts(str(?place), "http://www.wikidata.org/entity/") ), strafter(str(?place), "entity/"), str(?place))) AS ?placeLabel)
+  }
+GROUP BY ?place ?placeLabel
+ORDER BY DESC(?count) ?placeLabel
+
+# Original query:
+# #title: Distribution of public art by place
+# SELECT ?place ?placeLabel (COUNT(*) AS ?count) WHERE {
+#   ?item wdt:P136 wd:Q557141 .
+#   ?item wdt:P131 ?place .
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "en" . }
+# }
+# GROUP BY ?place ?placeLabel
+# ORDER BY DESC(?count) ?placeLabel

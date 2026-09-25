@@ -1,0 +1,166 @@
+# rewrite_status: rewritten
+#defaultView:Tree
+PREFIX  p:    <http://www.wikidata.org/prop/>
+PREFIX  ps:   <http://www.wikidata.org/prop/statement/>
+PREFIX  rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+PREFIX  wikibase: <http://wikiba.se/ontology#>
+
+SELECT  ?continent ?continentFlag ?continentLabel ?country ?countryLabel ?countryFlag ?region ?regionLabel ?regionFlag ?city ?cityLabel ?cityImage ?property ?propertyLabel ?value ?valueLabel
+WHERE
+  { { SELECT  *
+      WHERE
+        { ?continent  wdt:P31  wd:Q5107 .
+          ?country  wdt:P30  ?continent .
+          ?country p:P31/ps:P31 wd:Q6256 .
+          ?country  wdt:P150  ?region
+          OPTIONAL
+            { ?continent  wdt:P242  ?continentFlag .
+              ?country  wdt:P41   ?countryFlag .
+              ?region   wdt:P41   ?regionFlag
+            }
+          OPTIONAL
+            { ?region  wdt:P36  ?city .
+              ?city    wdt:P31  wd:Q515 ;
+                       wdt:P18  ?cityImage
+              OPTIONAL
+                { VALUES ?prop { wdt:P1082 wdt:P6 wdt:P190 wdt:P31 wdt:P571 wdt:P150 wdt:P206 wdt:P527 }
+                  ?city     ?prop     ?value .
+                  ?property  ?ref     ?prop ;
+                            rdf:type  wikibase:Property
+                }
+            }
+        }
+    }
+    OPTIONAL
+      { ?continent  rdfs:label  ?continent__label_value
+        FILTER ( lang(?continent__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?continent  rdfs:label  ?continent__label_value
+        FILTER ( lang(?continent__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?continent  rdfs:label  ?continent__label_value
+        FILTER ( lang(?continent__label_value) = "mul" )
+      }
+    BIND(if(bound(?continent__label_value), ?continent__label_value, if(( isURI(?continent) && strstarts(str(?continent), "http://www.wikidata.org/entity/") ), strafter(str(?continent), "entity/"), str(?continent))) AS ?continentLabel)
+    OPTIONAL
+      { ?country  rdfs:label  ?country__label_value
+        FILTER ( lang(?country__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?country  rdfs:label  ?country__label_value
+        FILTER ( lang(?country__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?country  rdfs:label  ?country__label_value
+        FILTER ( lang(?country__label_value) = "mul" )
+      }
+    BIND(if(bound(?country__label_value), ?country__label_value, if(( isURI(?country) && strstarts(str(?country), "http://www.wikidata.org/entity/") ), strafter(str(?country), "entity/"), str(?country))) AS ?countryLabel)
+    OPTIONAL
+      { ?region  rdfs:label  ?region__label_value
+        FILTER ( lang(?region__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?region  rdfs:label  ?region__label_value
+        FILTER ( lang(?region__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?region  rdfs:label  ?region__label_value
+        FILTER ( lang(?region__label_value) = "mul" )
+      }
+    BIND(if(bound(?region__label_value), ?region__label_value, if(( isURI(?region) && strstarts(str(?region), "http://www.wikidata.org/entity/") ), strafter(str(?region), "entity/"), str(?region))) AS ?regionLabel)
+    BIND(if(bound(?city), ?city, "unbound") AS ?city__label_subject)
+    OPTIONAL
+      { ?city__label_subject
+                  rdfs:label  ?city__label_value
+        FILTER ( lang(?city__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?city__label_subject
+                  rdfs:label  ?city__label_value
+        FILTER ( lang(?city__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?city__label_subject
+                  rdfs:label  ?city__label_value
+        FILTER ( lang(?city__label_value) = "mul" )
+      }
+    BIND(if(bound(?city__label_value), ?city__label_value, if(( isURI(?city) && strstarts(str(?city), "http://www.wikidata.org/entity/") ), strafter(str(?city), "entity/"), str(?city))) AS ?cityLabel)
+    BIND(if(bound(?property), ?property, "unbound") AS ?property__label_subject)
+    OPTIONAL
+      { ?property__label_subject
+                  rdfs:label  ?property__label_value
+        FILTER ( lang(?property__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?property__label_subject
+                  rdfs:label  ?property__label_value
+        FILTER ( lang(?property__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?property__label_subject
+                  rdfs:label  ?property__label_value
+        FILTER ( lang(?property__label_value) = "mul" )
+      }
+    BIND(if(bound(?property__label_value), ?property__label_value, if(( isURI(?property) && strstarts(str(?property), "http://www.wikidata.org/entity/") ), strafter(str(?property), "entity/"), str(?property))) AS ?propertyLabel)
+    BIND(if(bound(?value), ?value, "unbound") AS ?value__label_subject)
+    OPTIONAL
+      { ?value__label_subject
+                  rdfs:label  ?value__label_value
+        FILTER ( lang(?value__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?value__label_subject
+                  rdfs:label  ?value__label_value
+        FILTER ( lang(?value__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?value__label_subject
+                  rdfs:label  ?value__label_value
+        FILTER ( lang(?value__label_value) = "mul" )
+      }
+    BIND(if(bound(?value__label_value), ?value__label_value, if(( isURI(?value) && strstarts(str(?value), "http://www.wikidata.org/entity/") ), strafter(str(?value), "entity/"), str(?value))) AS ?valueLabel)
+  }
+
+# Original query:
+# #defaultView:Tree
+# SELECT ?continent ?continentFlag ?continentLabel ?country ?countryLabel ?countryFlag ?region ?regionLabel ?regionFlag ?city ?cityLabel ?cityImage ?property ?propertyLabel ?value ?valueLabel WHERE {
+#   {
+#     SELECT * WHERE {
+#       ?continent wdt:P31 wd:Q5107.
+#       ?country wdt:P30 ?continent.
+#       ?country p:P31/ps:P31 wd:Q6256.
+#       ?country wdt:P150 ?region.
+#       OPTIONAL {
+#         ?continent wdt:P242 ?continentFlag.
+#         ?country wdt:P41 ?countryFlag.
+#         ?region wdt:P41 ?regionFlag.
+#       }
+#       OPTIONAL {
+#         ?region wdt:P36 ?city.
+#         ?city wdt:P31 wd:Q515.
+#         ?city wdt:P18 ?cityImage.
+#         OPTIONAL {
+#           VALUES (?prop) {
+#             (wdt:P1082)
+#             (wdt:P6)
+#             (wdt:P190)
+#             (wdt:P31)
+#             (wdt:P571)
+#             (wdt:P150)
+#             (wdt:P206)
+#             (wdt:P527)
+#           }
+#           ?city ?prop ?value.
+#           ?property ?ref ?prop.
+#           ?property rdf:type wikibase:Property.
+#         }
+#       }
+#     }
+#   }
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],en". }
+# }

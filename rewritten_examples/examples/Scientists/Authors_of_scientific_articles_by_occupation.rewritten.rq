@@ -1,0 +1,58 @@
+# rewrite_status: rewritten
+#title: Authors of scientific articles by occupation
+#  NOTE - This scholarly query is written for use in WDQS-Main UI only  (query.wikidata.org).
+
+#defaultView:BubbleChart
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?occupationLabel (COUNT(DISTINCT ?author) AS ?count)
+WHERE
+  { SERVICE <https://query-scholarly-next.wikidata.org/sparql>
+      { SELECT  ?author
+        WHERE
+          { ?object  wdt:P31  wd:Q13442814 ;
+                     wdt:P50  ?author
+          }
+        LIMIT   1000
+      }
+    ?author  wdt:P106  ?occupation
+    OPTIONAL
+      { ?occupation  rdfs:label  ?occupation__label_value
+        FILTER ( lang(?occupation__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?occupation  rdfs:label  ?occupation__label_value
+        FILTER ( lang(?occupation__label_value) = "fr" )
+      }
+    OPTIONAL
+      { ?occupation  rdfs:label  ?occupation__label_value
+        FILTER ( lang(?occupation__label_value) = "mul" )
+      }
+    BIND(if(bound(?occupation__label_value), ?occupation__label_value, if(( isURI(?occupation) && strstarts(str(?occupation), "http://www.wikidata.org/entity/") ), strafter(str(?occupation), "entity/"), str(?occupation))) AS ?occupationLabel)
+  }
+GROUP BY ?occupationLabel
+ORDER BY DESC(?count)
+
+# Original query:
+# #title: Authors of scientific articles by occupation
+# #  NOTE - This scholarly query is written for use in WDQS-Main UI only  (query.wikidata.org).
+#
+# #defaultView:BubbleChart
+# SELECT ?occupationLabel (count(DISTINCT ?author) as ?count)
+# WHERE
+# {
+#  hint:Query hint:optimizer "None" .      
+#  SERVICE wdsubgraph:scholarly_articles {
+#          SELECT ?author 
+#            WHERE {
+#               ?object wdt:P31 wd:Q13442814 ;
+#                       wdt:P50 ?author .     }
+#            LIMIT 1000 
+#   }
+#   ?author wdt:P106 ?occupation .
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "en,fr" }
+# }
+# GROUP BY ?occupationLabel
+# ORDER BY DESC(?count)

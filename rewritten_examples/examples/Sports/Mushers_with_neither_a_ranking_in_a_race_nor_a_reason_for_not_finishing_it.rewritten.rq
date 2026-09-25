@@ -1,0 +1,61 @@
+# rewrite_status: rewritten
+#title: Mushers with neither a ranking in a race nor a reason for not finishing it
+PREFIX  p:    <http://www.wikidata.org/prop/>
+PREFIX  pq:   <http://www.wikidata.org/prop/qualifier/>
+PREFIX  ps:   <http://www.wikidata.org/prop/statement/>
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT DISTINCT  ?race ?raceLabel ?musherLabel
+WHERE
+  {   { ?race wdt:P31/(wdt:P279)* wd:Q1968664 }
+    UNION
+      { ?race wdt:P31/(wdt:P641)* wd:Q1968664 }
+    ?race     p:P710   ?musherS .
+    ?musherS  ps:P710  ?musher
+    FILTER NOT EXISTS { ?musherS  pq:P1352  ?rank }
+    FILTER NOT EXISTS { ?musherS  pq:P793  ?event }
+    OPTIONAL
+      { ?race  rdfs:label  ?race__label_value
+        FILTER ( lang(?race__label_value) = "fr" )
+      }
+    OPTIONAL
+      { ?race  rdfs:label  ?race__label_value
+        FILTER ( lang(?race__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?race  rdfs:label  ?race__label_value
+        FILTER ( lang(?race__label_value) = "mul" )
+      }
+    BIND(if(bound(?race__label_value), ?race__label_value, if(( isURI(?race) && strstarts(str(?race), "http://www.wikidata.org/entity/") ), strafter(str(?race), "entity/"), str(?race))) AS ?raceLabel)
+    OPTIONAL
+      { ?musher  rdfs:label  ?musher__label_value
+        FILTER ( lang(?musher__label_value) = "fr" )
+      }
+    OPTIONAL
+      { ?musher  rdfs:label  ?musher__label_value
+        FILTER ( lang(?musher__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?musher  rdfs:label  ?musher__label_value
+        FILTER ( lang(?musher__label_value) = "mul" )
+      }
+    BIND(if(bound(?musher__label_value), ?musher__label_value, if(( isURI(?musher) && strstarts(str(?musher), "http://www.wikidata.org/entity/") ), strafter(str(?musher), "entity/"), str(?musher))) AS ?musherLabel)
+  }
+ORDER BY ?raceLabel
+
+# Original query:
+# #title: Mushers with neither a ranking in a race nor a reason for not finishing it
+# SELECT DISTINCT ?race ?raceLabel ?musherLabel
+# WHERE
+# {
+#   { ?race wdt:P31/wdt:P279* wd:Q1968664 . }
+#   UNION { ?race wdt:P31/wdt:P641* wd:Q1968664 . }
+#   ?race p:P710 ?musherS . #here we have a full statement, not a value
+#   ?musherS ps:P710 ?musher . #here we get the value
+#   FILTER NOT EXISTS { ?musherS pq:P1352 ?rank }
+#   FILTER NOT EXISTS { ?musherS pq:P793 ?event }
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "fr,en" }
+# }
+# ORDER BY ?raceLabel

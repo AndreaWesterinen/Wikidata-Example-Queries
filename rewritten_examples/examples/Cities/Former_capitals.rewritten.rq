@@ -1,0 +1,70 @@
+# rewrite_status: rewritten
+#title: Former capitals
+#defaultView:Map
+PREFIX  p:    <http://www.wikidata.org/prop/>
+PREFIX  pq:   <http://www.wikidata.org/prop/qualifier/>
+PREFIX  ps:   <http://www.wikidata.org/prop/statement/>
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT DISTINCT  ?country ?countryLabel ?capital ?capitalLabel ?coordinates ?ended
+WHERE
+  { ?country  p:P36     ?stat .
+    ?stat     ps:P36    ?capital .
+    ?capital  wdt:P625  ?coordinates
+    OPTIONAL
+      { ?country wdt:P582|wdt:P576 ?ended }
+    OPTIONAL
+      { ?capital wdt:P582|wdt:P576 ?ended }
+    OPTIONAL
+      { ?stat  pq:P582  ?ended }
+    FILTER bound(?ended)
+    OPTIONAL
+      { ?country  rdfs:label  ?country__label_value
+        FILTER ( lang(?country__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?country  rdfs:label  ?country__label_value
+        FILTER ( lang(?country__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?country  rdfs:label  ?country__label_value
+        FILTER ( lang(?country__label_value) = "en" )
+      }
+    BIND(if(bound(?country__label_value), ?country__label_value, if(( isURI(?country) && strstarts(str(?country), "http://www.wikidata.org/entity/") ), strafter(str(?country), "entity/"), str(?country))) AS ?countryLabel)
+    OPTIONAL
+      { ?capital  rdfs:label  ?capital__label_value
+        FILTER ( lang(?capital__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?capital  rdfs:label  ?capital__label_value
+        FILTER ( lang(?capital__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?capital  rdfs:label  ?capital__label_value
+        FILTER ( lang(?capital__label_value) = "en" )
+      }
+    BIND(if(bound(?capital__label_value), ?capital__label_value, if(( isURI(?capital) && strstarts(str(?capital), "http://www.wikidata.org/entity/") ), strafter(str(?capital), "entity/"), str(?capital))) AS ?capitalLabel)
+  }
+
+# Original query:
+# #title: Former capitals
+# #defaultView:Map
+# SELECT DISTINCT ?country ?countryLabel ?capital ?capitalLabel ?coordinates ?ended
+# WHERE
+# {
+#   ?country p:P36 ?stat.
+#   ?stat ps:P36 ?capital.
+#   ?capital wdt:P625 ?coordinates.
+#   OPTIONAL {
+#     ?country wdt:P582|wdt:P576 ?ended.
+#   }
+#   OPTIONAL {
+#     ?capital wdt:P582|wdt:P576 ?ended.
+#   }
+#   OPTIONAL {
+#     ?stat pq:P582 ?ended.
+#   }
+#   FILTER(BOUND(?ended)).
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en". }
+# }

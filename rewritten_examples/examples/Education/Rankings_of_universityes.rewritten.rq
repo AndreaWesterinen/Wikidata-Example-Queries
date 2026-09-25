@@ -1,0 +1,93 @@
+# rewrite_status: rewritten
+#title: Ranking(s) of university(es)
+#defaultView:LineChart
+PREFIX  p:    <http://www.wikidata.org/prop/>
+PREFIX  pq:   <http://www.wikidata.org/prop/qualifier/>
+PREFIX  ps:   <http://www.wikidata.org/prop/statement/>
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+
+SELECT  ?year ?ranking ?universityLabel ?deternimationMethodLabel ?university
+WHERE
+  { VALUES ?university { wd:Q832355 wd:Q1108197 wd:Q16952 wd:Q16955 }
+    VALUES ?deternimationMethod { wd:Q478743 }
+    ?university  p:P1352  ?statement .
+    ?statement  ps:P1352  ?ranking ;
+              pq:P459   ?deternimationMethod ;
+              pq:P585   ?date
+    BIND(str(year(?date)) AS ?year)
+    OPTIONAL
+      { ?university  rdfs:label  ?university__label_value
+        FILTER ( lang(?university__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?university  rdfs:label  ?university__label_value
+        FILTER ( lang(?university__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?university  rdfs:label  ?university__label_value
+        FILTER ( lang(?university__label_value) = "en" )
+      }
+    BIND(if(bound(?university__label_value), ?university__label_value, if(( isURI(?university) && strstarts(str(?university), "http://www.wikidata.org/entity/") ), strafter(str(?university), "entity/"), str(?university))) AS ?universityLabel)
+    OPTIONAL
+      { ?deternimationMethod
+                  rdfs:label  ?deternimationMethod__label_value
+        FILTER ( lang(?deternimationMethod__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?deternimationMethod
+                  rdfs:label  ?deternimationMethod__label_value
+        FILTER ( lang(?deternimationMethod__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?deternimationMethod
+                  rdfs:label  ?deternimationMethod__label_value
+        FILTER ( lang(?deternimationMethod__label_value) = "en" )
+      }
+    BIND(if(bound(?deternimationMethod__label_value), ?deternimationMethod__label_value, if(( isURI(?deternimationMethod) && strstarts(str(?deternimationMethod), "http://www.wikidata.org/entity/") ), strafter(str(?deternimationMethod), "entity/"), str(?deternimationMethod))) AS ?deternimationMethodLabel)
+  }
+
+# Original query:
+# #title: Ranking(s) of university(es)
+# #defaultView:LineChart
+# SELECT ?year ?ranking ?universityLabel ?deternimationMethodLabel ?university WHERE {
+#   VALUES ?university {
+#     wd:Q832355
+#     wd:Q1108197
+#     wd:Q16952
+#     wd:Q16955
+#     
+#     
+# # to add another university :
+#     # 1,uncomment the last commented line below,
+#     # 2,optionnally replace « Zhejiang_University » by another university name,
+#     # 3,put cursor to the end of line,
+#     # 4,and press CTRL+SPACE，or CTRL+ALT+SPACE, or ALT+ENTER,
+#     # 5,and select first item, and press CTRL+ENTER to execute
+#     #wd:Zhejiang_University
+#     
+#     }
+#   
+#   VALUES ?deternimationMethod {
+#     wd:Q478743
+#     
+#     
+# # to add another deternimationMethod :
+#     # 1,uncomment the last commented line below,
+#     # 2,optionnally replace the « Shanghai .. » method by another one,
+#     # 3,put cursor to the end of line,
+#     # 4,and press CTRL+SPACE，or CTRL+ALT+SPACE, or ALT+ENTER,
+#     # 5,and select first item, and press CTRL+ENTER to execute
+#     #wd:Shanghai_Academic_Ranking_of_World_Universities
+#     
+#     }
+#                               
+#   
+#   ?university p:P1352 ?statement.
+#   ?statement ps:P1352 ?ranking.
+#   ?statement pq:P459 ?deternimationMethod.
+#   ?statement pq:P585 ?date.
+#   
+#   BIND (STR(YEAR(?date)) as ?year)
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en". }
+# }

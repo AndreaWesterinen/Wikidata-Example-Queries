@@ -1,0 +1,48 @@
+# rewrite_status: rewritten
+#title: Ten largest islands in the world
+# Inspired by this infographic: https://redd.it/a6423t
+
+#defaultView:ImageGrid
+PREFIX  p:    <http://www.wikidata.org/prop/>
+PREFIX  psn:  <http://www.wikidata.org/prop/statement/value-normalized/>
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+PREFIX  wikibase: <http://wikiba.se/ontology#>
+
+SELECT DISTINCT  ?island ?islandLabel ?islandImage
+WHERE
+  { ?island wdt:P31/(wdt:P279)* wd:Q23442
+    OPTIONAL
+      { ?island  wdt:P18  ?islandImage }
+    ?island (p:P2046/psn:P2046)/wikibase:quantityAmount ?islandArea
+    OPTIONAL
+      { ?island  rdfs:label  ?island__label_value
+        FILTER ( lang(?island__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?island  rdfs:label  ?island__label_value
+        FILTER ( lang(?island__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?island  rdfs:label  ?island__label_value
+        FILTER ( lang(?island__label_value) = "en" )
+      }
+    BIND(if(bound(?island__label_value), ?island__label_value, if(( isURI(?island) && strstarts(str(?island), "http://www.wikidata.org/entity/") ), strafter(str(?island), "entity/"), str(?island))) AS ?islandLabel)
+  }
+ORDER BY DESC(?islandArea)
+LIMIT   10
+
+# Original query:
+# #title: Ten largest islands in the world
+# # Inspired by this infographic: https://redd.it/a6423t
+#
+# #defaultView:ImageGrid
+# SELECT DISTINCT ?island ?islandLabel ?islandImage WHERE {
+#   ?island (wdt:P31/(wdt:P279*)) wd:Q23442.
+#   OPTIONAL { ?island wdt:P18 ?islandImage. }
+#   ?island (p:P2046/psn:P2046/wikibase:quantityAmount) ?islandArea.
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en". }
+# }
+# ORDER BY DESC (?islandArea)
+# LIMIT 10

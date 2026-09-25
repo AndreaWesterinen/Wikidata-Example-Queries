@@ -1,0 +1,301 @@
+# rewrite_status: rewritten
+# Search for missing descriptions in a target language.
+# Can be input for Q29032512
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  schema: <http://schema.org/>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?item ?itemLabel ?genderLabel ?occupationLabel ?domainLabel ?positionLabel ?itemDescription
+WHERE
+  { ?item  wdt:P31  wd:Q5 ;
+           wdt:P27  wd:Q31
+    OPTIONAL
+      { ?item  wdt:P21  ?gender }
+    OPTIONAL
+      { ?item  wdt:P106  ?occupation }
+    OPTIONAL
+      { ?item  wdt:P101  ?domain }
+    OPTIONAL
+      { ?item  wdt:P39  ?position }
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "nl" )
+      }
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "fr" )
+      }
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "de" )
+      }
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "it" )
+      }
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "es" )
+      }
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "pt" )
+      }
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "no" )
+      }
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "mul" )
+      }
+    BIND(if(bound(?item__label_value), ?item__label_value, if(( isURI(?item) && strstarts(str(?item), "http://www.wikidata.org/entity/") ), strafter(str(?item), "entity/"), str(?item))) AS ?itemLabel)
+    OPTIONAL
+      { ?item  schema:description  ?item__description_value
+        FILTER ( lang(?item__description_value) = "nl" )
+      }
+    OPTIONAL
+      { ?item  schema:description  ?item__description_value
+        FILTER ( lang(?item__description_value) = "fr" )
+      }
+    OPTIONAL
+      { ?item  schema:description  ?item__description_value
+        FILTER ( lang(?item__description_value) = "en" )
+      }
+    OPTIONAL
+      { ?item  schema:description  ?item__description_value
+        FILTER ( lang(?item__description_value) = "de" )
+      }
+    OPTIONAL
+      { ?item  schema:description  ?item__description_value
+        FILTER ( lang(?item__description_value) = "it" )
+      }
+    OPTIONAL
+      { ?item  schema:description  ?item__description_value
+        FILTER ( lang(?item__description_value) = "es" )
+      }
+    OPTIONAL
+      { ?item  schema:description  ?item__description_value
+        FILTER ( lang(?item__description_value) = "pt" )
+      }
+    OPTIONAL
+      { ?item  schema:description  ?item__description_value
+        FILTER ( lang(?item__description_value) = "no" )
+      }
+    BIND(?item__description_value AS ?itemDescription)
+    BIND(if(bound(?gender), ?gender, "unbound") AS ?gender__label_subject)
+    OPTIONAL
+      { ?gender__label_subject
+                  rdfs:label  ?gender__label_value
+        FILTER ( lang(?gender__label_value) = "nl" )
+      }
+    OPTIONAL
+      { ?gender__label_subject
+                  rdfs:label  ?gender__label_value
+        FILTER ( lang(?gender__label_value) = "fr" )
+      }
+    OPTIONAL
+      { ?gender__label_subject
+                  rdfs:label  ?gender__label_value
+        FILTER ( lang(?gender__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?gender__label_subject
+                  rdfs:label  ?gender__label_value
+        FILTER ( lang(?gender__label_value) = "de" )
+      }
+    OPTIONAL
+      { ?gender__label_subject
+                  rdfs:label  ?gender__label_value
+        FILTER ( lang(?gender__label_value) = "it" )
+      }
+    OPTIONAL
+      { ?gender__label_subject
+                  rdfs:label  ?gender__label_value
+        FILTER ( lang(?gender__label_value) = "es" )
+      }
+    OPTIONAL
+      { ?gender__label_subject
+                  rdfs:label  ?gender__label_value
+        FILTER ( lang(?gender__label_value) = "pt" )
+      }
+    OPTIONAL
+      { ?gender__label_subject
+                  rdfs:label  ?gender__label_value
+        FILTER ( lang(?gender__label_value) = "no" )
+      }
+    OPTIONAL
+      { ?gender__label_subject
+                  rdfs:label  ?gender__label_value
+        FILTER ( lang(?gender__label_value) = "mul" )
+      }
+    BIND(if(bound(?gender__label_value), ?gender__label_value, if(( isURI(?gender) && strstarts(str(?gender), "http://www.wikidata.org/entity/") ), strafter(str(?gender), "entity/"), str(?gender))) AS ?genderLabel)
+    BIND(if(bound(?occupation), ?occupation, "unbound") AS ?occupation__label_subject)
+    OPTIONAL
+      { ?occupation__label_subject
+                  rdfs:label  ?occupation__label_value
+        FILTER ( lang(?occupation__label_value) = "nl" )
+      }
+    OPTIONAL
+      { ?occupation__label_subject
+                  rdfs:label  ?occupation__label_value
+        FILTER ( lang(?occupation__label_value) = "fr" )
+      }
+    OPTIONAL
+      { ?occupation__label_subject
+                  rdfs:label  ?occupation__label_value
+        FILTER ( lang(?occupation__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?occupation__label_subject
+                  rdfs:label  ?occupation__label_value
+        FILTER ( lang(?occupation__label_value) = "de" )
+      }
+    OPTIONAL
+      { ?occupation__label_subject
+                  rdfs:label  ?occupation__label_value
+        FILTER ( lang(?occupation__label_value) = "it" )
+      }
+    OPTIONAL
+      { ?occupation__label_subject
+                  rdfs:label  ?occupation__label_value
+        FILTER ( lang(?occupation__label_value) = "es" )
+      }
+    OPTIONAL
+      { ?occupation__label_subject
+                  rdfs:label  ?occupation__label_value
+        FILTER ( lang(?occupation__label_value) = "pt" )
+      }
+    OPTIONAL
+      { ?occupation__label_subject
+                  rdfs:label  ?occupation__label_value
+        FILTER ( lang(?occupation__label_value) = "no" )
+      }
+    OPTIONAL
+      { ?occupation__label_subject
+                  rdfs:label  ?occupation__label_value
+        FILTER ( lang(?occupation__label_value) = "mul" )
+      }
+    BIND(if(bound(?occupation__label_value), ?occupation__label_value, if(( isURI(?occupation) && strstarts(str(?occupation), "http://www.wikidata.org/entity/") ), strafter(str(?occupation), "entity/"), str(?occupation))) AS ?occupationLabel)
+    BIND(if(bound(?domain), ?domain, "unbound") AS ?domain__label_subject)
+    OPTIONAL
+      { ?domain__label_subject
+                  rdfs:label  ?domain__label_value
+        FILTER ( lang(?domain__label_value) = "nl" )
+      }
+    OPTIONAL
+      { ?domain__label_subject
+                  rdfs:label  ?domain__label_value
+        FILTER ( lang(?domain__label_value) = "fr" )
+      }
+    OPTIONAL
+      { ?domain__label_subject
+                  rdfs:label  ?domain__label_value
+        FILTER ( lang(?domain__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?domain__label_subject
+                  rdfs:label  ?domain__label_value
+        FILTER ( lang(?domain__label_value) = "de" )
+      }
+    OPTIONAL
+      { ?domain__label_subject
+                  rdfs:label  ?domain__label_value
+        FILTER ( lang(?domain__label_value) = "it" )
+      }
+    OPTIONAL
+      { ?domain__label_subject
+                  rdfs:label  ?domain__label_value
+        FILTER ( lang(?domain__label_value) = "es" )
+      }
+    OPTIONAL
+      { ?domain__label_subject
+                  rdfs:label  ?domain__label_value
+        FILTER ( lang(?domain__label_value) = "pt" )
+      }
+    OPTIONAL
+      { ?domain__label_subject
+                  rdfs:label  ?domain__label_value
+        FILTER ( lang(?domain__label_value) = "no" )
+      }
+    OPTIONAL
+      { ?domain__label_subject
+                  rdfs:label  ?domain__label_value
+        FILTER ( lang(?domain__label_value) = "mul" )
+      }
+    BIND(if(bound(?domain__label_value), ?domain__label_value, if(( isURI(?domain) && strstarts(str(?domain), "http://www.wikidata.org/entity/") ), strafter(str(?domain), "entity/"), str(?domain))) AS ?domainLabel)
+    BIND(if(bound(?position), ?position, "unbound") AS ?position__label_subject)
+    OPTIONAL
+      { ?position__label_subject
+                  rdfs:label  ?position__label_value
+        FILTER ( lang(?position__label_value) = "nl" )
+      }
+    OPTIONAL
+      { ?position__label_subject
+                  rdfs:label  ?position__label_value
+        FILTER ( lang(?position__label_value) = "fr" )
+      }
+    OPTIONAL
+      { ?position__label_subject
+                  rdfs:label  ?position__label_value
+        FILTER ( lang(?position__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?position__label_subject
+                  rdfs:label  ?position__label_value
+        FILTER ( lang(?position__label_value) = "de" )
+      }
+    OPTIONAL
+      { ?position__label_subject
+                  rdfs:label  ?position__label_value
+        FILTER ( lang(?position__label_value) = "it" )
+      }
+    OPTIONAL
+      { ?position__label_subject
+                  rdfs:label  ?position__label_value
+        FILTER ( lang(?position__label_value) = "es" )
+      }
+    OPTIONAL
+      { ?position__label_subject
+                  rdfs:label  ?position__label_value
+        FILTER ( lang(?position__label_value) = "pt" )
+      }
+    OPTIONAL
+      { ?position__label_subject
+                  rdfs:label  ?position__label_value
+        FILTER ( lang(?position__label_value) = "no" )
+      }
+    OPTIONAL
+      { ?position__label_subject
+                  rdfs:label  ?position__label_value
+        FILTER ( lang(?position__label_value) = "mul" )
+      }
+    BIND(if(bound(?position__label_value), ?position__label_value, if(( isURI(?position) && strstarts(str(?position), "http://www.wikidata.org/entity/") ), strafter(str(?position), "entity/"), str(?position))) AS ?positionLabel)
+    FILTER NOT EXISTS { ?item  schema:description  ?itemdesc
+                        FILTER ( lang(?itemdesc) = "nl" )
+                      }
+  }
+ORDER BY ?itemLabel
+
+# Original query:
+# # Search for missing descriptions in a target language.
+# # Can be input for Q29032512
+# SELECT ?item ?itemLabel ?genderLabel ?occupationLabel ?domainLabel ?positionLabel ?itemDescription WHERE {
+#   ?item wdt:P31 wd:Q5.  # instance of human
+#   ?item wdt:P27 wd:Q31. # country of citizenship Belgium
+# optional{ ?item wdt:P21 ?gender.}
+# optional{ ?item wdt:P106 ?occupation.}
+# optional{ ?item wdt:P101 ?domain.}
+# optional{ ?item wdt:P39 ?position.}
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "nl,fr,en,de,it,es,pt,no". }
+#   FILTER(NOT EXISTS {
+#     ?item schema:description ?itemdesc.
+#     FILTER(LANG(?itemdesc) = "nl") # with missing Dutch description
+#   })
+# }
+# order by ?itemLabel

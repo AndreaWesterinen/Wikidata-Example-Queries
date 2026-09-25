@@ -1,0 +1,56 @@
+# rewrite_status: rewritten
+#graph rendering could be slow due to large number of results
+
+#defaultView:Graph
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?item ?itemLabel ?_image ?_subclass_of ?_subclass_ofLabel
+WHERE
+  { ?item  wdt:P31   wd:Q188451 ;
+           wdt:P279  ?_subclass_of
+    OPTIONAL
+      { ?item  wdt:P18  ?_image }
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "mul" )
+      }
+    BIND(if(bound(?item__label_value), ?item__label_value, if(( isURI(?item) && strstarts(str(?item), "http://www.wikidata.org/entity/") ), strafter(str(?item), "entity/"), str(?item))) AS ?itemLabel)
+    OPTIONAL
+      { ?_subclass_of
+                  rdfs:label  ?_subclass_of__label_value
+        FILTER ( lang(?_subclass_of__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?_subclass_of
+                  rdfs:label  ?_subclass_of__label_value
+        FILTER ( lang(?_subclass_of__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?_subclass_of
+                  rdfs:label  ?_subclass_of__label_value
+        FILTER ( lang(?_subclass_of__label_value) = "mul" )
+      }
+    BIND(if(bound(?_subclass_of__label_value), ?_subclass_of__label_value, if(( isURI(?_subclass_of) && strstarts(str(?_subclass_of), "http://www.wikidata.org/entity/") ), strafter(str(?_subclass_of), "entity/"), str(?_subclass_of))) AS ?_subclass_ofLabel)
+  }
+
+# Original query:
+# #graph rendering could be slow due to large number of results
+#
+# #defaultView:Graph
+# SELECT ?item ?itemLabel ?_image ?_subclass_of ?_subclass_ofLabel
+# WHERE {
+#   ?item wdt:P31 wd:Q188451;
+#         wdt:P279 ?_subclass_of.
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],en". }
+#   OPTIONAL { ?item wdt:P18 ?_image. }
+# }

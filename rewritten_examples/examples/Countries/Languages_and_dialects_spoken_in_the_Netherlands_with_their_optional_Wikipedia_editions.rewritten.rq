@@ -1,0 +1,69 @@
+# rewrite_status: rewritten
+#title: Languages and dialects spoken in the Netherlands with their optional Wikipedia editions
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT DISTINCT  ?language ?languageLabel ?wikipediaLabel
+WHERE
+  { ?language  wdt:P31  ?instance ;
+              wdt:P17  wd:Q55
+    FILTER ( ?instance IN (wd:Q34770, wd:Q33384) )
+    OPTIONAL
+      { ?wikipedia  wdt:P31  wd:Q10876391 ;
+                  wdt:P407  ?language
+      }
+    OPTIONAL
+      { ?language  rdfs:label  ?language__label_value
+        FILTER ( lang(?language__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?language  rdfs:label  ?language__label_value
+        FILTER ( lang(?language__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?language  rdfs:label  ?language__label_value
+        FILTER ( lang(?language__label_value) = "nl" )
+      }
+    OPTIONAL
+      { ?language  rdfs:label  ?language__label_value
+        FILTER ( lang(?language__label_value) = "en" )
+      }
+    BIND(if(bound(?language__label_value), ?language__label_value, if(( isURI(?language) && strstarts(str(?language), "http://www.wikidata.org/entity/") ), strafter(str(?language), "entity/"), str(?language))) AS ?languageLabel)
+    BIND(if(bound(?wikipedia), ?wikipedia, "unbound") AS ?wikipedia__label_subject)
+    OPTIONAL
+      { ?wikipedia__label_subject
+                  rdfs:label  ?wikipedia__label_value
+        FILTER ( lang(?wikipedia__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?wikipedia__label_subject
+                  rdfs:label  ?wikipedia__label_value
+        FILTER ( lang(?wikipedia__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?wikipedia__label_subject
+                  rdfs:label  ?wikipedia__label_value
+        FILTER ( lang(?wikipedia__label_value) = "nl" )
+      }
+    OPTIONAL
+      { ?wikipedia__label_subject
+                  rdfs:label  ?wikipedia__label_value
+        FILTER ( lang(?wikipedia__label_value) = "en" )
+      }
+    BIND(if(bound(?wikipedia__label_value), ?wikipedia__label_value, if(( isURI(?wikipedia) && strstarts(str(?wikipedia), "http://www.wikidata.org/entity/") ), strafter(str(?wikipedia), "entity/"), str(?wikipedia))) AS ?wikipediaLabel)
+  }
+GROUP BY ?language ?languageLabel ?wikipediaLabel
+
+# Original query:
+# #title: Languages and dialects spoken in the Netherlands with their optional Wikipedia editions
+# SELECT DISTINCT ?language ?languageLabel ?wikipediaLabel where {
+#   ?language wdt:P31 ?instance;
+#             wdt:P17 wd:Q55.
+#   FILTER (?instance in (wd:Q34770, wd:Q33384)).
+#   OPTIONAL {
+#     ?wikipedia wdt:P31 wd:Q10876391;
+#                wdt:P407 ?language.
+#   }
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,nl,en". }
+# } GROUP BY ?language ?languageLabel ?wikipediaLabel

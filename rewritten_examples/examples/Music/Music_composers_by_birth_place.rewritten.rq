@@ -1,0 +1,32 @@
+# rewrite_status: rewritten
+#title: Music composers by birth place
+#defaultView:Map
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?item ?itemLabel ?_coordinates ?_image
+WHERE
+  { ?item  wdt:P106  wd:Q36834 ;
+           wdt:P18   ?_image .
+    ?item wdt:P19/wdt:P625 ?_coordinates
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "mul" )
+      }
+    BIND(if(bound(?item__label_value), ?item__label_value, if(( isURI(?item) && strstarts(str(?item), "http://www.wikidata.org/entity/") ), strafter(str(?item), "entity/"), str(?item))) AS ?itemLabel)
+  }
+
+# Original query:
+# #title: Music composers by birth place
+# #defaultView:Map
+# SELECT ?item ?itemLabel ?_coordinates ?_image WHERE {
+#   ?item wdt:P106 wd:Q36834; # occupation: composer
+#         wdt:P18 ?_image; # with an image depicting them
+#         wdt:P19/wdt:P625 ?_coordinates # their birthplace, specifically the coordinates of their birthplace
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "en" } # labels in English
+# }

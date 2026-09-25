@@ -1,0 +1,46 @@
+# rewrite_status: rewritten
+#title: Country populations together with total city populations
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?country ?countryLabel ?population ?totalCityPopulation (( ?population / ?totalCityPopulation ) AS ?ratio)
+WHERE
+  { ?country  wdt:P1082  ?population
+    { SELECT  ?country (SUM(?cityPopulation) AS ?totalCityPopulation)
+      WHERE
+        { ?city  wdt:P31    wd:Q515 ;
+                 wdt:P17    ?country ;
+                 wdt:P1082  ?cityPopulation
+        }
+      GROUP BY ?country
+    }
+    OPTIONAL
+      { ?country  rdfs:label  ?country__label_value
+        FILTER ( lang(?country__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?country  rdfs:label  ?country__label_value
+        FILTER ( lang(?country__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?country  rdfs:label  ?country__label_value
+        FILTER ( lang(?country__label_value) = "en" )
+      }
+    BIND(if(bound(?country__label_value), ?country__label_value, if(( isURI(?country) && strstarts(str(?country), "http://www.wikidata.org/entity/") ), strafter(str(?country), "entity/"), str(?country))) AS ?countryLabel)
+  }
+ORDER BY ?ratio
+
+# Original query:
+# #title: Country populations together with total city populations
+# SELECT ?country ?countryLabel ?population ?totalCityPopulation (?population / ?totalCityPopulation AS ?ratio) {
+#   ?country wdt:P1082 ?population .
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" }
+#   {
+#     SELECT ?country (SUM(?cityPopulation) AS ?totalCityPopulation) WHERE {
+#       ?city wdt:P31 wd:Q515 .
+#       ?city wdt:P17 ?country .
+#       ?city wdt:P1082 ?cityPopulation .
+#     } GROUP BY ?country
+#   }
+# } ORDER BY ?ratio

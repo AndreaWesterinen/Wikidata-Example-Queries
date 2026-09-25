@@ -1,0 +1,46 @@
+# rewrite_status: rewritten
+#title: Items with a GTAA id and their articles on the Dutch and English Wikipedia
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  schema: <http://schema.org/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?item ?itemLabel ?gtaa ?_articleEN ?_articleNL
+WHERE
+  { ?item  wdt:P1741  ?gtaa
+    OPTIONAL
+      { ?_articleEN  schema:about  ?item .
+        ?_articleNL  schema:about  ?item .
+        ?_articleEN  schema:isPartOf  <https://en.wikipedia.org/> .
+        ?_articleNL  schema:isPartOf  <https://nl.wikipedia.org/>
+      }
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "nl" )
+      }
+    BIND(if(bound(?item__label_value), ?item__label_value, if(( isURI(?item) && strstarts(str(?item), "http://www.wikidata.org/entity/") ), strafter(str(?item), "entity/"), str(?item))) AS ?itemLabel)
+  }
+
+# Original query:
+# #title: Items with a GTAA id and their articles on the Dutch and English Wikipedia
+# SELECT ?item ?itemLabel ?gtaa ?_articleEN ?_articleNL where {
+#   ?item wdt:P1741 ?gtaa. # GTAA id
+#   OPTIONAL {
+#     ?_articleEN schema:about ?item.
+#     ?_articleNL schema:about ?item.
+#     ?_articleEN schema:isPartOf <https://en.wikipedia.org/>.
+#     ?_articleNL schema:isPartOf <https://nl.wikipedia.org/>.
+#   }
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en,nl". }
+# }

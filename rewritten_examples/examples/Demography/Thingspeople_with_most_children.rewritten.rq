@@ -1,0 +1,46 @@
+# rewrite_status: rewritten
+#title: Things/people with most children
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?parent ?parentLabel ?count
+WHERE
+  { { SELECT  ?parent (COUNT(?child) AS ?count)
+      WHERE
+        { ?parent  wdt:P40  ?child }
+      GROUP BY ?parent
+      ORDER BY DESC(?count)
+      LIMIT   10
+    }
+    OPTIONAL
+      { ?parent  rdfs:label  ?parent__label_value
+        FILTER ( lang(?parent__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?parent  rdfs:label  ?parent__label_value
+        FILTER ( lang(?parent__label_value) = "mul" )
+      }
+    BIND(if(bound(?parent__label_value), ?parent__label_value, if(( isURI(?parent) && strstarts(str(?parent), "http://www.wikidata.org/entity/") ), strafter(str(?parent), "entity/"), str(?parent))) AS ?parentLabel)
+  }
+ORDER BY DESC(?count)
+LIMIT   10
+
+# Original query:
+# #title: Things/people with most children
+# SELECT ?parent ?parentLabel ?count
+# WHERE
+# {
+#   {
+#     SELECT ?parent (COUNT(?child) AS ?count)
+#     WHERE
+#     {
+#       ?parent wdt:P40 ?child.
+#     }
+#     GROUP BY ?parent
+#     ORDER BY DESC(?count)
+#     LIMIT 10
+#   }
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "en". }
+# }
+# ORDER BY DESC(?count)
+# LIMIT 10

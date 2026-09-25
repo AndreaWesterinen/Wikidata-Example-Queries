@@ -1,0 +1,72 @@
+# rewrite_status: rewritten
+#title: Border cities of the world
+# To filter by country add FILTER (?country = wd:Qxx)
+#defaultView:Map
+# To show the cities of several countries use FILTER (?country IN (wd:Qxx, wd:Qyy))
+# To obtain cities that are part of a particular continent or territory ?country
+# should not be optional and add "?country wdt:P361 wd:Qxx ."
+
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?border_city ?border_cityLabel ?countryLabel ?coords
+WHERE
+  { ?border_city  wdt:P31  wd:Q902814
+    OPTIONAL
+      { ?border_city  wdt:P17  ?country }
+    OPTIONAL
+      { ?border_city  wdt:P625  ?coords }
+    OPTIONAL
+      { ?border_city  rdfs:label  ?border_city__label_value
+        FILTER ( lang(?border_city__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?border_city  rdfs:label  ?border_city__label_value
+        FILTER ( lang(?border_city__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?border_city  rdfs:label  ?border_city__label_value
+        FILTER ( lang(?border_city__label_value) = "en" )
+      }
+    BIND(if(bound(?border_city__label_value), ?border_city__label_value, if(( isURI(?border_city) && strstarts(str(?border_city), "http://www.wikidata.org/entity/") ), strafter(str(?border_city), "entity/"), str(?border_city))) AS ?border_cityLabel)
+    BIND(if(bound(?country), ?country, "unbound") AS ?country__label_subject)
+    OPTIONAL
+      { ?country__label_subject
+                  rdfs:label  ?country__label_value
+        FILTER ( lang(?country__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?country__label_subject
+                  rdfs:label  ?country__label_value
+        FILTER ( lang(?country__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?country__label_subject
+                  rdfs:label  ?country__label_value
+        FILTER ( lang(?country__label_value) = "en" )
+      }
+    BIND(if(bound(?country__label_value), ?country__label_value, if(( isURI(?country) && strstarts(str(?country), "http://www.wikidata.org/entity/") ), strafter(str(?country), "entity/"), str(?country))) AS ?countryLabel)
+  }
+GROUP BY ?border_city ?border_cityLabel ?countryLabel ?coords
+ORDER BY ?countryLabel ?border_cityLabel
+
+# Original query:
+# #title: Border cities of the world
+# # To filter by country add FILTER (?country = wd:Qxx)
+# #defaultView:Map
+# # To show the cities of several countries use FILTER (?country IN (wd:Qxx, wd:Qyy))
+# # To obtain cities that are part of a particular continent or territory ?country
+# # should not be optional and add "?country wdt:P361 wd:Qxx ."
+#
+# SELECT ?border_city ?border_cityLabel ?countryLabel ?coords
+# WHERE {
+#   ?border_city wdt:P31 wd:Q902814.
+#   OPTIONAL { ?border_city wdt:P17 ?country. }
+#   OPTIONAL { ?border_city wdt:P625 ?coords. }
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en".
+#                          ?border_city rdfs:label ?border_cityLabel.
+#                          ?country rdfs:label ?countryLabel.}
+# }
+# GROUP BY ?border_city ?border_cityLabel ?countryLabel ?coords
+# ORDER BY ?countryLabel ?border_cityLabel

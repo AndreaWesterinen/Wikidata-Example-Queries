@@ -1,0 +1,40 @@
+# rewrite_status: rewritten
+#defaultView:TreeMap
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?eyes ?hairColorLabel (COUNT(?person) AS ?count)
+WHERE
+  { ?person   wdt:P1340   ?eyeColor ;
+              wdt:P1884   ?hairColor ;
+              wdt:P2048   ?height .
+    ?eyeColor  rdfs:label  ?_eyeColorLabel
+    FILTER ( lang(?_eyeColorLabel) = "en" )
+    BIND(concat(?_eyeColorLabel, " eyes") AS ?eyes)
+    OPTIONAL
+      { ?hairColor  rdfs:label  ?hairColor__label_value
+        FILTER ( lang(?hairColor__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?hairColor  rdfs:label  ?hairColor__label_value
+        FILTER ( lang(?hairColor__label_value) = "mul" )
+      }
+    BIND(if(bound(?hairColor__label_value), ?hairColor__label_value, if(( isURI(?hairColor) && strstarts(str(?hairColor), "http://www.wikidata.org/entity/") ), strafter(str(?hairColor), "entity/"), str(?hairColor))) AS ?hairColorLabel)
+  }
+GROUP BY ?eyes ?hairColorLabel
+
+# Original query:
+# #defaultView:TreeMap
+# SELECT ?eyes ?hairColorLabel (COUNT(?person) as ?count)
+# WHERE
+# {
+# 	?person wdt:P1340 ?eyeColor.
+#     ?person wdt:P1884 ?hairColor.
+#     ?person wdt:P2048 ?height.
+#     ?eyeColor rdfs:label ?_eyeColorLabel.
+#     FILTER((LANG(?_eyeColorLabel)) = "en")
+#     BIND(CONCAT(?_eyeColorLabel, " eyes") AS ?eyes)
+#    
+# 	SERVICE wikibase:label { bd:serviceParam wikibase:language "en". }
+# }
+# GROUP BY ?eyes ?hairColorLabel

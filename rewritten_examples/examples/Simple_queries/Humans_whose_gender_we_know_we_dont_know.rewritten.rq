@@ -1,0 +1,38 @@
+# rewrite_status: rewritten
+#title: Humans whose gender we know we don't know
+# Demonstrates filtering for "unknown value"
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?human ?humanLabel
+WHERE
+  { ?human  wdt:P31  wd:Q5 ;
+            wdt:P21  ?gender
+    FILTER contains(str(?gender), "wikidata.org/.well-known/genid")
+    OPTIONAL
+      { ?human  rdfs:label  ?human__label_value
+        FILTER ( lang(?human__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?human  rdfs:label  ?human__label_value
+        FILTER ( lang(?human__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?human  rdfs:label  ?human__label_value
+        FILTER ( lang(?human__label_value) = "en" )
+      }
+    BIND(if(bound(?human__label_value), ?human__label_value, if(( isURI(?human) && strstarts(str(?human), "http://www.wikidata.org/entity/") ), strafter(str(?human), "entity/"), str(?human))) AS ?humanLabel)
+  }
+
+# Original query:
+# #title: Humans whose gender we know we don't know
+# # Demonstrates filtering for "unknown value"
+# SELECT ?human ?humanLabel
+# WHERE
+# {
+#   ?human wdt:P31 wd:Q5 . # instance of human
+#   ?human wdt:P21 ?gender .
+#   FILTER wikibase:isSomeValue(?gender)
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" }
+# }

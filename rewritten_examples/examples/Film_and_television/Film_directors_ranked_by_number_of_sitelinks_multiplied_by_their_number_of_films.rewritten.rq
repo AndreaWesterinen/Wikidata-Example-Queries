@@ -1,0 +1,49 @@
+# rewrite_status: rewritten
+#title: Film directors ranked by number of sitelinks multiplied by their number of films
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  schema: <http://schema.org/>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?director ?director_label ?films ?sitelinks (( ?films * ?sitelinks ) AS ?rank)
+WHERE
+  { { SELECT  ?director (COUNT(DISTINCT ?film) AS ?films) (COUNT(DISTINCT ?sitelink) AS ?sitelinks)
+      WHERE
+        { ?director  wdt:P106     wd:Q2526255 .
+          ?film     wdt:P57       ?director .
+          ?sitelink  schema:about  ?director
+        }
+      GROUP BY ?director
+    }
+    OPTIONAL
+      { ?director  rdfs:label  ?director__label_value
+        FILTER ( lang(?director__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?director  rdfs:label  ?director__label_value
+        FILTER ( lang(?director__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?director  rdfs:label  ?director__label_value
+        FILTER ( lang(?director__label_value) = "en" )
+      }
+    BIND(if(bound(?director__label_value), ?director__label_value, if(( isURI(?director) && strstarts(str(?director), "http://www.wikidata.org/entity/") ), strafter(str(?director), "entity/"), str(?director))) AS ?director_label)
+  }
+ORDER BY DESC(?rank)
+LIMIT   100
+
+# Original query:
+# #title: Film directors ranked by number of sitelinks multiplied by their number of films
+# SELECT ?director ?director_label ?films ?sitelinks ((?films * ?sitelinks) as ?rank)
+# WHERE {
+#   {SELECT ?director (count(DISTINCT ?film) as ?films) (count(DISTINCT ?sitelink) as ?sitelinks)
+#      WHERE {
+#        ?director wdt:P106 wd:Q2526255 .         # has "film director" as occupation
+#        ?film wdt:P57 ?director .                # get all films directed by the director
+#        ?sitelink schema:about ?director .       # get all the sitelinks about the director
+#        } GROUP BY ?director }
+# SERVICE wikibase:label {
+#   bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en". # Get label if it exists
+# ?director rdfs:label ?director_label }
+# } ORDER BY DESC(?rank)
+# LIMIT 100

@@ -1,0 +1,49 @@
+# rewrite_status: rewritten
+#title: Which variant of which gene predicts a positive prognosis in colorectal cancer
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?geneLabel ?variantLabel
+WHERE
+  { VALUES ?disease { wd:Q188874 }
+    ?variant  wdt:P3358  ?disease ;
+              wdt:P3433  ?gene
+    OPTIONAL
+      { ?gene  rdfs:label  ?gene__label_value
+        FILTER ( lang(?gene__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?gene  rdfs:label  ?gene__label_value
+        FILTER ( lang(?gene__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?gene  rdfs:label  ?gene__label_value
+        FILTER ( lang(?gene__label_value) = "en" )
+      }
+    BIND(if(bound(?gene__label_value), ?gene__label_value, if(( isURI(?gene) && strstarts(str(?gene), "http://www.wikidata.org/entity/") ), strafter(str(?gene), "entity/"), str(?gene))) AS ?geneLabel)
+    OPTIONAL
+      { ?variant  rdfs:label  ?variant__label_value
+        FILTER ( lang(?variant__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?variant  rdfs:label  ?variant__label_value
+        FILTER ( lang(?variant__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?variant  rdfs:label  ?variant__label_value
+        FILTER ( lang(?variant__label_value) = "en" )
+      }
+    BIND(if(bound(?variant__label_value), ?variant__label_value, if(( isURI(?variant) && strstarts(str(?variant), "http://www.wikidata.org/entity/") ), strafter(str(?variant), "entity/"), str(?variant))) AS ?variantLabel)
+  }
+
+# Original query:
+# #title: Which variant of which gene predicts a positive prognosis in colorectal cancer
+# SELECT ?geneLabel ?variantLabel
+# WHERE
+# {
+#   VALUES ?disease {wd:Q188874}
+#     ?variant wdt:P3358 ?disease ; # P3358 Positive prognostic predictor
+#           wdt:P3433 ?gene . # P3433 biological variant of
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" }
+# }

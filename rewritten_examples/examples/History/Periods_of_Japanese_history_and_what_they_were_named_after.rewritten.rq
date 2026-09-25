@@ -1,0 +1,73 @@
+# rewrite_status: rewritten
+#title: Periods of Japanese history and what they were named after
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  schema: <http://schema.org/>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?era ?eraLabel (year(?start_time) AS ?start) (year(?end_time) AS ?end) ?namedLabel ?namedDescription
+WHERE
+  { ?era  wdt:P31   wd:Q11514315 ;
+          wdt:P361  wd:Q130436 ;
+          wdt:P580  ?start_time
+    MINUS
+      { ?era wdt:P2348/wdt:P361 wd:Q130436 }
+    OPTIONAL
+      { ?era  wdt:P582  ?end_time }
+    OPTIONAL
+      { ?era  wdt:P138  ?named }
+    OPTIONAL
+      { ?era  rdfs:label  ?era__label_value
+        FILTER ( lang(?era__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?era  rdfs:label  ?era__label_value
+        FILTER ( lang(?era__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?era  rdfs:label  ?era__label_value
+        FILTER ( lang(?era__label_value) = "en" )
+      }
+    BIND(if(bound(?era__label_value), ?era__label_value, if(( isURI(?era) && strstarts(str(?era), "http://www.wikidata.org/entity/") ), strafter(str(?era), "entity/"), str(?era))) AS ?eraLabel)
+    BIND(if(bound(?named), ?named, "unbound") AS ?named__label_subject)
+    OPTIONAL
+      { ?named__label_subject
+                  rdfs:label  ?named__label_value
+        FILTER ( lang(?named__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?named__label_subject
+                  rdfs:label  ?named__label_value
+        FILTER ( lang(?named__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?named__label_subject
+                  rdfs:label  ?named__label_value
+        FILTER ( lang(?named__label_value) = "en" )
+      }
+    BIND(if(bound(?named__label_value), ?named__label_value, if(( isURI(?named) && strstarts(str(?named), "http://www.wikidata.org/entity/") ), strafter(str(?named), "entity/"), str(?named))) AS ?namedLabel)
+    BIND(if(bound(?named), ?named, "unbound") AS ?named__label_subject__1)
+    OPTIONAL
+      { ?named__label_subject__1
+                  schema:description  ?named__description_value
+        FILTER ( lang(?named__description_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?named__label_subject__1
+                  schema:description  ?named__description_value
+        FILTER ( lang(?named__description_value) = "en" )
+      }
+    BIND(?named__description_value AS ?namedDescription)
+  }
+ORDER BY ?start DESC(?end)
+
+# Original query:
+# #title: Periods of Japanese history and what they were named after
+# SELECT ?era ?eraLabel (YEAR(?start_time) AS ?start) (YEAR(?end_time) AS ?end) ?namedLabel ?namedDescription WHERE {
+# ?era wdt:P31 wd:Q11514315; wdt:P361 wd:Q130436; # eras of the history of Japan
+#   wdt:P580 ?start_time.
+# MINUS { ?era wdt:P2348/wdt:P361 wd:Q130436 } # exclude sub-eras
+# OPTIONAL { ?era wdt:P582 ?end_time } # optional end-time to make sure we include the current era
+# OPTIONAL { ?era wdt:P138 ?named }
+# SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" }
+# } ORDER BY ?start DESC(?end)

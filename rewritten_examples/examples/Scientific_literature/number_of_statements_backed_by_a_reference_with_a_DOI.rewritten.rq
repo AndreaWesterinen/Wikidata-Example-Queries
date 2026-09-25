@@ -1,0 +1,10 @@
+# rewrite_status: unchanged
+#title: number of statements backed by a reference with a DOI
+SELECT (COUNT (?statement) as ?statements)
+WHERE
+{
+  ?entry ?p ?statement .
+  ?statement prov:wasDerivedFrom/
+       <http://www.wikidata.org/prop/reference/P248>/
+       wdt:P356 ?doi .
+}

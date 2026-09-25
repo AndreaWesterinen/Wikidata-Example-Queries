@@ -1,0 +1,53 @@
+# rewrite_status: rewritten
+#title: List of countries in 1754
+#updated 2020-12-06
+PREFIX  p:    <http://www.wikidata.org/prop/>
+PREFIX  ps:   <http://www.wikidata.org/prop/statement/>
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+PREFIX  xsd:  <http://www.w3.org/2001/XMLSchema#>
+
+SELECT DISTINCT  ?h ?hLabel ?inception ?dissolved ?coor
+WHERE
+  { VALUES ?countryclass { wd:Q3024240 wd:Q6256 wd:Q3624078 }
+    ?h p:P31/ps:P31 ?countryclass .
+    ?h  wdt:P571  ?inception
+    OPTIONAL
+      { ?h  wdt:P576  ?dissolved }
+    FILTER ( ?inception < "1755-01-01T00:00:00Z"^^xsd:dateTime )
+    FILTER ( ( ?dissolved >= "1755-01-01T00:00:00Z"^^xsd:dateTime ) || ( ! bound(?dissolved) ) )
+    OPTIONAL
+      { ?h  wdt:P625  ?coor }
+    OPTIONAL
+      { ?h  rdfs:label  ?h__label_value
+        FILTER ( lang(?h__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?h  rdfs:label  ?h__label_value
+        FILTER ( lang(?h__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?h  rdfs:label  ?h__label_value
+        FILTER ( lang(?h__label_value) = "en" )
+      }
+    BIND(if(bound(?h__label_value), ?h__label_value, if(( isURI(?h) && strstarts(str(?h), "http://www.wikidata.org/entity/") ), strafter(str(?h), "entity/"), str(?h))) AS ?hLabel)
+  }
+ORDER BY ?inception
+
+# Original query:
+# #title: List of countries in 1754
+# #updated 2020-12-06
+# SELECT DISTINCT ?h ?hLabel ?inception ?dissolved ?coor
+# WHERE
+# {
+#   VALUES ?countryclass { wd:Q3024240 wd:Q6256 wd:Q3624078 }
+#   ?h p:P31/ps:P31 ?countryclass .
+#   ?h wdt:P571 ?inception .
+#   OPTIONAL { ?h wdt:P576 ?dissolved } .
+#   FILTER (?inception < "1755-01-01T00:00:00Z"^^xsd:dateTime)
+#   FILTER (?dissolved >= "1755-01-01T00:00:00Z"^^xsd:dateTime || !Bound(?dissolved) )
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" }
+#   OPTIONAL { ?h wdt:P625 ?coor } .
+# }
+# ORDER BY ?inception

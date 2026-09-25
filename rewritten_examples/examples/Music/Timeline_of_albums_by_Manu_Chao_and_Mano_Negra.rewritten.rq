@@ -1,0 +1,44 @@
+# rewrite_status: rewritten
+#title: Timeline of albums by Manu Chao and Mano Negra
+#defaultView:Timeline
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?album ?performerLabel ?albumLabel ?publication_date
+WHERE
+  { VALUES ?performer { wd:Q936474 wd:Q207898 }
+    ?album  wdt:P175  ?performer ;
+            wdt:P577  ?publication_date
+    OPTIONAL
+      { ?performer  rdfs:label  ?performer__label_value
+        FILTER ( lang(?performer__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?performer  rdfs:label  ?performer__label_value
+        FILTER ( lang(?performer__label_value) = "mul" )
+      }
+    BIND(if(bound(?performer__label_value), ?performer__label_value, if(( isURI(?performer) && strstarts(str(?performer), "http://www.wikidata.org/entity/") ), strafter(str(?performer), "entity/"), str(?performer))) AS ?performerLabel)
+    OPTIONAL
+      { ?album  rdfs:label  ?album__label_value
+        FILTER ( lang(?album__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?album  rdfs:label  ?album__label_value
+        FILTER ( lang(?album__label_value) = "mul" )
+      }
+    BIND(if(bound(?album__label_value), ?album__label_value, if(( isURI(?album) && strstarts(str(?album), "http://www.wikidata.org/entity/") ), strafter(str(?album), "entity/"), str(?album))) AS ?albumLabel)
+  }
+
+# Original query:
+# #title: Timeline of albums by Manu Chao and Mano Negra
+# #defaultView:Timeline
+# SELECT ?album ?performerLabel ?albumLabel ?publication_date WHERE {
+#   VALUES ?performer {
+#       wd:Q936474
+#       wd:Q207898
+#     }
+#    ?album wdt:P175 ?performer ;
+#       wdt:P577 ?publication_date .
+#    SERVICE wikibase:label { bd:serviceParam wikibase:language "en". }
+# }

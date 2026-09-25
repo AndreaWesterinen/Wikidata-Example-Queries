@@ -1,0 +1,42 @@
+# rewrite_status: rewritten
+#defaultView:Dimensions
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?elementLabel ?boiling_point ?melting_point ?electronegativity ?density ?mass
+WHERE
+  { ?element  wdt:P31    wd:Q11344 ;
+              wdt:P2102  ?boiling_point ;
+              wdt:P2101  ?melting_point ;
+              wdt:P1108  ?electronegativity ;
+              wdt:P2054  ?density ;
+              wdt:P2067  ?mass
+    OPTIONAL
+      { ?element  rdfs:label  ?element__label_value
+        FILTER ( lang(?element__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?element  rdfs:label  ?element__label_value
+        FILTER ( lang(?element__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?element  rdfs:label  ?element__label_value
+        FILTER ( lang(?element__label_value) = "mul" )
+      }
+    BIND(if(bound(?element__label_value), ?element__label_value, if(( isURI(?element) && strstarts(str(?element), "http://www.wikidata.org/entity/") ), strafter(str(?element), "entity/"), str(?element))) AS ?elementLabel)
+  }
+LIMIT   100
+
+# Original query:
+# #defaultView:Dimensions
+# SELECT ?elementLabel ?boiling_point ?melting_point ?electronegativity ?density ?mass WHERE {
+# ?element wdt:P31 wd:Q11344;
+#    wdt:P2102 ?boiling_point;
+#    wdt:P2101 ?melting_point;
+#    wdt:P1108 ?electronegativity;
+#    wdt:P2054 ?density;
+#    wdt:P2067 ?mass.
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],en" }
+# }
+# LIMIT 100

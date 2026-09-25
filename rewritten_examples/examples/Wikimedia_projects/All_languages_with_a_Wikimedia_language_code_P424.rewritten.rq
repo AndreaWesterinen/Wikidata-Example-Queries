@@ -1,0 +1,46 @@
+# rewrite_status: rewritten
+#title: All languages with a Wikimedia language code (P424)
+# Date: 2021-09-24
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT DISTINCT  ?lang_code ?itemLabel ?item
+WHERE
+  { VALUES ?lang { wd:Q34770 wd:Q436240 wd:Q1288568 wd:Q33215 }
+    ?item  wdt:P31   ?lang ;
+           wdt:P424  ?lang_code
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "en" )
+      }
+    BIND(if(bound(?item__label_value), ?item__label_value, if(( isURI(?item) && strstarts(str(?item), "http://www.wikidata.org/entity/") ), strafter(str(?item), "entity/"), str(?item))) AS ?itemLabel)
+  }
+ORDER BY ?lang_code
+
+# Original query:
+# #title: All languages with a Wikimedia language code (P424)
+# # Date: 2021-09-24
+# SELECT DISTINCT ?lang_code ?itemLabel ?item
+# WHERE
+# {
+#   # ?lang is one of these options
+#   VALUES ?lang {
+#     wd:Q34770   # language
+#     wd:Q436240  # ancient language
+#     wd:Q1288568 # modern language
+#     wd:Q33215   # constructed language
+#   }
+#   ?item wdt:P31 ?lang ;
+#     # get the language code
+#     wdt:P424 ?lang_code .
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en". }
+# } ORDER BY ?lang_code

@@ -1,0 +1,28 @@
+# rewrite_status: rewritten
+#title: Common phrases
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?q ?qLabel
+WHERE
+  { ?q  wdt:P31  wd:Q15841920
+    OPTIONAL
+      { ?q  rdfs:label  ?q__label_value
+        FILTER ( lang(?q__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?q  rdfs:label  ?q__label_value
+        FILTER ( lang(?q__label_value) = "mul" )
+      }
+    BIND(if(bound(?q__label_value), ?q__label_value, if(( isURI(?q) && strstarts(str(?q), "http://www.wikidata.org/entity/") ), strafter(str(?q), "entity/"), str(?q))) AS ?qLabel)
+  }
+
+# Original query:
+# #title: Common phrases
+# SELECT ?q ?qLabel
+# WHERE
+# {
+#   ?q wdt:P31 wd:Q15841920.
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "en" }
+# }

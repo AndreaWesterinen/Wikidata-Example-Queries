@@ -1,0 +1,6 @@
+# rewrite_status: unchanged
+#title: Number of humans in Wikidata
+SELECT (COUNT(*) AS ?count)
+WHERE {
+  ?item wdt:P31 wd:Q5 .
+}

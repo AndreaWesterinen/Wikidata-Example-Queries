@@ -1,0 +1,80 @@
+# rewrite_status: rewritten
+#title: Authors of scientific articles who received a Nobel prize
+#added in 2016-10; updated 2025-08
+#  NOTE - This scholarly query is written for use in WDQS-Main UI only  (query.wikidata.org).
+
+
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?article ?articleLabel ?person ?personLabel ?_image ?award ?awardLabel
+WHERE
+  { ?award (wdt:P279)* wd:Q7191 .
+    ?person  wdt:P166  ?award ;
+             wdt:P31   wd:Q5
+    SERVICE <https://query-scholarly-next.wikidata.org/sparql>
+      { SELECT  ?article ?articleLabel ?person
+        WHERE
+          { ?article  wdt:P50  ?person ;
+                      wdt:P31  wd:Q13442814
+            OPTIONAL
+              { ?article  rdfs:label  ?article__label_value
+                FILTER ( lang(?article__label_value) = "en" )
+              }
+            OPTIONAL
+              { ?article  rdfs:label  ?article__label_value
+                FILTER ( lang(?article__label_value) = "mul" )
+              }
+            BIND(if(bound(?article__label_value), ?article__label_value, if(( isURI(?article) && strstarts(str(?article), "http://www.wikidata.org/entity/") ), strafter(str(?article), "entity/"), str(?article))) AS ?articleLabel)
+          }
+        LIMIT   100
+      }
+    OPTIONAL
+      { ?person  wdt:P18  ?_image }
+    OPTIONAL
+      { ?person  rdfs:label  ?person__label_value
+        FILTER ( lang(?person__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?person  rdfs:label  ?person__label_value
+        FILTER ( lang(?person__label_value) = "mul" )
+      }
+    BIND(if(bound(?person__label_value), ?person__label_value, if(( isURI(?person) && strstarts(str(?person), "http://www.wikidata.org/entity/") ), strafter(str(?person), "entity/"), str(?person))) AS ?personLabel)
+    OPTIONAL
+      { ?award  rdfs:label  ?award__label_value
+        FILTER ( lang(?award__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?award  rdfs:label  ?award__label_value
+        FILTER ( lang(?award__label_value) = "mul" )
+      }
+    BIND(if(bound(?award__label_value), ?award__label_value, if(( isURI(?award) && strstarts(str(?award), "http://www.wikidata.org/entity/") ), strafter(str(?award), "entity/"), str(?award))) AS ?awardLabel)
+  }
+LIMIT   100
+
+# Original query:
+# #title: Authors of scientific articles who received a Nobel prize
+# #added in 2016-10; updated 2025-08
+# #  NOTE - This scholarly query is written for use in WDQS-Main UI only  (query.wikidata.org).
+#
+#
+# SELECT ?article ?articleLabel ?person ?personLabel ?_image ?award ?awardLabel
+# WHERE {
+#   hint:Query hint:optimizer "None" .      
+#   ?award wdt:P279* wd:Q7191 . #award is a Nobel Prize
+#   ?person wdt:P166 ?award ; #person received an award
+#           wdt:P31 wd:Q5 . #person is instance of human
+#   SERVICE wdsubgraph:scholarly_articles {
+#     SELECT ?article ?articleLabel ?person 
+#     WHERE  {
+#     ?article wdt:P50 ?person ; #person is an author of article
+#         wdt:P31 wd:Q13442814 . #article is a scientific article
+#     SERVICE wikibase:label { bd:serviceParam wikibase:language "en". }
+#     }
+#     LIMIT 100
+#   }
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "en". }
+#  OPTIONAL { ?person wdt:P18 ?_image. } #Wikimedia Commons has an image of person
+# }
+# LIMIT 100

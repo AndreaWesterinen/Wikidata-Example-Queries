@@ -1,0 +1,50 @@
+# rewrite_status: rewritten
+#title: Locations of breweries in Germany
+#defaultView:Map
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  schema: <http://schema.org/>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?breweryLabel ?breweryDescription ?coord
+WHERE
+  { ?brewery wdt:P31/(wdt:P279)* wd:Q131734 .
+    ?brewery  wdt:P17   wd:Q183 ;
+              wdt:P625  ?coord
+    OPTIONAL
+      { ?brewery  rdfs:label  ?brewery__label_value
+        FILTER ( lang(?brewery__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?brewery  rdfs:label  ?brewery__label_value
+        FILTER ( lang(?brewery__label_value) = "de" )
+      }
+    OPTIONAL
+      { ?brewery  rdfs:label  ?brewery__label_value
+        FILTER ( lang(?brewery__label_value) = "mul" )
+      }
+    BIND(if(bound(?brewery__label_value), ?brewery__label_value, if(( isURI(?brewery) && strstarts(str(?brewery), "http://www.wikidata.org/entity/") ), strafter(str(?brewery), "entity/"), str(?brewery))) AS ?breweryLabel)
+    OPTIONAL
+      { ?brewery  schema:description  ?brewery__description_value
+        FILTER ( lang(?brewery__description_value) = "en" )
+      }
+    OPTIONAL
+      { ?brewery  schema:description  ?brewery__description_value
+        FILTER ( lang(?brewery__description_value) = "de" )
+      }
+    BIND(?brewery__description_value AS ?breweryDescription)
+  }
+
+# Original query:
+# #title: Locations of breweries in Germany
+# #defaultView:Map
+# SELECT ?breweryLabel ?breweryDescription ?coord
+# WHERE
+# {
+#   ?brewery wdt:P31/wdt:P279* wd:Q131734 ;
+#     wdt:P17 wd:Q183 ;
+#     wdt:P625 ?coord .
+#   SERVICE wikibase:label {
+#     bd:serviceParam wikibase:language "en, de" .
+#   }
+# }

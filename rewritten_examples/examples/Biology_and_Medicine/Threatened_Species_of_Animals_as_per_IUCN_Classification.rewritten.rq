@@ -1,0 +1,66 @@
+# rewrite_status: rewritten
+#title: Animals which are Threatened as per IUCN Red List
+# https://en.wikipedia.org/wiki/Conservation_status
+# Common names are in English only
+
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?animal ?scientific_names ?common_names ?statusLabel
+WHERE
+  { { SELECT DISTINCT  ?animal (GROUP_CONCAT(DISTINCT ?scientific_name ; separator=', ') AS ?scientific_names) (GROUP_CONCAT(DISTINCT ?common_name ; separator=', ') AS ?common_names)
+      WHERE
+        { ?animal  wdt:P141   ?status ;
+                   wdt:P225   ?scientific_name ;
+                   wdt:P1843  ?common_name
+          FILTER ( ?status IN (wd:Q11394, wd:Q219127, wd:Q278113) )
+          FILTER langMatches(lang(?common_name), "en")
+        }
+      GROUP BY ?animal
+    }
+    ?animal  wdt:P141  ?status
+    OPTIONAL
+      { ?status  rdfs:label  ?status__label_value
+        FILTER ( lang(?status__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?status  rdfs:label  ?status__label_value
+        FILTER ( lang(?status__label_value) = "mul" )
+      }
+    BIND(if(bound(?status__label_value), ?status__label_value, if(( isURI(?status) && strstarts(str(?status), "http://www.wikidata.org/entity/") ), strafter(str(?status), "entity/"), str(?status))) AS ?statusLabel)
+  }
+
+# Original query:
+# #title: Animals which are Threatened as per IUCN Red List
+# # https://en.wikipedia.org/wiki/Conservation_status
+# # Common names are in English only
+#
+# SELECT ?animal ?scientific_names ?common_names ?statusLabel where
+# {
+#   # hint:Prior hint:runLast true
+#    {
+#       SELECT DISTINCT ?animal (GROUP_CONCAT(DISTINCT ?scientific_name; separator=", ") as ?scientific_names) (GROUP_CONCAT(DISTINCT ?common_name; separator=", ") as ?common_names) WHERE
+#       {
+#
+#         ?animal wdt:P141 ?status;
+#                 wdt:P225 ?scientific_name;
+#                 wdt:P1843 ?common_name.
+#         filter( ?status
+#            IN (
+#                wd:Q11394,  #Endangered
+#                wd:Q219127, #critcally endangered
+#                wd:Q278113  #vulnurable
+#               )
+#           ).
+#
+#         # Only return common names in English
+#         FILTER(LANGMATCHES(LANG(?common_name), "en"))
+#       }
+#       GROUP BY ?animal
+#    }.
+#    ?animal wdt:P141 ?status.
+#    SERVICE wikibase:label { bd:serviceParam wikibase:language "en". }
+# }
+#
+# # *****  If error, try again  *****

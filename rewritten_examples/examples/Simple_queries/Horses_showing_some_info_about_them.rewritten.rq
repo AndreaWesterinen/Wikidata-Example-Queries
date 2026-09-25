@@ -1,0 +1,942 @@
+# rewrite_status: rewritten
+# Illustrates optional fields, instances of subclasses, language fallback on label service, date to year conversion
+#title: Horses on Wikidata
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT DISTINCT  ?horse ?horseLabel ?mother ?motherLabel ?father ?fatherLabel (year(?birthdate) AS ?birthyear) (year(?deathdate) AS ?deathyear) ?genderLabel
+WHERE
+  { ?horse wdt:P31/(wdt:P279)* wd:Q726
+    OPTIONAL
+      { ?horse  wdt:P25  ?mother }
+    OPTIONAL
+      { ?horse  wdt:P22  ?father }
+    OPTIONAL
+      { ?horse  wdt:P569  ?birthdate }
+    OPTIONAL
+      { ?horse  wdt:P570  ?deathdate }
+    OPTIONAL
+      { ?horse  wdt:P21  ?gender }
+    OPTIONAL
+      { ?horse  rdfs:label  ?horse__label_value
+        FILTER ( lang(?horse__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?horse  rdfs:label  ?horse__label_value
+        FILTER ( lang(?horse__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?horse  rdfs:label  ?horse__label_value
+        FILTER ( lang(?horse__label_value) = "fr" )
+      }
+    OPTIONAL
+      { ?horse  rdfs:label  ?horse__label_value
+        FILTER ( lang(?horse__label_value) = "ar" )
+      }
+    OPTIONAL
+      { ?horse  rdfs:label  ?horse__label_value
+        FILTER ( lang(?horse__label_value) = "be" )
+      }
+    OPTIONAL
+      { ?horse  rdfs:label  ?horse__label_value
+        FILTER ( lang(?horse__label_value) = "bg" )
+      }
+    OPTIONAL
+      { ?horse  rdfs:label  ?horse__label_value
+        FILTER ( lang(?horse__label_value) = "bn" )
+      }
+    OPTIONAL
+      { ?horse  rdfs:label  ?horse__label_value
+        FILTER ( lang(?horse__label_value) = "ca" )
+      }
+    OPTIONAL
+      { ?horse  rdfs:label  ?horse__label_value
+        FILTER ( lang(?horse__label_value) = "cs" )
+      }
+    OPTIONAL
+      { ?horse  rdfs:label  ?horse__label_value
+        FILTER ( lang(?horse__label_value) = "da" )
+      }
+    OPTIONAL
+      { ?horse  rdfs:label  ?horse__label_value
+        FILTER ( lang(?horse__label_value) = "de" )
+      }
+    OPTIONAL
+      { ?horse  rdfs:label  ?horse__label_value
+        FILTER ( lang(?horse__label_value) = "el" )
+      }
+    OPTIONAL
+      { ?horse  rdfs:label  ?horse__label_value
+        FILTER ( lang(?horse__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?horse  rdfs:label  ?horse__label_value
+        FILTER ( lang(?horse__label_value) = "es" )
+      }
+    OPTIONAL
+      { ?horse  rdfs:label  ?horse__label_value
+        FILTER ( lang(?horse__label_value) = "et" )
+      }
+    OPTIONAL
+      { ?horse  rdfs:label  ?horse__label_value
+        FILTER ( lang(?horse__label_value) = "fa" )
+      }
+    OPTIONAL
+      { ?horse  rdfs:label  ?horse__label_value
+        FILTER ( lang(?horse__label_value) = "fi" )
+      }
+    OPTIONAL
+      { ?horse  rdfs:label  ?horse__label_value
+        FILTER ( lang(?horse__label_value) = "he" )
+      }
+    OPTIONAL
+      { ?horse  rdfs:label  ?horse__label_value
+        FILTER ( lang(?horse__label_value) = "hi" )
+      }
+    OPTIONAL
+      { ?horse  rdfs:label  ?horse__label_value
+        FILTER ( lang(?horse__label_value) = "hu" )
+      }
+    OPTIONAL
+      { ?horse  rdfs:label  ?horse__label_value
+        FILTER ( lang(?horse__label_value) = "hy" )
+      }
+    OPTIONAL
+      { ?horse  rdfs:label  ?horse__label_value
+        FILTER ( lang(?horse__label_value) = "id" )
+      }
+    OPTIONAL
+      { ?horse  rdfs:label  ?horse__label_value
+        FILTER ( lang(?horse__label_value) = "it" )
+      }
+    OPTIONAL
+      { ?horse  rdfs:label  ?horse__label_value
+        FILTER ( lang(?horse__label_value) = "ja" )
+      }
+    OPTIONAL
+      { ?horse  rdfs:label  ?horse__label_value
+        FILTER ( lang(?horse__label_value) = "jv" )
+      }
+    OPTIONAL
+      { ?horse  rdfs:label  ?horse__label_value
+        FILTER ( lang(?horse__label_value) = "ko" )
+      }
+    OPTIONAL
+      { ?horse  rdfs:label  ?horse__label_value
+        FILTER ( lang(?horse__label_value) = "nb" )
+      }
+    OPTIONAL
+      { ?horse  rdfs:label  ?horse__label_value
+        FILTER ( lang(?horse__label_value) = "nl" )
+      }
+    OPTIONAL
+      { ?horse  rdfs:label  ?horse__label_value
+        FILTER ( lang(?horse__label_value) = "eo" )
+      }
+    OPTIONAL
+      { ?horse  rdfs:label  ?horse__label_value
+        FILTER ( lang(?horse__label_value) = "pa" )
+      }
+    OPTIONAL
+      { ?horse  rdfs:label  ?horse__label_value
+        FILTER ( lang(?horse__label_value) = "pl" )
+      }
+    OPTIONAL
+      { ?horse  rdfs:label  ?horse__label_value
+        FILTER ( lang(?horse__label_value) = "pt" )
+      }
+    OPTIONAL
+      { ?horse  rdfs:label  ?horse__label_value
+        FILTER ( lang(?horse__label_value) = "ro" )
+      }
+    OPTIONAL
+      { ?horse  rdfs:label  ?horse__label_value
+        FILTER ( lang(?horse__label_value) = "ru" )
+      }
+    OPTIONAL
+      { ?horse  rdfs:label  ?horse__label_value
+        FILTER ( lang(?horse__label_value) = "sh" )
+      }
+    OPTIONAL
+      { ?horse  rdfs:label  ?horse__label_value
+        FILTER ( lang(?horse__label_value) = "sk" )
+      }
+    OPTIONAL
+      { ?horse  rdfs:label  ?horse__label_value
+        FILTER ( lang(?horse__label_value) = "sr" )
+      }
+    OPTIONAL
+      { ?horse  rdfs:label  ?horse__label_value
+        FILTER ( lang(?horse__label_value) = "sv" )
+      }
+    OPTIONAL
+      { ?horse  rdfs:label  ?horse__label_value
+        FILTER ( lang(?horse__label_value) = "sw" )
+      }
+    OPTIONAL
+      { ?horse  rdfs:label  ?horse__label_value
+        FILTER ( lang(?horse__label_value) = "te" )
+      }
+    OPTIONAL
+      { ?horse  rdfs:label  ?horse__label_value
+        FILTER ( lang(?horse__label_value) = "th" )
+      }
+    OPTIONAL
+      { ?horse  rdfs:label  ?horse__label_value
+        FILTER ( lang(?horse__label_value) = "tr" )
+      }
+    OPTIONAL
+      { ?horse  rdfs:label  ?horse__label_value
+        FILTER ( lang(?horse__label_value) = "uk" )
+      }
+    OPTIONAL
+      { ?horse  rdfs:label  ?horse__label_value
+        FILTER ( lang(?horse__label_value) = "yue" )
+      }
+    OPTIONAL
+      { ?horse  rdfs:label  ?horse__label_value
+        FILTER ( lang(?horse__label_value) = "vec" )
+      }
+    OPTIONAL
+      { ?horse  rdfs:label  ?horse__label_value
+        FILTER ( lang(?horse__label_value) = "vi" )
+      }
+    OPTIONAL
+      { ?horse  rdfs:label  ?horse__label_value
+        FILTER ( lang(?horse__label_value) = "zh" )
+      }
+    BIND(if(bound(?horse__label_value), ?horse__label_value, if(( isURI(?horse) && strstarts(str(?horse), "http://www.wikidata.org/entity/") ), strafter(str(?horse), "entity/"), str(?horse))) AS ?horseLabel)
+    BIND(if(bound(?mother), ?mother, "unbound") AS ?mother__label_subject)
+    OPTIONAL
+      { ?mother__label_subject
+                  rdfs:label  ?mother__label_value
+        FILTER ( lang(?mother__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?mother__label_subject
+                  rdfs:label  ?mother__label_value
+        FILTER ( lang(?mother__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?mother__label_subject
+                  rdfs:label  ?mother__label_value
+        FILTER ( lang(?mother__label_value) = "fr" )
+      }
+    OPTIONAL
+      { ?mother__label_subject
+                  rdfs:label  ?mother__label_value
+        FILTER ( lang(?mother__label_value) = "ar" )
+      }
+    OPTIONAL
+      { ?mother__label_subject
+                  rdfs:label  ?mother__label_value
+        FILTER ( lang(?mother__label_value) = "be" )
+      }
+    OPTIONAL
+      { ?mother__label_subject
+                  rdfs:label  ?mother__label_value
+        FILTER ( lang(?mother__label_value) = "bg" )
+      }
+    OPTIONAL
+      { ?mother__label_subject
+                  rdfs:label  ?mother__label_value
+        FILTER ( lang(?mother__label_value) = "bn" )
+      }
+    OPTIONAL
+      { ?mother__label_subject
+                  rdfs:label  ?mother__label_value
+        FILTER ( lang(?mother__label_value) = "ca" )
+      }
+    OPTIONAL
+      { ?mother__label_subject
+                  rdfs:label  ?mother__label_value
+        FILTER ( lang(?mother__label_value) = "cs" )
+      }
+    OPTIONAL
+      { ?mother__label_subject
+                  rdfs:label  ?mother__label_value
+        FILTER ( lang(?mother__label_value) = "da" )
+      }
+    OPTIONAL
+      { ?mother__label_subject
+                  rdfs:label  ?mother__label_value
+        FILTER ( lang(?mother__label_value) = "de" )
+      }
+    OPTIONAL
+      { ?mother__label_subject
+                  rdfs:label  ?mother__label_value
+        FILTER ( lang(?mother__label_value) = "el" )
+      }
+    OPTIONAL
+      { ?mother__label_subject
+                  rdfs:label  ?mother__label_value
+        FILTER ( lang(?mother__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?mother__label_subject
+                  rdfs:label  ?mother__label_value
+        FILTER ( lang(?mother__label_value) = "es" )
+      }
+    OPTIONAL
+      { ?mother__label_subject
+                  rdfs:label  ?mother__label_value
+        FILTER ( lang(?mother__label_value) = "et" )
+      }
+    OPTIONAL
+      { ?mother__label_subject
+                  rdfs:label  ?mother__label_value
+        FILTER ( lang(?mother__label_value) = "fa" )
+      }
+    OPTIONAL
+      { ?mother__label_subject
+                  rdfs:label  ?mother__label_value
+        FILTER ( lang(?mother__label_value) = "fi" )
+      }
+    OPTIONAL
+      { ?mother__label_subject
+                  rdfs:label  ?mother__label_value
+        FILTER ( lang(?mother__label_value) = "he" )
+      }
+    OPTIONAL
+      { ?mother__label_subject
+                  rdfs:label  ?mother__label_value
+        FILTER ( lang(?mother__label_value) = "hi" )
+      }
+    OPTIONAL
+      { ?mother__label_subject
+                  rdfs:label  ?mother__label_value
+        FILTER ( lang(?mother__label_value) = "hu" )
+      }
+    OPTIONAL
+      { ?mother__label_subject
+                  rdfs:label  ?mother__label_value
+        FILTER ( lang(?mother__label_value) = "hy" )
+      }
+    OPTIONAL
+      { ?mother__label_subject
+                  rdfs:label  ?mother__label_value
+        FILTER ( lang(?mother__label_value) = "id" )
+      }
+    OPTIONAL
+      { ?mother__label_subject
+                  rdfs:label  ?mother__label_value
+        FILTER ( lang(?mother__label_value) = "it" )
+      }
+    OPTIONAL
+      { ?mother__label_subject
+                  rdfs:label  ?mother__label_value
+        FILTER ( lang(?mother__label_value) = "ja" )
+      }
+    OPTIONAL
+      { ?mother__label_subject
+                  rdfs:label  ?mother__label_value
+        FILTER ( lang(?mother__label_value) = "jv" )
+      }
+    OPTIONAL
+      { ?mother__label_subject
+                  rdfs:label  ?mother__label_value
+        FILTER ( lang(?mother__label_value) = "ko" )
+      }
+    OPTIONAL
+      { ?mother__label_subject
+                  rdfs:label  ?mother__label_value
+        FILTER ( lang(?mother__label_value) = "nb" )
+      }
+    OPTIONAL
+      { ?mother__label_subject
+                  rdfs:label  ?mother__label_value
+        FILTER ( lang(?mother__label_value) = "nl" )
+      }
+    OPTIONAL
+      { ?mother__label_subject
+                  rdfs:label  ?mother__label_value
+        FILTER ( lang(?mother__label_value) = "eo" )
+      }
+    OPTIONAL
+      { ?mother__label_subject
+                  rdfs:label  ?mother__label_value
+        FILTER ( lang(?mother__label_value) = "pa" )
+      }
+    OPTIONAL
+      { ?mother__label_subject
+                  rdfs:label  ?mother__label_value
+        FILTER ( lang(?mother__label_value) = "pl" )
+      }
+    OPTIONAL
+      { ?mother__label_subject
+                  rdfs:label  ?mother__label_value
+        FILTER ( lang(?mother__label_value) = "pt" )
+      }
+    OPTIONAL
+      { ?mother__label_subject
+                  rdfs:label  ?mother__label_value
+        FILTER ( lang(?mother__label_value) = "ro" )
+      }
+    OPTIONAL
+      { ?mother__label_subject
+                  rdfs:label  ?mother__label_value
+        FILTER ( lang(?mother__label_value) = "ru" )
+      }
+    OPTIONAL
+      { ?mother__label_subject
+                  rdfs:label  ?mother__label_value
+        FILTER ( lang(?mother__label_value) = "sh" )
+      }
+    OPTIONAL
+      { ?mother__label_subject
+                  rdfs:label  ?mother__label_value
+        FILTER ( lang(?mother__label_value) = "sk" )
+      }
+    OPTIONAL
+      { ?mother__label_subject
+                  rdfs:label  ?mother__label_value
+        FILTER ( lang(?mother__label_value) = "sr" )
+      }
+    OPTIONAL
+      { ?mother__label_subject
+                  rdfs:label  ?mother__label_value
+        FILTER ( lang(?mother__label_value) = "sv" )
+      }
+    OPTIONAL
+      { ?mother__label_subject
+                  rdfs:label  ?mother__label_value
+        FILTER ( lang(?mother__label_value) = "sw" )
+      }
+    OPTIONAL
+      { ?mother__label_subject
+                  rdfs:label  ?mother__label_value
+        FILTER ( lang(?mother__label_value) = "te" )
+      }
+    OPTIONAL
+      { ?mother__label_subject
+                  rdfs:label  ?mother__label_value
+        FILTER ( lang(?mother__label_value) = "th" )
+      }
+    OPTIONAL
+      { ?mother__label_subject
+                  rdfs:label  ?mother__label_value
+        FILTER ( lang(?mother__label_value) = "tr" )
+      }
+    OPTIONAL
+      { ?mother__label_subject
+                  rdfs:label  ?mother__label_value
+        FILTER ( lang(?mother__label_value) = "uk" )
+      }
+    OPTIONAL
+      { ?mother__label_subject
+                  rdfs:label  ?mother__label_value
+        FILTER ( lang(?mother__label_value) = "yue" )
+      }
+    OPTIONAL
+      { ?mother__label_subject
+                  rdfs:label  ?mother__label_value
+        FILTER ( lang(?mother__label_value) = "vec" )
+      }
+    OPTIONAL
+      { ?mother__label_subject
+                  rdfs:label  ?mother__label_value
+        FILTER ( lang(?mother__label_value) = "vi" )
+      }
+    OPTIONAL
+      { ?mother__label_subject
+                  rdfs:label  ?mother__label_value
+        FILTER ( lang(?mother__label_value) = "zh" )
+      }
+    BIND(if(bound(?mother__label_value), ?mother__label_value, if(( isURI(?mother) && strstarts(str(?mother), "http://www.wikidata.org/entity/") ), strafter(str(?mother), "entity/"), str(?mother))) AS ?motherLabel)
+    BIND(if(bound(?father), ?father, "unbound") AS ?father__label_subject)
+    OPTIONAL
+      { ?father__label_subject
+                  rdfs:label  ?father__label_value
+        FILTER ( lang(?father__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?father__label_subject
+                  rdfs:label  ?father__label_value
+        FILTER ( lang(?father__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?father__label_subject
+                  rdfs:label  ?father__label_value
+        FILTER ( lang(?father__label_value) = "fr" )
+      }
+    OPTIONAL
+      { ?father__label_subject
+                  rdfs:label  ?father__label_value
+        FILTER ( lang(?father__label_value) = "ar" )
+      }
+    OPTIONAL
+      { ?father__label_subject
+                  rdfs:label  ?father__label_value
+        FILTER ( lang(?father__label_value) = "be" )
+      }
+    OPTIONAL
+      { ?father__label_subject
+                  rdfs:label  ?father__label_value
+        FILTER ( lang(?father__label_value) = "bg" )
+      }
+    OPTIONAL
+      { ?father__label_subject
+                  rdfs:label  ?father__label_value
+        FILTER ( lang(?father__label_value) = "bn" )
+      }
+    OPTIONAL
+      { ?father__label_subject
+                  rdfs:label  ?father__label_value
+        FILTER ( lang(?father__label_value) = "ca" )
+      }
+    OPTIONAL
+      { ?father__label_subject
+                  rdfs:label  ?father__label_value
+        FILTER ( lang(?father__label_value) = "cs" )
+      }
+    OPTIONAL
+      { ?father__label_subject
+                  rdfs:label  ?father__label_value
+        FILTER ( lang(?father__label_value) = "da" )
+      }
+    OPTIONAL
+      { ?father__label_subject
+                  rdfs:label  ?father__label_value
+        FILTER ( lang(?father__label_value) = "de" )
+      }
+    OPTIONAL
+      { ?father__label_subject
+                  rdfs:label  ?father__label_value
+        FILTER ( lang(?father__label_value) = "el" )
+      }
+    OPTIONAL
+      { ?father__label_subject
+                  rdfs:label  ?father__label_value
+        FILTER ( lang(?father__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?father__label_subject
+                  rdfs:label  ?father__label_value
+        FILTER ( lang(?father__label_value) = "es" )
+      }
+    OPTIONAL
+      { ?father__label_subject
+                  rdfs:label  ?father__label_value
+        FILTER ( lang(?father__label_value) = "et" )
+      }
+    OPTIONAL
+      { ?father__label_subject
+                  rdfs:label  ?father__label_value
+        FILTER ( lang(?father__label_value) = "fa" )
+      }
+    OPTIONAL
+      { ?father__label_subject
+                  rdfs:label  ?father__label_value
+        FILTER ( lang(?father__label_value) = "fi" )
+      }
+    OPTIONAL
+      { ?father__label_subject
+                  rdfs:label  ?father__label_value
+        FILTER ( lang(?father__label_value) = "he" )
+      }
+    OPTIONAL
+      { ?father__label_subject
+                  rdfs:label  ?father__label_value
+        FILTER ( lang(?father__label_value) = "hi" )
+      }
+    OPTIONAL
+      { ?father__label_subject
+                  rdfs:label  ?father__label_value
+        FILTER ( lang(?father__label_value) = "hu" )
+      }
+    OPTIONAL
+      { ?father__label_subject
+                  rdfs:label  ?father__label_value
+        FILTER ( lang(?father__label_value) = "hy" )
+      }
+    OPTIONAL
+      { ?father__label_subject
+                  rdfs:label  ?father__label_value
+        FILTER ( lang(?father__label_value) = "id" )
+      }
+    OPTIONAL
+      { ?father__label_subject
+                  rdfs:label  ?father__label_value
+        FILTER ( lang(?father__label_value) = "it" )
+      }
+    OPTIONAL
+      { ?father__label_subject
+                  rdfs:label  ?father__label_value
+        FILTER ( lang(?father__label_value) = "ja" )
+      }
+    OPTIONAL
+      { ?father__label_subject
+                  rdfs:label  ?father__label_value
+        FILTER ( lang(?father__label_value) = "jv" )
+      }
+    OPTIONAL
+      { ?father__label_subject
+                  rdfs:label  ?father__label_value
+        FILTER ( lang(?father__label_value) = "ko" )
+      }
+    OPTIONAL
+      { ?father__label_subject
+                  rdfs:label  ?father__label_value
+        FILTER ( lang(?father__label_value) = "nb" )
+      }
+    OPTIONAL
+      { ?father__label_subject
+                  rdfs:label  ?father__label_value
+        FILTER ( lang(?father__label_value) = "nl" )
+      }
+    OPTIONAL
+      { ?father__label_subject
+                  rdfs:label  ?father__label_value
+        FILTER ( lang(?father__label_value) = "eo" )
+      }
+    OPTIONAL
+      { ?father__label_subject
+                  rdfs:label  ?father__label_value
+        FILTER ( lang(?father__label_value) = "pa" )
+      }
+    OPTIONAL
+      { ?father__label_subject
+                  rdfs:label  ?father__label_value
+        FILTER ( lang(?father__label_value) = "pl" )
+      }
+    OPTIONAL
+      { ?father__label_subject
+                  rdfs:label  ?father__label_value
+        FILTER ( lang(?father__label_value) = "pt" )
+      }
+    OPTIONAL
+      { ?father__label_subject
+                  rdfs:label  ?father__label_value
+        FILTER ( lang(?father__label_value) = "ro" )
+      }
+    OPTIONAL
+      { ?father__label_subject
+                  rdfs:label  ?father__label_value
+        FILTER ( lang(?father__label_value) = "ru" )
+      }
+    OPTIONAL
+      { ?father__label_subject
+                  rdfs:label  ?father__label_value
+        FILTER ( lang(?father__label_value) = "sh" )
+      }
+    OPTIONAL
+      { ?father__label_subject
+                  rdfs:label  ?father__label_value
+        FILTER ( lang(?father__label_value) = "sk" )
+      }
+    OPTIONAL
+      { ?father__label_subject
+                  rdfs:label  ?father__label_value
+        FILTER ( lang(?father__label_value) = "sr" )
+      }
+    OPTIONAL
+      { ?father__label_subject
+                  rdfs:label  ?father__label_value
+        FILTER ( lang(?father__label_value) = "sv" )
+      }
+    OPTIONAL
+      { ?father__label_subject
+                  rdfs:label  ?father__label_value
+        FILTER ( lang(?father__label_value) = "sw" )
+      }
+    OPTIONAL
+      { ?father__label_subject
+                  rdfs:label  ?father__label_value
+        FILTER ( lang(?father__label_value) = "te" )
+      }
+    OPTIONAL
+      { ?father__label_subject
+                  rdfs:label  ?father__label_value
+        FILTER ( lang(?father__label_value) = "th" )
+      }
+    OPTIONAL
+      { ?father__label_subject
+                  rdfs:label  ?father__label_value
+        FILTER ( lang(?father__label_value) = "tr" )
+      }
+    OPTIONAL
+      { ?father__label_subject
+                  rdfs:label  ?father__label_value
+        FILTER ( lang(?father__label_value) = "uk" )
+      }
+    OPTIONAL
+      { ?father__label_subject
+                  rdfs:label  ?father__label_value
+        FILTER ( lang(?father__label_value) = "yue" )
+      }
+    OPTIONAL
+      { ?father__label_subject
+                  rdfs:label  ?father__label_value
+        FILTER ( lang(?father__label_value) = "vec" )
+      }
+    OPTIONAL
+      { ?father__label_subject
+                  rdfs:label  ?father__label_value
+        FILTER ( lang(?father__label_value) = "vi" )
+      }
+    OPTIONAL
+      { ?father__label_subject
+                  rdfs:label  ?father__label_value
+        FILTER ( lang(?father__label_value) = "zh" )
+      }
+    BIND(if(bound(?father__label_value), ?father__label_value, if(( isURI(?father) && strstarts(str(?father), "http://www.wikidata.org/entity/") ), strafter(str(?father), "entity/"), str(?father))) AS ?fatherLabel)
+    BIND(if(bound(?gender), ?gender, "unbound") AS ?gender__label_subject)
+    OPTIONAL
+      { ?gender__label_subject
+                  rdfs:label  ?gender__label_value
+        FILTER ( lang(?gender__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?gender__label_subject
+                  rdfs:label  ?gender__label_value
+        FILTER ( lang(?gender__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?gender__label_subject
+                  rdfs:label  ?gender__label_value
+        FILTER ( lang(?gender__label_value) = "fr" )
+      }
+    OPTIONAL
+      { ?gender__label_subject
+                  rdfs:label  ?gender__label_value
+        FILTER ( lang(?gender__label_value) = "ar" )
+      }
+    OPTIONAL
+      { ?gender__label_subject
+                  rdfs:label  ?gender__label_value
+        FILTER ( lang(?gender__label_value) = "be" )
+      }
+    OPTIONAL
+      { ?gender__label_subject
+                  rdfs:label  ?gender__label_value
+        FILTER ( lang(?gender__label_value) = "bg" )
+      }
+    OPTIONAL
+      { ?gender__label_subject
+                  rdfs:label  ?gender__label_value
+        FILTER ( lang(?gender__label_value) = "bn" )
+      }
+    OPTIONAL
+      { ?gender__label_subject
+                  rdfs:label  ?gender__label_value
+        FILTER ( lang(?gender__label_value) = "ca" )
+      }
+    OPTIONAL
+      { ?gender__label_subject
+                  rdfs:label  ?gender__label_value
+        FILTER ( lang(?gender__label_value) = "cs" )
+      }
+    OPTIONAL
+      { ?gender__label_subject
+                  rdfs:label  ?gender__label_value
+        FILTER ( lang(?gender__label_value) = "da" )
+      }
+    OPTIONAL
+      { ?gender__label_subject
+                  rdfs:label  ?gender__label_value
+        FILTER ( lang(?gender__label_value) = "de" )
+      }
+    OPTIONAL
+      { ?gender__label_subject
+                  rdfs:label  ?gender__label_value
+        FILTER ( lang(?gender__label_value) = "el" )
+      }
+    OPTIONAL
+      { ?gender__label_subject
+                  rdfs:label  ?gender__label_value
+        FILTER ( lang(?gender__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?gender__label_subject
+                  rdfs:label  ?gender__label_value
+        FILTER ( lang(?gender__label_value) = "es" )
+      }
+    OPTIONAL
+      { ?gender__label_subject
+                  rdfs:label  ?gender__label_value
+        FILTER ( lang(?gender__label_value) = "et" )
+      }
+    OPTIONAL
+      { ?gender__label_subject
+                  rdfs:label  ?gender__label_value
+        FILTER ( lang(?gender__label_value) = "fa" )
+      }
+    OPTIONAL
+      { ?gender__label_subject
+                  rdfs:label  ?gender__label_value
+        FILTER ( lang(?gender__label_value) = "fi" )
+      }
+    OPTIONAL
+      { ?gender__label_subject
+                  rdfs:label  ?gender__label_value
+        FILTER ( lang(?gender__label_value) = "he" )
+      }
+    OPTIONAL
+      { ?gender__label_subject
+                  rdfs:label  ?gender__label_value
+        FILTER ( lang(?gender__label_value) = "hi" )
+      }
+    OPTIONAL
+      { ?gender__label_subject
+                  rdfs:label  ?gender__label_value
+        FILTER ( lang(?gender__label_value) = "hu" )
+      }
+    OPTIONAL
+      { ?gender__label_subject
+                  rdfs:label  ?gender__label_value
+        FILTER ( lang(?gender__label_value) = "hy" )
+      }
+    OPTIONAL
+      { ?gender__label_subject
+                  rdfs:label  ?gender__label_value
+        FILTER ( lang(?gender__label_value) = "id" )
+      }
+    OPTIONAL
+      { ?gender__label_subject
+                  rdfs:label  ?gender__label_value
+        FILTER ( lang(?gender__label_value) = "it" )
+      }
+    OPTIONAL
+      { ?gender__label_subject
+                  rdfs:label  ?gender__label_value
+        FILTER ( lang(?gender__label_value) = "ja" )
+      }
+    OPTIONAL
+      { ?gender__label_subject
+                  rdfs:label  ?gender__label_value
+        FILTER ( lang(?gender__label_value) = "jv" )
+      }
+    OPTIONAL
+      { ?gender__label_subject
+                  rdfs:label  ?gender__label_value
+        FILTER ( lang(?gender__label_value) = "ko" )
+      }
+    OPTIONAL
+      { ?gender__label_subject
+                  rdfs:label  ?gender__label_value
+        FILTER ( lang(?gender__label_value) = "nb" )
+      }
+    OPTIONAL
+      { ?gender__label_subject
+                  rdfs:label  ?gender__label_value
+        FILTER ( lang(?gender__label_value) = "nl" )
+      }
+    OPTIONAL
+      { ?gender__label_subject
+                  rdfs:label  ?gender__label_value
+        FILTER ( lang(?gender__label_value) = "eo" )
+      }
+    OPTIONAL
+      { ?gender__label_subject
+                  rdfs:label  ?gender__label_value
+        FILTER ( lang(?gender__label_value) = "pa" )
+      }
+    OPTIONAL
+      { ?gender__label_subject
+                  rdfs:label  ?gender__label_value
+        FILTER ( lang(?gender__label_value) = "pl" )
+      }
+    OPTIONAL
+      { ?gender__label_subject
+                  rdfs:label  ?gender__label_value
+        FILTER ( lang(?gender__label_value) = "pt" )
+      }
+    OPTIONAL
+      { ?gender__label_subject
+                  rdfs:label  ?gender__label_value
+        FILTER ( lang(?gender__label_value) = "ro" )
+      }
+    OPTIONAL
+      { ?gender__label_subject
+                  rdfs:label  ?gender__label_value
+        FILTER ( lang(?gender__label_value) = "ru" )
+      }
+    OPTIONAL
+      { ?gender__label_subject
+                  rdfs:label  ?gender__label_value
+        FILTER ( lang(?gender__label_value) = "sh" )
+      }
+    OPTIONAL
+      { ?gender__label_subject
+                  rdfs:label  ?gender__label_value
+        FILTER ( lang(?gender__label_value) = "sk" )
+      }
+    OPTIONAL
+      { ?gender__label_subject
+                  rdfs:label  ?gender__label_value
+        FILTER ( lang(?gender__label_value) = "sr" )
+      }
+    OPTIONAL
+      { ?gender__label_subject
+                  rdfs:label  ?gender__label_value
+        FILTER ( lang(?gender__label_value) = "sv" )
+      }
+    OPTIONAL
+      { ?gender__label_subject
+                  rdfs:label  ?gender__label_value
+        FILTER ( lang(?gender__label_value) = "sw" )
+      }
+    OPTIONAL
+      { ?gender__label_subject
+                  rdfs:label  ?gender__label_value
+        FILTER ( lang(?gender__label_value) = "te" )
+      }
+    OPTIONAL
+      { ?gender__label_subject
+                  rdfs:label  ?gender__label_value
+        FILTER ( lang(?gender__label_value) = "th" )
+      }
+    OPTIONAL
+      { ?gender__label_subject
+                  rdfs:label  ?gender__label_value
+        FILTER ( lang(?gender__label_value) = "tr" )
+      }
+    OPTIONAL
+      { ?gender__label_subject
+                  rdfs:label  ?gender__label_value
+        FILTER ( lang(?gender__label_value) = "uk" )
+      }
+    OPTIONAL
+      { ?gender__label_subject
+                  rdfs:label  ?gender__label_value
+        FILTER ( lang(?gender__label_value) = "yue" )
+      }
+    OPTIONAL
+      { ?gender__label_subject
+                  rdfs:label  ?gender__label_value
+        FILTER ( lang(?gender__label_value) = "vec" )
+      }
+    OPTIONAL
+      { ?gender__label_subject
+                  rdfs:label  ?gender__label_value
+        FILTER ( lang(?gender__label_value) = "vi" )
+      }
+    OPTIONAL
+      { ?gender__label_subject
+                  rdfs:label  ?gender__label_value
+        FILTER ( lang(?gender__label_value) = "zh" )
+      }
+    BIND(if(bound(?gender__label_value), ?gender__label_value, if(( isURI(?gender) && strstarts(str(?gender), "http://www.wikidata.org/entity/") ), strafter(str(?gender), "entity/"), str(?gender))) AS ?genderLabel)
+  }
+ORDER BY ?horse
+
+# Original query:
+# # Illustrates optional fields, instances of subclasses, language fallback on label service, date to year conversion
+# #title: Horses on Wikidata
+# SELECT DISTINCT ?horse ?horseLabel ?mother ?motherLabel ?father ?fatherLabel (year(?birthdate) as ?birthyear) (year(?deathdate) as ?deathyear) ?genderLabel
+# WHERE
+# {
+#   ?horse wdt:P31/wdt:P279* wd:Q726 .     # Instance of and subclasses of Q726 (horse)
+#
+#   OPTIONAL{?horse wdt:P25 ?mother .}     # mother
+#   OPTIONAL{?horse wdt:P22 ?father .}     # father
+#   OPTIONAL{?horse wdt:P569 ?birthdate .} # date of birth
+#   OPTIONAL{?horse wdt:P570 ?deathdate .} # date of death
+#   OPTIONAL{?horse wdt:P21 ?gender .}     # sex or gender
+#
+#   SERVICE wikibase:label { #BabelRainbow
+#     bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,fr,ar,be,bg,bn,ca,cs,da,de,el,en,es,et,fa,fi,he,hi,hu,hy,id,it,ja,jv,ko,nb,nl,eo,pa,pl,pt,ro,ru,sh,sk,sr,sv,sw,te,th,tr,uk,yue,vec,vi,zh"
+#   }
+# }
+# ORDER BY ?horse

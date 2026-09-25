@@ -1,0 +1,57 @@
+# rewrite_status: rewritten
+#title: Films of directors by their English Wikipedia name
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  schema: <http://schema.org/>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?film ?filmLabel ?genere ?d
+WHERE
+  { { SELECT  ?film (GROUP_CONCAT(DISTINCT ?gL ; separator=', ') AS ?genere) (MIN(year(?date)) AS ?d)
+      WHERE
+        { ?sitelink  schema:about    ?director ;
+                    schema:isPartOf  <https://en.wikipedia.org/> ;
+                    schema:name      "Steven Spielberg"@en .
+          ?film     wdt:P31          wd:Q11424 ;
+                    wdt:P136         ?g ;
+                    wdt:P136         ?g .
+          ?g        rdfs:label       ?gL .
+          ?film     wdt:P57          ?director ;
+                    wdt:P577         ?date
+          FILTER ( lang(?gL) = "en" )
+        }
+      GROUP BY ?film
+    }
+    OPTIONAL
+      { ?film  rdfs:label  ?film__label_value
+        FILTER ( lang(?film__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?film  rdfs:label  ?film__label_value
+        FILTER ( lang(?film__label_value) = "mul" )
+      }
+    BIND(if(bound(?film__label_value), ?film__label_value, if(( isURI(?film) && strstarts(str(?film), "http://www.wikidata.org/entity/") ), strafter(str(?film), "entity/"), str(?film))) AS ?filmLabel)
+  }
+ORDER BY DESC(?d)
+
+# Original query:
+# #title: Films of directors by their English Wikipedia name
+# SELECT ?film ?filmLabel ?genere ?d WHERE {
+#   {
+#     SELECT ?film (GROUP_CONCAT(DISTINCT ?gL; SEPARATOR = ", ") AS ?genere) (MIN(YEAR(?date)) AS ?d) WHERE {
+#       ?sitelink schema:about ?director;
+#         schema:isPartOf <https://en.wikipedia.org/>;
+#         schema:name "Steven Spielberg"@en. # Edit this with different director's name to see their films. Use the English Wikipedia title only.
+#       ?film wdt:P31 wd:Q11424;
+#         wdt:P136 ?g, ?g.
+#       ?g rdfs:label ?gL.
+#       ?film wdt:P57 ?director;
+#         wdt:P577 ?date.
+#       FILTER((LANG(?gL)) = "en")
+#       SERVICE wikibase:label { bd:serviceParam wikibase:language "en". }
+#     }
+#     GROUP BY ?film
+#   }
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "en". }
+# }
+# ORDER BY DESC (?d)

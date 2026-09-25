@@ -1,0 +1,50 @@
+# rewrite_status: rewritten
+# added before 2016-10
+PREFIX  rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  schema: <http://schema.org/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+PREFIX  wikibase: <http://wikiba.se/ontology#>
+
+SELECT DISTINCT  ?property ?propertyLabel ?propertyDescription ?subpropertyOf ?subpropertyOfLabel
+WHERE
+  { ?property  rdf:type  wikibase:Property
+    OPTIONAL
+      { ?property  wdt:P1647  ?subpropertyOf }
+    OPTIONAL
+      { ?property  rdfs:label  ?property__label_value
+        FILTER ( lang(?property__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?property  rdfs:label  ?property__label_value
+        FILTER ( lang(?property__label_value) = "mul" )
+      }
+    BIND(if(bound(?property__label_value), ?property__label_value, if(( isURI(?property) && strstarts(str(?property), "http://www.wikidata.org/entity/") ), strafter(str(?property), "entity/"), str(?property))) AS ?propertyLabel)
+    OPTIONAL
+      { ?property  schema:description  ?property__description_value
+        FILTER ( lang(?property__description_value) = "en" )
+      }
+    BIND(?property__description_value AS ?propertyDescription)
+    BIND(if(bound(?subpropertyOf), ?subpropertyOf, "unbound") AS ?subpropertyOf__label_subject)
+    OPTIONAL
+      { ?subpropertyOf__label_subject
+                  rdfs:label  ?subpropertyOf__label_value
+        FILTER ( lang(?subpropertyOf__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?subpropertyOf__label_subject
+                  rdfs:label  ?subpropertyOf__label_value
+        FILTER ( lang(?subpropertyOf__label_value) = "mul" )
+      }
+    BIND(if(bound(?subpropertyOf__label_value), ?subpropertyOf__label_value, if(( isURI(?subpropertyOf) && strstarts(str(?subpropertyOf), "http://www.wikidata.org/entity/") ), strafter(str(?subpropertyOf), "entity/"), str(?subpropertyOf))) AS ?subpropertyOfLabel)
+  }
+
+# Original query:
+# # added before 2016-10
+# SELECT DISTINCT ?property ?propertyLabel ?propertyDescription ?subpropertyOf ?subpropertyOfLabel 
+# WHERE
+# {
+#     ?property rdf:type wikibase:Property .
+#     OPTIONAL {?property wdt:P1647  ?subpropertyOf .}
+#     SERVICE wikibase:label { bd:serviceParam wikibase:language "en" }	
+# }

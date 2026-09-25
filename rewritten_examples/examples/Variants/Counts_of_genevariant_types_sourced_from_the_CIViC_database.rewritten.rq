@@ -1,0 +1,42 @@
+# rewrite_status: rewritten
+#title: Counts of gene-variant types sourced from the CIViC database
+#defaultView:BarChart
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?variant_typeLabel (COUNT(?variant_typeLabel) AS ?counts)
+WHERE
+  { ?item  wdt:P3329  ?civic_id ;
+           wdt:P31    ?variant_type
+    OPTIONAL
+      { ?variant_type
+                  rdfs:label  ?variant_type__label_value
+        FILTER ( lang(?variant_type__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?variant_type
+                  rdfs:label  ?variant_type__label_value
+        FILTER ( lang(?variant_type__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?variant_type
+                  rdfs:label  ?variant_type__label_value
+        FILTER ( lang(?variant_type__label_value) = "en" )
+      }
+    BIND(if(bound(?variant_type__label_value), ?variant_type__label_value, if(( isURI(?variant_type) && strstarts(str(?variant_type), "http://www.wikidata.org/entity/") ), strafter(str(?variant_type), "entity/"), str(?variant_type))) AS ?variant_typeLabel)
+  }
+GROUP BY ?variant_typeLabel
+ORDER BY ?counts
+
+# Original query:
+# #title: Counts of gene-variant types sourced from the CIViC database
+# #defaultView:BarChart
+# SELECT ?variant_typeLabel (count(?variant_typeLabel) as ?counts)
+# WHERE
+# {
+#   ?item wdt:P3329 ?civic_id ;
+#           wdt:P31 ?variant_type .
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en" }
+# }
+# GROUP BY ?variant_typeLabel
+# ORDER BY ?counts

@@ -1,0 +1,44 @@
+# rewrite_status: rewritten
+#title: List of space probes with pictures
+#defaultView:ImageGrid
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?spaceProbeLabel ?date ?picture
+WHERE
+  { ?spaceProbe  wdt:P31  wd:Q26529 ;
+              wdt:P18   ?picture ;
+              wdt:P619  ?date
+    OPTIONAL
+      { ?spaceProbe  rdfs:label  ?spaceProbe__label_value
+        FILTER ( lang(?spaceProbe__label_value) = "fr" )
+      }
+    OPTIONAL
+      { ?spaceProbe  rdfs:label  ?spaceProbe__label_value
+        FILTER ( lang(?spaceProbe__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?spaceProbe  rdfs:label  ?spaceProbe__label_value
+        FILTER ( lang(?spaceProbe__label_value) = "mul" )
+      }
+    BIND(if(bound(?spaceProbe__label_value), ?spaceProbe__label_value, if(( isURI(?spaceProbe) && strstarts(str(?spaceProbe), "http://www.wikidata.org/entity/") ), strafter(str(?spaceProbe), "entity/"), str(?spaceProbe))) AS ?spaceProbeLabel)
+  }
+ORDER BY ?date
+LIMIT   88
+
+# Original query:
+# #title: List of space probes with pictures
+# #defaultView:ImageGrid
+# SELECT ?spaceProbeLabel ?date ?picture
+# WHERE
+# {
+#   ?spaceProbe wdt:P31 wd:Q26529;
+#         wdt:P18 ?picture;
+#         wdt:P619 ?date . #mandatory
+#   SERVICE wikibase:label {
+#     bd:serviceParam wikibase:language "fr,en" .
+#   }
+# }
+# ORDER BY ?date
+# LIMIT 88

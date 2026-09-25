@@ -1,0 +1,57 @@
+# rewrite_status: rewritten
+#defaultView:Map
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  schema: <http://schema.org/>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?objectLabel ?objectDescription ?link ?coord
+WHERE
+  { ?object wdt:P31/(wdt:P279)? wd:Q46169
+    OPTIONAL
+      { ?object  wdt:P856  ?link }
+    OPTIONAL
+      { ?object  wdt:P625  ?coord }
+    OPTIONAL
+      { ?object  rdfs:label  ?object__label_value
+        FILTER ( lang(?object__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?object  rdfs:label  ?object__label_value
+        FILTER ( lang(?object__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?object  rdfs:label  ?object__label_value
+        FILTER ( lang(?object__label_value) = "fr" )
+      }
+    OPTIONAL
+      { ?object  rdfs:label  ?object__label_value
+        FILTER ( lang(?object__label_value) = "mul" )
+      }
+    BIND(if(bound(?object__label_value), ?object__label_value, if(( isURI(?object) && strstarts(str(?object), "http://www.wikidata.org/entity/") ), strafter(str(?object), "entity/"), str(?object))) AS ?objectLabel)
+    OPTIONAL
+      { ?object  schema:description  ?object__description_value
+        FILTER ( lang(?object__description_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?object  schema:description  ?object__description_value
+        FILTER ( lang(?object__description_value) = "en" )
+      }
+    OPTIONAL
+      { ?object  schema:description  ?object__description_value
+        FILTER ( lang(?object__description_value) = "fr" )
+      }
+    BIND(?object__description_value AS ?objectDescription)
+  }
+
+# Original query:
+# #defaultView:Map
+# SELECT ?objectLabel ?objectDescription ?link ?coord
+# WHERE {
+#   ?object wdt:P31/wdt:P279? wd:Q46169 .
+#           OPTIONAL { ?object wdt:P856 ?link. } 
+#           OPTIONAL { ?object wdt:P625 ?coord . }
+#           SERVICE wikibase:label {
+#                bd:serviceParam wikibase:language "[AUTO_LANGUAGE],en,fr"
+#           }
+# }

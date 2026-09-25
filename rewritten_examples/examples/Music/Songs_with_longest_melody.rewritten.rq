@@ -1,0 +1,31 @@
+# rewrite_status: rewritten
+#title: Songs with longest melody
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?song ?songLabel ?code
+WHERE
+  { ?song  wdt:P1236  ?code
+    OPTIONAL
+      { ?song  rdfs:label  ?song__label_value
+        FILTER ( lang(?song__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?song  rdfs:label  ?song__label_value
+        FILTER ( lang(?song__label_value) = "mul" )
+      }
+    BIND(if(bound(?song__label_value), ?song__label_value, if(( isURI(?song) && strstarts(str(?song), "http://www.wikidata.org/entity/") ), strafter(str(?song), "entity/"), str(?song))) AS ?songLabel)
+  }
+ORDER BY DESC(strlen(replace(?code, " ", "")))
+LIMIT   10
+
+# Original query:
+# #title: Songs with longest melody
+# SELECT ?song ?songLabel ?code
+# WHERE
+# {
+#   ?song wdt:P1236 ?code.
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "en". }
+# }
+# ORDER BY DESC(STRLEN(REPLACE(?code, " ", "")))
+# LIMIT 10

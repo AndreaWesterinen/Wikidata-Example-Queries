@@ -1,0 +1,83 @@
+# rewrite_status: rewritten
+#title: Scientific journals with editors on Twitter
+PREFIX wd: <http://www.wikidata.org/entity/>
+PREFIX wdt: <http://www.wikidata.org/prop/direct/>
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+WITH %result AS {
+{ SELECT ?journal ?editor ?twitter (SAMPLE(?publisher) AS ?ex_publisher) WHERE {
+    ?journal wdt:P31 wd:Q5633421 ; wdt:P98 ?editor .
+    OPTIONAL { ?journal wdt:P123 ?publisher }
+    ?editor wdt:P2002 ?twitter .
+  } GROUP BY ?journal ?editor ?twitter }
+}
+SELECT  ?journal ?journalLabel ?editor ?editorLabel ?twitter ?ex_publisher ?ex_publisherLabel
+WHERE
+  { { SELECT ?journal ?editor ?twitter ?ex_publisher WHERE { INCLUDE %result } }BIND(if(bound(?journal), ?journal, "unbound") AS ?journal__label_subject)
+    OPTIONAL
+      { ?journal__label_subject
+                  rdfs:label  ?journal__label_value
+        FILTER ( lang(?journal__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?journal__label_subject
+                  rdfs:label  ?journal__label_value
+        FILTER ( lang(?journal__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?journal__label_subject
+                  rdfs:label  ?journal__label_value
+        FILTER ( lang(?journal__label_value) = "en" )
+      }
+    BIND(if(bound(?journal__label_value), ?journal__label_value, if(( isURI(?journal) && strstarts(str(?journal), "http://www.wikidata.org/entity/") ), strafter(str(?journal), "entity/"), str(?journal))) AS ?journalLabel)
+    BIND(if(bound(?editor), ?editor, "unbound") AS ?editor__label_subject)
+    OPTIONAL
+      { ?editor__label_subject
+                  rdfs:label  ?editor__label_value
+        FILTER ( lang(?editor__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?editor__label_subject
+                  rdfs:label  ?editor__label_value
+        FILTER ( lang(?editor__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?editor__label_subject
+                  rdfs:label  ?editor__label_value
+        FILTER ( lang(?editor__label_value) = "en" )
+      }
+    BIND(if(bound(?editor__label_value), ?editor__label_value, if(( isURI(?editor) && strstarts(str(?editor), "http://www.wikidata.org/entity/") ), strafter(str(?editor), "entity/"), str(?editor))) AS ?editorLabel)
+    BIND(if(bound(?ex_publisher), ?ex_publisher, "unbound") AS ?ex_publisher__label_subject)
+    OPTIONAL
+      { ?ex_publisher__label_subject
+                  rdfs:label  ?ex_publisher__label_value
+        FILTER ( lang(?ex_publisher__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?ex_publisher__label_subject
+                  rdfs:label  ?ex_publisher__label_value
+        FILTER ( lang(?ex_publisher__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?ex_publisher__label_subject
+                  rdfs:label  ?ex_publisher__label_value
+        FILTER ( lang(?ex_publisher__label_value) = "en" )
+      }
+    BIND(if(bound(?ex_publisher__label_value), ?ex_publisher__label_value, if(( isURI(?ex_publisher) && strstarts(str(?ex_publisher), "http://www.wikidata.org/entity/") ), strafter(str(?ex_publisher), "entity/"), str(?ex_publisher))) AS ?ex_publisherLabel)
+  }
+ORDER BY ?journalLabel
+
+# Original query:
+# #title: Scientific journals with editors on Twitter
+# SELECT ?journal ?journalLabel ?editor ?editorLabel ?twitter ?ex_publisher ?ex_publisherLabel
+# WITH {
+#   SELECT ?journal ?editor ?twitter (SAMPLE(?publisher) AS ?ex_publisher) WHERE {
+#     ?journal wdt:P31 wd:Q5633421 ; wdt:P98 ?editor .
+#     OPTIONAL { ?journal wdt:P123 ?publisher }
+#     ?editor wdt:P2002 ?twitter .
+#   } GROUP BY ?journal ?editor ?twitter
+# } AS %result
+# WHERE {
+#   INCLUDE %result
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en". }
+# } ORDER BY ?journalLabel

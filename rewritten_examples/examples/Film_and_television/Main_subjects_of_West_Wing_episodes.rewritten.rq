@@ -1,0 +1,62 @@
+# rewrite_status: rewritten
+#title: Main subjects of West Wing episodes
+PREFIX  p:    <http://www.wikidata.org/prop/>
+PREFIX  pq:   <http://www.wikidata.org/prop/qualifier/>
+PREFIX  ps:   <http://www.wikidata.org/prop/statement/>
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+PREFIX  xsd:  <http://www.w3.org/2001/XMLSchema#>
+
+SELECT DISTINCT  ?episode ?ordinal ?episodeLabel ?subject ?subjectLabel
+WHERE
+  { ?episode wdt:P31/(wdt:P279)* wd:Q1983062 .
+    ?episode  p:P179  ?statement
+    OPTIONAL
+      { ?episode  wdt:P921  ?subject }
+    ?statement  ps:P179  wd:Q3577037 ;
+              pq:P1545  ?ordinal
+    OPTIONAL
+      { ?episode  rdfs:label  ?episode__label_value
+        FILTER ( lang(?episode__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?episode  rdfs:label  ?episode__label_value
+        FILTER ( lang(?episode__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?episode  rdfs:label  ?episode__label_value
+        FILTER ( lang(?episode__label_value) = "en" )
+      }
+    BIND(if(bound(?episode__label_value), ?episode__label_value, if(( isURI(?episode) && strstarts(str(?episode), "http://www.wikidata.org/entity/") ), strafter(str(?episode), "entity/"), str(?episode))) AS ?episodeLabel)
+    BIND(if(bound(?subject), ?subject, "unbound") AS ?subject__label_subject)
+    OPTIONAL
+      { ?subject__label_subject
+                  rdfs:label  ?subject__label_value
+        FILTER ( lang(?subject__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?subject__label_subject
+                  rdfs:label  ?subject__label_value
+        FILTER ( lang(?subject__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?subject__label_subject
+                  rdfs:label  ?subject__label_value
+        FILTER ( lang(?subject__label_value) = "en" )
+      }
+    BIND(if(bound(?subject__label_value), ?subject__label_value, if(( isURI(?subject) && strstarts(str(?subject), "http://www.wikidata.org/entity/") ), strafter(str(?subject), "entity/"), str(?subject))) AS ?subjectLabel)
+  }
+ORDER BY xsd:integer(?ordinal)
+
+# Original query:
+# #title: Main subjects of West Wing episodes
+# SELECT DISTINCT ?episode ?ordinal ?episodeLabel ?subject ?subjectLabel
+# WHERE {
+#   ?episode wdt:P31/wdt:P279* wd:Q1983062;
+#            p:P179 ?statement.
+#   OPTIONAL{ ?episode wdt:P921 ?subject }
+#   ?statement ps:P179 wd:Q3577037;
+#              pq:P1545 ?ordinal
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en". }
+# } ORDER BY xsd:integer(?ordinal)

@@ -1,0 +1,50 @@
+# rewrite_status: rewritten
+#title: All museums (including subclass of museum) in Barcelona with coordinates
+PREFIX  p:    <http://www.wikidata.org/prop/>
+PREFIX  psv:  <http://www.wikidata.org/prop/statement/value/>
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+PREFIX  wikibase: <http://wikiba.se/ontology#>
+
+SELECT DISTINCT  ?item ?name ?coord ?lat ?lon
+WHERE
+  { ?item (wdt:P131)* wd:Q1492 .
+    ?item wdt:P31/(wdt:P279)* wd:Q33506 .
+    ?item     wdt:P625              ?coord ;
+              p:P625                ?coordinate .
+    ?coordinate  psv:P625           ?coordinate_node .
+    ?coordinate_node
+              wikibase:geoLatitude  ?lat ;
+              wikibase:geoLongitude  ?lon
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "ca" )
+      }
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "mul" )
+      }
+    BIND(if(bound(?item__label_value), ?item__label_value, if(( isURI(?item) && strstarts(str(?item), "http://www.wikidata.org/entity/") ), strafter(str(?item), "entity/"), str(?item))) AS ?name)
+  }
+ORDER BY ASC(?name)
+
+# Original query:
+# #title: All museums (including subclass of museum) in Barcelona with coordinates
+# SELECT DISTINCT ?item ?name ?coord ?lat ?lon
+# WHERE
+# {
+#  hint:Query hint:optimizer "None" .
+#  ?item wdt:P131* wd:Q1492 .
+#  ?item wdt:P31/wdt:P279* wd:Q33506 .
+#  ?item wdt:P625 ?coord .
+#  ?item p:P625 ?coordinate .
+#  ?coordinate psv:P625 ?coordinate_node .
+#  ?coordinate_node wikibase:geoLatitude ?lat .
+#  ?coordinate_node wikibase:geoLongitude ?lon .
+#  SERVICE wikibase:label {
+#  bd:serviceParam wikibase:language "ca" .
+#  ?item rdfs:label ?name
+#  }
+# }
+# ORDER BY ASC (?name)

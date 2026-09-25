@@ -1,0 +1,31 @@
+# rewrite_status: rewritten
+#title: Get Wikidata - UniprotId mappings for homo sapiens
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?item ?itemLabel ?uniprotid ?tax_node
+WHERE
+  { ?item  wdt:P352  ?uniprotid ;
+           wdt:P703  wd:Q15978631
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "mul" )
+      }
+    BIND(if(bound(?item__label_value), ?item__label_value, if(( isURI(?item) && strstarts(str(?item), "http://www.wikidata.org/entity/") ), strafter(str(?item), "entity/"), str(?item))) AS ?itemLabel)
+  }
+
+# Original query:
+# #title: Get Wikidata - UniprotId mappings for homo sapiens
+# SELECT ?item ?itemLabel ?uniprotid ?tax_node
+# WHERE
+# {
+#   ?item wdt:P352 ?uniprotid ;
+#           wdt:P703 wd:Q15978631 .
+#
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "en" }
+# }

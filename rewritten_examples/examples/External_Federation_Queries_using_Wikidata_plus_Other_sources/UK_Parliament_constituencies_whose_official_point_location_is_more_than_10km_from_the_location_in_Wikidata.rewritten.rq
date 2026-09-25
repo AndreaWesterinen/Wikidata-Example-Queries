@@ -1,0 +1,94 @@
+# rewrite_status: rewritten
+#title: UK Parliament constituencies whose official point location is more than 10km from the location in Wikidata
+# Compare lat/long of Parliament and Wikidata constituency records
+
+#defaultView:Map{"hide":["?line"]}
+
+# Zoom on the map to see lines.
+# See also results in table mode to see the variables.
+
+PREFIX  geo:  <http://www.opengis.net/ont/geosparql#>
+PREFIX  geof: <http://www.opengis.net/def/function/geosparql/>
+PREFIX  p:    <http://www.wikidata.org/prop/>
+PREFIX  parliament: <https://id.parliament.uk/schema/>
+PREFIX  psv:  <http://www.wikidata.org/prop/statement/value/>
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+PREFIX  wikibase: <http://wikiba.se/ontology#>
+
+SELECT DISTINCT  ?constituency ?item ?itemLabel ?parlcoord ?wdcoord ?dist ?line
+WHERE
+  { SERVICE <https://api.parliament.uk/sparql>
+      { ?constituency
+                  parliament:constituencyGroupHasConstituencyArea  ?area .
+        ?area     parliament:latitude   ?lat ;
+                  parliament:longitude  ?long
+        BIND(substr(str(?constituency), 26) AS ?parlid)
+      }
+    BIND(concat("Point(", str(?long), " ", str(?lat), ")") AS ?parlcoord)
+    ?item  wdt:P6213  ?parlid ;
+           wdt:P31    wd:Q27971968 ;
+           wdt:P625   ?wdcoord
+    BIND(geof:distance(?parlcoord, ?wdcoord) AS ?dist)
+    FILTER ( ?dist >= 10 )
+    ?item     p:P625                ?statementnode .
+    ?statementnode
+              psv:P625              ?valuenode .
+    ?valuenode  wikibase:geoLatitude  ?wikilat ;
+              wikibase:geoLongitude  ?wikilon
+    BIND(if(bound(?item), ?item, "unbound") AS ?item__label_subject)
+    OPTIONAL
+      { ?item__label_subject
+                  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?item__label_subject
+                  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?item__label_subject
+                  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "en" )
+      }
+    BIND(if(bound(?item__label_value), ?item__label_value, if(( isURI(?item) && strstarts(str(?item), "http://www.wikidata.org/entity/") ), strafter(str(?item), "entity/"), str(?item))) AS ?itemLabel)
+    BIND(concat("LINESTRING (", str(?wikilon), " ", str(?wikilat), ",", str(?long), " ", str(?lat), ")") AS ?str)
+    BIND(strdt(?str, geo:wktLiteral) AS ?line)
+  }
+ORDER BY ?itemLabel
+
+# Original query:
+# #title: UK Parliament constituencies whose official point location is more than 10km from the location in Wikidata
+# # Compare lat/long of Parliament and Wikidata constituency records
+#
+# #defaultView:Map{"hide":["?line"]}
+#
+# # Zoom on the map to see lines.
+# # See also results in table mode to see the variables.
+#
+# PREFIX parliament:<https://id.parliament.uk/schema/>
+#
+# SELECT DISTINCT ?constituency ?item ?itemLabel ?parlcoord ?wdcoord ?dist ?line WHERE {
+#
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en". }
+#   SERVICE <https://api.parliament.uk/sparql> 
+#     { ?constituency parliament:constituencyGroupHasConstituencyArea ?area .
+#       ?area parliament:latitude ?lat . ?area parliament:longitude ?long . 
+#       bind(SUBSTR(str(?constituency),26) as ?parlid) . }
+#   BIND(concat("Point(",str(?long)," ",str(?lat),")") as ?parlcoord)
+#   
+#   # get constituencies from Parliament with coordinates
+#   ?item wdt:P6213 ?parlid . ?item wdt:P31 wd:Q27971968 . ?item wdt:P625 ?wdcoord . 
+#   
+#   # now get them from Wikidata with coordinates
+#   BIND(geof:distance(?parlcoord, ?wdcoord) as ?dist) . filter (?dist >= 10)
+#   
+#   # now find out the distance (in kms)
+#   ?item p:P625 ?statementnode. ?statementnode psv:P625 ?valuenode.
+#   ?valuenode wikibase:geoLatitude ?wikilat . ?valuenode wikibase:geoLongitude ?wikilon.
+#   BIND(CONCAT('LINESTRING (', STR(?wikilon), ' ', STR(?wikilat), ',', STR(?long), ' ', STR(?lat), ')') AS ?str) .
+#   BIND(STRDT(?str, geo:wktLiteral) AS ?line) 
+# }
+# ORDER BY ?itemLabel

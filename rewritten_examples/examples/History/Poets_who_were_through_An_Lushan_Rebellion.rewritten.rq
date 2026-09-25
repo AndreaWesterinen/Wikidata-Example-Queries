@@ -1,0 +1,53 @@
+# rewrite_status: rewritten
+#title: Poets who were through An Lushan Rebellion
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?poet ?poetLabel
+WHERE
+  { wd:Q253774  wdt:P580  ?battleStartTime ;
+              wdt:P582  ?battleEndTime .
+    ?poet     wdt:P106  wd:Q49757 ;
+              wdt:P497  ?cbdbId ;
+              wdt:P569  ?birthDate
+    FILTER ( ?birthDate < ?battleStartTime )
+    ?poet  wdt:P570  ?deathDate
+    BIND(if(bound(?poet), ?poet, "unbound") AS ?poet__label_subject)
+    OPTIONAL
+      { ?poet__label_subject
+                  rdfs:label  ?poet__label_value
+        FILTER ( lang(?poet__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?poet__label_subject
+                  rdfs:label  ?poet__label_value
+        FILTER ( lang(?poet__label_value) = "zh-hant" )
+      }
+    OPTIONAL
+      { ?poet__label_subject
+                  rdfs:label  ?poet__label_value
+        FILTER ( lang(?poet__label_value) = "zh" )
+      }
+    OPTIONAL
+      { ?poet__label_subject
+                  rdfs:label  ?poet__label_value
+        FILTER ( lang(?poet__label_value) = "mul" )
+      }
+    BIND(if(bound(?poet__label_value), ?poet__label_value, if(( isURI(?poet) && strstarts(str(?poet), "http://www.wikidata.org/entity/") ), strafter(str(?poet), "entity/"), str(?poet))) AS ?poetLabel)
+    FILTER ( ?deathDate > ?battleEndTime )
+  }
+
+# Original query:
+# #title: Poets who were through An Lushan Rebellion
+# SELECT ?poet ?poetLabel WHERE {
+#  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],zh-hant,zh". }
+#  wd:Q253774 wdt:P580 ?battleStartTime.
+#  wd:Q253774 wdt:P582 ?battleEndTime.
+#  ?poet wdt:P106 wd:Q49757.
+#  ?poet wdt:P497 ?cbdbId.
+#  ?poet wdt:P569 ?birthDate.
+#   FILTER(?birthDate < ?battleStartTime).
+#   ?poet wdt:P570 ?deathDate.
+#   FILTER(?deathDate > ?battleEndTime).
+# }

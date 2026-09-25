@@ -1,0 +1,98 @@
+# rewrite_status: rewritten
+#title: Metabolite-metabolite interactions (mostly conversions) and their pKa change (federated query)
+#defaultView:Dimensions
+
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX wp: <http://vocabularies.wikipathways.org/wp#>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+WITH %result AS {
+# VALUES ?wpid { "WP550" }
+    ?pathway wdt:P2410 ?wpid ;
+             wdt:P527 ?metabolite ;
+             wdt:P2888 ?source_pathway .
+    ?metabolite wdt:P1117 ?pKa .
+
+    SERVICE <http://sparql.wikipathways.org/sparql> {
+      ?wp_mb1 wp:bdbWikidata ?metabolite .
+      ?wp_mb1 dcterms:isPartOf ?interaction .
+      ?interaction rdf:type wp:Interaction .
+      ?wp_mb2 dcterms:isPartOf ?interaction .
+      ?wp_mb2 wp:bdbWikidata ?metabolite2 .
+      FILTER (?wp_mb1 != ?wp_mb2)
+    }
+}
+SELECT DISTINCT  ?wpid ?metaboliteLabel ?pKa ?pKa2 ?metabolite2Label ?wpid2
+WHERE
+  { { SELECT ?wpid ?source_pathway ?metabolite ?pKa ?pKa2 ?metabolite2 ?wpid2 WHERE { INCLUDE %result } }?metabolite2  wdt:P1117  ?pKa2 .
+    ?pathway2  wdt:P2410  ?wpid2 ;
+              wdt:P527   ?metabolite2
+    BIND(if(bound(?metabolite), ?metabolite, "unbound") AS ?metabolite__label_subject)
+    OPTIONAL
+      { ?metabolite__label_subject
+                  rdfs:label  ?metabolite__label_value
+        FILTER ( lang(?metabolite__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?metabolite__label_subject
+                  rdfs:label  ?metabolite__label_value
+        FILTER ( lang(?metabolite__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?metabolite__label_subject
+                  rdfs:label  ?metabolite__label_value
+        FILTER ( lang(?metabolite__label_value) = "en" )
+      }
+    BIND(if(bound(?metabolite__label_value), ?metabolite__label_value, if(( isURI(?metabolite) && strstarts(str(?metabolite), "http://www.wikidata.org/entity/") ), strafter(str(?metabolite), "entity/"), str(?metabolite))) AS ?metaboliteLabel)
+    OPTIONAL
+      { ?metabolite2  rdfs:label  ?metabolite2__label_value
+        FILTER ( lang(?metabolite2__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?metabolite2  rdfs:label  ?metabolite2__label_value
+        FILTER ( lang(?metabolite2__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?metabolite2  rdfs:label  ?metabolite2__label_value
+        FILTER ( lang(?metabolite2__label_value) = "en" )
+      }
+    BIND(if(bound(?metabolite2__label_value), ?metabolite2__label_value, if(( isURI(?metabolite2) && strstarts(str(?metabolite2), "http://www.wikidata.org/entity/") ), strafter(str(?metabolite2), "entity/"), str(?metabolite2))) AS ?metabolite2Label)
+  }
+
+# Original query:
+# #title: Metabolite-metabolite interactions (mostly conversions) and their pKa change (federated query)
+# #defaultView:Dimensions
+#
+# PREFIX wdt: <http://www.wikidata.org/prop/direct/>
+# PREFIX wp: <http://vocabularies.wikipathways.org/wp#>
+# PREFIX dcterms: <http://purl.org/dc/terms/>
+#
+# SELECT DISTINCT ?wpid ?metaboliteLabel ?pKa ?pKa2 ?metabolite2Label ?wpid2
+# WITH {
+#   SELECT ?wpid ?source_pathway ?metabolite ?pKa ?pKa2 ?metabolite2 ?wpid2
+#   WHERE {
+#     # VALUES ?wpid { "WP550" }
+#     ?pathway wdt:P2410 ?wpid ;
+#              wdt:P527 ?metabolite ;
+#              wdt:P2888 ?source_pathway .
+#     ?metabolite wdt:P1117 ?pKa .
+#
+#     SERVICE <http://sparql.wikipathways.org/sparql> {
+#       ?wp_mb1 wp:bdbWikidata ?metabolite .
+#       ?wp_mb1 dcterms:isPartOf ?interaction .
+#       ?interaction rdf:type wp:Interaction .
+#       ?wp_mb2 dcterms:isPartOf ?interaction .
+#       ?wp_mb2 wp:bdbWikidata ?metabolite2 .
+#       FILTER (?wp_mb1 != ?wp_mb2)
+#     }
+#   }
+# } AS %result
+# WHERE {
+#   INCLUDE %result
+#   ?metabolite2 wdt:P1117 ?pKa2 .
+#   ?pathway2 wdt:P2410 ?wpid2 ;
+#              wdt:P527 ?metabolite2 ;
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en". }
+# }

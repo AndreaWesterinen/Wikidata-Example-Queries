@@ -1,0 +1,46 @@
+# rewrite_status: rewritten
+#title: Buildings in more than one country
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?item ?itemLabel ?count
+WHERE
+  { { SELECT  ?item (COUNT(DISTINCT ?country) AS ?count)
+      WHERE
+        { ?item wdt:P31/(wdt:P279)* wd:Q41176 .
+          ?item  wdt:P17  ?country
+          FILTER NOT EXISTS { ?country  wdt:P576  ?end }
+        }
+      GROUP BY ?item
+    }
+    FILTER ( ?count > 1 )
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "mul" )
+      }
+    BIND(if(bound(?item__label_value), ?item__label_value, if(( isURI(?item) && strstarts(str(?item), "http://www.wikidata.org/entity/") ), strafter(str(?item), "entity/"), str(?item))) AS ?itemLabel)
+  }
+ORDER BY DESC(?count) ?itemL
+
+# Original query:
+# #title: Buildings in more than one country
+# SELECT ?item ?itemLabel ?count
+# WHERE
+# {
+#   {
+#     SELECT ?item (COUNT(DISTINCT ?country) AS ?count) WHERE {
+#       ?item wdt:P31/wdt:P279* wd:Q41176 .
+#       ?item wdt:P17 ?country .
+#       FILTER NOT EXISTS { ?country wdt:P576 ?end }
+#     }
+#     GROUP BY ?item
+#   }
+#   FILTER ( ?count > 1 )
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "en" . }
+# }
+# ORDER BY DESC(?count) ?itemL

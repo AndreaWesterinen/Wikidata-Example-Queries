@@ -1,0 +1,71 @@
+# rewrite_status: rewritten
+#title: Identifier properties present on one item, but absent on another
+# added November 1, 2020 (76 ids then)
+#TEMPLATE={ "template":"Identifiers present on the item for Penelope Cruz, but not on the item for Sean Connery"}
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+PREFIX  wikibase: <http://wikiba.se/ontology#>
+
+SELECT  ?p ?pLabel (SAMPLE(?url) AS ?url_comp2)
+WHERE
+  { BIND(wd:Q4573 AS ?comp1)
+    BIND(wd:Q39666 AS ?comp2)
+      { ?comp2  ?wdt                  ?v .
+        ?p      wikibase:directClaim  ?wdt ;
+                wikibase:propertyType  wikibase:ExternalId
+        FILTER NOT EXISTS { ?comp1  ?wdt  _:b0 }
+        OPTIONAL
+          { ?p  wdt:P1630  ?f }
+        BIND(URI(replace(?f, "\\$1", ?v)) AS ?url)
+      }
+    UNION
+      { BIND(wd:Q4573 AS ?p) }
+    UNION
+      { BIND(wd:Q39666 AS ?p) }
+    BIND(if(bound(?p), ?p, "unbound") AS ?p__label_subject)
+    OPTIONAL
+      { ?p__label_subject
+                  rdfs:label  ?p__label_value
+        FILTER ( lang(?p__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?p__label_subject
+                  rdfs:label  ?p__label_value
+        FILTER ( lang(?p__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?p__label_subject
+                  rdfs:label  ?p__label_value
+        FILTER ( lang(?p__label_value) = "en" )
+      }
+    BIND(if(bound(?p__label_value), ?p__label_value, if(( isURI(?p) && strstarts(str(?p), "http://www.wikidata.org/entity/") ), strafter(str(?p), "entity/"), str(?p))) AS ?pLabel)
+  }
+GROUP BY ?p ?pLabel
+ORDER BY ?url_comp2
+
+# Original query:
+# #title: Identifier properties present on one item, but absent on another
+# # added November 1, 2020 (76 ids then)
+# #TEMPLATE={ "template":"Identifiers present on the item for Penelope Cruz, but not on the item for Sean Connery"}
+# SELECT
+#   ?p ?pLabel
+#   (SAMPLE(?url) as ?url_comp2)
+# WHERE
+# {
+#     hint:Query hint:optimizer "None".
+#     BIND( wd:Q4573 as ?comp1)
+#     BIND( wd:Q39666 as ?comp2)
+#     {
+#         ?comp2 ?wdt ?v .
+#         ?p wikibase:directClaim ?wdt ; wikibase:propertyType wikibase:ExternalId .
+#         FILTER NOT EXISTS { ?comp1 ?wdt [] }
+#         OPTIONAL { ?p wdt:P1630 ?f }
+#         BIND(uri(REPLACE(?f,"\\$1",?v)) as ?url)
+#     }
+#     UNION { BIND(wd:Q4573 as ?p) }
+#     UNION { BIND(wd:Q39666 as ?p) }
+#    SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en". }
+# }
+# GROUP BY ?p ?pLabel
+# ORDER BY ?url_comp2

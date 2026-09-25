@@ -1,0 +1,75 @@
+# rewrite_status: rewritten
+#title: All statements of an item containing another item
+#defaultView:Graph
+#TEMPLATE={ "template": { "en": "All statements of ?item containing another item" }, "variables": { "?item": {} } }
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+PREFIX  wikibase: <http://wikiba.se/ontology#>
+
+SELECT  ?item ?itemLabel ?itemImage ?value ?valueLabel ?valueImage ?edgeLabel
+WHERE
+  { BIND(wd:Q12345 AS ?item)
+    ?item  ?wdt                  ?value .
+    ?edge  a                     wikibase:Property ;
+           wikibase:propertyType  wikibase:WikibaseItem ;
+           wikibase:directClaim  ?wdt
+    OPTIONAL
+      { ?item  wdt:P18  ?itemImage }
+    OPTIONAL
+      { ?value  wdt:P18  ?valueImage }
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "en" )
+      }
+    BIND(if(bound(?item__label_value), ?item__label_value, if(( isURI(?item) && strstarts(str(?item), "http://www.wikidata.org/entity/") ), strafter(str(?item), "entity/"), str(?item))) AS ?itemLabel)
+    OPTIONAL
+      { ?value  rdfs:label  ?value__label_value
+        FILTER ( lang(?value__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?value  rdfs:label  ?value__label_value
+        FILTER ( lang(?value__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?value  rdfs:label  ?value__label_value
+        FILTER ( lang(?value__label_value) = "en" )
+      }
+    BIND(if(bound(?value__label_value), ?value__label_value, if(( isURI(?value) && strstarts(str(?value), "http://www.wikidata.org/entity/") ), strafter(str(?value), "entity/"), str(?value))) AS ?valueLabel)
+    OPTIONAL
+      { ?edge  rdfs:label  ?edge__label_value
+        FILTER ( lang(?edge__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?edge  rdfs:label  ?edge__label_value
+        FILTER ( lang(?edge__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?edge  rdfs:label  ?edge__label_value
+        FILTER ( lang(?edge__label_value) = "en" )
+      }
+    BIND(if(bound(?edge__label_value), ?edge__label_value, if(( isURI(?edge) && strstarts(str(?edge), "http://www.wikidata.org/entity/") ), strafter(str(?edge), "entity/"), str(?edge))) AS ?edgeLabel)
+  }
+
+# Original query:
+# #title: All statements of an item containing another item
+# #defaultView:Graph
+# #TEMPLATE={ "template": { "en": "All statements of ?item containing another item" }, "variables": { "?item": {} } }
+# SELECT ?item ?itemLabel ?itemImage ?value ?valueLabel ?valueImage ?edgeLabel WHERE {
+#   BIND(wd:Q12345 AS ?item)
+#   ?item ?wdt ?value.
+#   ?edge a wikibase:Property;
+#         wikibase:propertyType wikibase:WikibaseItem; # note: to show all statements, removing this is not enough, the graph view only shows entities
+#         wikibase:directClaim ?wdt.
+#   OPTIONAL { ?item wdt:P18 ?itemImage. }
+#   OPTIONAL { ?value wdt:P18 ?valueImage. }
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en". }
+# }

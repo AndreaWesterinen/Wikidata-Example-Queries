@@ -1,0 +1,119 @@
+# rewrite_status: rewritten
+# Fathers with non-existent or unusual gender statements
+
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  (?father AS ?father_id) ?father_name ?father_is_a ?father_gender (?child AS ?child_id) ?child_name ?child_is_a
+WHERE
+  { ?child   wdt:P22  ?father .
+    ?father  wdt:P31  ?f_is_a .
+    ?child   wdt:P31  ?c_is_a
+    OPTIONAL
+      { ?father  wdt:P21  ?f_gender }
+    OPTIONAL
+      { ?father  rdfs:label  ?father__label_value
+        FILTER ( lang(?father__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?father  rdfs:label  ?father__label_value
+        FILTER ( lang(?father__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?father  rdfs:label  ?father__label_value
+        FILTER ( lang(?father__label_value) = "mul" )
+      }
+    BIND(if(bound(?father__label_value), ?father__label_value, if(( isURI(?father) && strstarts(str(?father), "http://www.wikidata.org/entity/") ), strafter(str(?father), "entity/"), str(?father))) AS ?father_name)
+    OPTIONAL
+      { ?f_is_a  rdfs:label  ?f_is_a__label_value
+        FILTER ( lang(?f_is_a__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?f_is_a  rdfs:label  ?f_is_a__label_value
+        FILTER ( lang(?f_is_a__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?f_is_a  rdfs:label  ?f_is_a__label_value
+        FILTER ( lang(?f_is_a__label_value) = "mul" )
+      }
+    BIND(if(bound(?f_is_a__label_value), ?f_is_a__label_value, if(( isURI(?f_is_a) && strstarts(str(?f_is_a), "http://www.wikidata.org/entity/") ), strafter(str(?f_is_a), "entity/"), str(?f_is_a))) AS ?father_is_a)
+    BIND(if(bound(?f_gender), ?f_gender, "unbound") AS ?f_gender__label_subject)
+    OPTIONAL
+      { ?f_gender__label_subject
+                  rdfs:label  ?f_gender__label_value
+        FILTER ( lang(?f_gender__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?f_gender__label_subject
+                  rdfs:label  ?f_gender__label_value
+        FILTER ( lang(?f_gender__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?f_gender__label_subject
+                  rdfs:label  ?f_gender__label_value
+        FILTER ( lang(?f_gender__label_value) = "mul" )
+      }
+    BIND(if(bound(?f_gender__label_value), ?f_gender__label_value, if(( isURI(?f_gender) && strstarts(str(?f_gender), "http://www.wikidata.org/entity/") ), strafter(str(?f_gender), "entity/"), str(?f_gender))) AS ?father_gender)
+    OPTIONAL
+      { ?child  rdfs:label  ?child__label_value
+        FILTER ( lang(?child__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?child  rdfs:label  ?child__label_value
+        FILTER ( lang(?child__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?child  rdfs:label  ?child__label_value
+        FILTER ( lang(?child__label_value) = "mul" )
+      }
+    BIND(if(bound(?child__label_value), ?child__label_value, if(( isURI(?child) && strstarts(str(?child), "http://www.wikidata.org/entity/") ), strafter(str(?child), "entity/"), str(?child))) AS ?child_name)
+    OPTIONAL
+      { ?c_is_a  rdfs:label  ?c_is_a__label_value
+        FILTER ( lang(?c_is_a__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?c_is_a  rdfs:label  ?c_is_a__label_value
+        FILTER ( lang(?c_is_a__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?c_is_a  rdfs:label  ?c_is_a__label_value
+        FILTER ( lang(?c_is_a__label_value) = "mul" )
+      }
+    BIND(if(bound(?c_is_a__label_value), ?c_is_a__label_value, if(( isURI(?c_is_a) && strstarts(str(?c_is_a), "http://www.wikidata.org/entity/") ), strafter(str(?c_is_a), "entity/"), str(?c_is_a))) AS ?child_is_a)
+    FILTER ( NOT EXISTS { ?father  wdt:P21  _:b0 } || ( ( ?f_gender NOT IN (wd:Q6581097, wd:Q44148) ) && ( ! contains(str(?f_gender), "wikidata.org/.well-known/genid") ) ) )
+  }
+ORDER BY DESC(?f_gender)
+
+# Original query:
+# # Fathers with non-existent or unusual gender statements
+#
+# SELECT
+#   (?father as ?father_id) ?father_name ?father_is_a ?father_gender
+#   (?child  as ?child_id)  ?child_name  ?child_is_a
+# WHERE {
+#   ?child  wdt:P22 ?father .
+#   ?father wdt:P31 ?f_is_a . #?father wdt:P31 wd:Q5 . 
+#   ?child  wdt:P31 ?c_is_a . #?child wdt:P31 wd:Q5 .
+#   OPTIONAL { ?father wdt:P21 ?f_gender . }
+#   
+#   # Aliases for the headings in the results table. Must be done this way because
+#   # SELECT (?var as ?varAlias) works, but (?varLabel as ?varLabelAlias) doesn't.
+#   SERVICE wikibase:label {
+#     bd:serviceParam wikibase:language "[AUTO_LANGUAGE],en" .
+#     ?father   rdfs:label ?father_name .
+#     ?f_is_a   rdfs:label ?father_is_a .
+#     ?f_gender rdfs:label ?father_gender .
+#     ?child    rdfs:label ?child_name .
+#     ?c_is_a   rdfs:label ?child_is_a .
+#   }
+#   
+#   # Show only results where the father's gender:
+#   FILTER( 
+#     # ...is not set
+#     NOT EXISTS { ?father wdt:P21 [] }
+#     # ...or is set to something other than "male" or "male organism", or "unknown value"
+#     || ?f_gender NOT IN(wd:Q6581097, wd:Q44148) && !wikibase:isSomeValue(?f_gender)
+#   )
+# }
+# ORDER BY DESC(?f_gender)

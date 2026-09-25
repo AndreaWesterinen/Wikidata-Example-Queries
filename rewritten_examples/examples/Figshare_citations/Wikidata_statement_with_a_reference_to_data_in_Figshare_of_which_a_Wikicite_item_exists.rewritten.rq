@@ -1,0 +1,38 @@
+# rewrite_status: rewritten
+#title: Wikidata statement with a reference to data in Figshare of which a Wikicite item exists
+PREFIX  p:    <http://www.wikidata.org/prop/>
+PREFIX  pr:   <http://www.wikidata.org/prop/reference/>
+PREFIX  prov: <http://www.w3.org/ns/prov#>
+PREFIX  ps:   <http://www.wikidata.org/prop/statement/>
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT DISTINCT  ?wikiciteLabel ?doi
+WHERE
+  { ?wikicite p:P356/ps:P356 ?doi .
+    ?statement  prov:wasDerivedFrom  ?ref .
+    ?ref      pr:P356              ?doi
+    FILTER contains(lcase(?doi), "figshare")
+    OPTIONAL
+      { ?wikicite  rdfs:label  ?wikicite__label_value
+        FILTER ( lang(?wikicite__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?wikicite  rdfs:label  ?wikicite__label_value
+        FILTER ( lang(?wikicite__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?wikicite  rdfs:label  ?wikicite__label_value
+        FILTER ( lang(?wikicite__label_value) = "en" )
+      }
+    BIND(if(bound(?wikicite__label_value), ?wikicite__label_value, if(( isURI(?wikicite) && strstarts(str(?wikicite), "http://www.wikidata.org/entity/") ), strafter(str(?wikicite), "entity/"), str(?wikicite))) AS ?wikiciteLabel)
+  }
+
+# Original query:
+# #title: Wikidata statement with a reference to data in Figshare of which a Wikicite item exists
+# SELECT DISTINCT ?wikiciteLabel ?doi WHERE {
+#    ?wikicite p:P356/ps:P356 ?doi .
+#    ?statement prov:wasDerivedFrom ?ref .
+#    ?ref pr:P356 ?doi .
+#    FILTER (CONTAINS(lcase(?doi), "figshare"))
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en". }
+# }

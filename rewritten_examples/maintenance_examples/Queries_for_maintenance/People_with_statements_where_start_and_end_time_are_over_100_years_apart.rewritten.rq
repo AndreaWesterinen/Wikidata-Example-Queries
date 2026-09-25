@@ -1,0 +1,44 @@
+# rewrite_status: rewritten
+#added before 2016-10
+
+PREFIX  p:    <http://www.wikidata.org/prop/>
+PREFIX  pq:   <http://www.wikidata.org/prop/qualifier/>
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?person ?personLabel ?duration
+WHERE
+  { ?person  wdt:P31  wd:Q5 ;
+             ?p       _:b0 .
+    _:b0     pq:P580  ?start ;
+             pq:P582  ?end
+    BIND(round(( ( ?end - ?start ) / 365.2425 )) AS ?duration)
+    FILTER ( ?duration > 100 )
+    FILTER ( ?p != p:P119 )
+    OPTIONAL
+      { ?person  rdfs:label  ?person__label_value
+        FILTER ( lang(?person__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?person  rdfs:label  ?person__label_value
+        FILTER ( lang(?person__label_value) = "mul" )
+      }
+    BIND(if(bound(?person__label_value), ?person__label_value, if(( isURI(?person) && strstarts(str(?person), "http://www.wikidata.org/entity/") ), strafter(str(?person), "entity/"), str(?person))) AS ?personLabel)
+  }
+ORDER BY DESC(?duration)
+
+# Original query:
+# #added before 2016-10
+#
+# SELECT ?person ?personLabel ?duration
+# WHERE
+# {
+#   ?person wdt:P31 wd:Q5;
+#           ?p [ pq:P580 ?start; pq:P582 ?end ].
+#   BIND(ROUND((?end - ?start)/365.2425) AS ?duration).
+#   FILTER(?duration > 100).
+#   FILTER(?p != p:P119) . # "place of burial" can be an exception
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "en". }
+# }
+# ORDER BY DESC(?duration)

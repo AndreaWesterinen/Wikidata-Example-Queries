@@ -1,0 +1,42 @@
+# rewrite_status: rewritten
+# Identify redirects using item property owl:sameAs
+
+PREFIX  owl:  <http://www.w3.org/2002/07/owl#>
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+
+SELECT  (replace(str(?item), ".*Q", "Q") AS ?qid) (replace(str(?tgt), ".*Q", "Q") AS ?tgtQid) ?tgtLabel
+WHERE
+  { VALUES ?item { wd:Q6636058 wd:Q8989284 wd:Q243634 wd:Q13383295 wd:Q659516 wd:Q1020776 wd:Q10124662 wd:Q9066399 wd:Q12309669 wd:Q16033883 wd:Q733744 wd:Q226569 wd:Q14210256 wd:Q408041 wd:Q750594 wd:Q11075312 }
+    ?item  owl:sameAs  ?tgt
+    OPTIONAL
+      { ?tgt  rdfs:label  ?tgt__label_value
+        FILTER ( lang(?tgt__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?tgt  rdfs:label  ?tgt__label_value
+        FILTER ( lang(?tgt__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?tgt  rdfs:label  ?tgt__label_value
+        FILTER ( lang(?tgt__label_value) = "mul" )
+      }
+    BIND(if(bound(?tgt__label_value), ?tgt__label_value, if(( isURI(?tgt) && strstarts(str(?tgt), "http://www.wikidata.org/entity/") ), strafter(str(?tgt), "entity/"), str(?tgt))) AS ?tgtLabel)
+  }
+ORDER BY ?qid
+
+# Original query:
+# # Identify redirects using item property owl:sameAs
+#
+# SELECT (REPLACE(STR(?item),".*Q","Q") AS ?qid) (REPLACE(STR(?tgt),".*Q","Q") AS ?tgtQid) ?tgtLabel 
+# WHERE {
+#    VALUES (?item) {
+#       (wd:Q6636058)   (wd:Q8989284)  (wd:Q243634)   (wd:Q13383295)
+#       (wd:Q659516)    (wd:Q1020776)  (wd:Q10124662) (wd:Q9066399)
+#       (wd:Q12309669)  (wd:Q16033883) (wd:Q733744)   (wd:Q226569)
+#       (wd:Q14210256)  (wd:Q408041)   (wd:Q750594)   (wd:Q11075312)
+#      }
+#   ?item owl:sameAs ?tgt .
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],en" }
+# }
+# ORDER BY ?qid

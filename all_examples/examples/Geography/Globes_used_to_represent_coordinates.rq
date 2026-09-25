@@ -1,0 +1,8 @@
+#title: Globes used to represent coordinates
+ SELECT (count(?v) as ?c) ?globe
+WHERE
+{
+  ?v wikibase:geoGlobe ?globe
+}
+GROUP BY ?globe
+ORDER BY DESC(?c)

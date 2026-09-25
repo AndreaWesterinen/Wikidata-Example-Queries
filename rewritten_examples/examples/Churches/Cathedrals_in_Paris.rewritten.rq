@@ -1,0 +1,48 @@
+# rewrite_status: rewritten
+#title: Cathedrals in Paris
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?item ?itemLabel ?placeLabel ?coords ?image
+WHERE
+  { ?item   wdt:P31   wd:Q2977 ;
+            wdt:P131  ?place .
+    ?place  wdt:P131  wd:Q90
+    OPTIONAL
+      { ?item  wdt:P625  ?coords }
+    OPTIONAL
+      { ?item  wdt:P18  ?image }
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "fr" )
+      }
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "mul" )
+      }
+    BIND(if(bound(?item__label_value), ?item__label_value, if(( isURI(?item) && strstarts(str(?item), "http://www.wikidata.org/entity/") ), strafter(str(?item), "entity/"), str(?item))) AS ?itemLabel)
+    OPTIONAL
+      { ?place  rdfs:label  ?place__label_value
+        FILTER ( lang(?place__label_value) = "fr" )
+      }
+    OPTIONAL
+      { ?place  rdfs:label  ?place__label_value
+        FILTER ( lang(?place__label_value) = "mul" )
+      }
+    BIND(if(bound(?place__label_value), ?place__label_value, if(( isURI(?place) && strstarts(str(?place), "http://www.wikidata.org/entity/") ), strafter(str(?place), "entity/"), str(?place))) AS ?placeLabel)
+  }
+ORDER BY ?placeLabel ?itemLabel
+
+# Original query:
+# #title: Cathedrals in Paris
+# SELECT ?item ?itemLabel ?placeLabel ?coords ?image
+# WHERE
+# {
+#   ?item wdt:P31 wd:Q2977 .
+#   ?item wdt:P131 ?place .
+#   ?place wdt:P131 wd:Q90 .
+#   OPTIONAL { ?item wdt:P625 ?coords . }
+#   OPTIONAL { ?item wdt:P18 ?image . }
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "fr" . }
+# } ORDER BY ?placeLabel ?itemLabel

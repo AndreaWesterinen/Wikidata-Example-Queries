@@ -1,0 +1,40 @@
+# rewrite_status: rewritten
+#added before 2016-10
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  schema: <http://schema.org/>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT DISTINCT  ?item ?itemLabel
+WHERE
+  { ?item  wdt:P106  wd:Q33999 ;
+           wdt:P21   wd:Q6581072
+    OPTIONAL
+      { ?item  schema:description  ?itemDescription }
+    FILTER ( ! bound(?itemDescription) )
+    ?item  wdt:P31  wd:Q5
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "es" )
+      }
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "mul" )
+      }
+    BIND(if(bound(?item__label_value), ?item__label_value, if(( isURI(?item) && strstarts(str(?item), "http://www.wikidata.org/entity/") ), strafter(str(?item), "entity/"), str(?item))) AS ?itemLabel)
+  }
+LIMIT   111
+
+# Original query:
+# #added before 2016-10
+# SELECT DISTINCT ?item ?itemLabel
+# WHERE
+# {
+# 	?item wdt:P106 wd:Q33999 .
+# 	?item wdt:P21 wd:Q6581072 .
+# 	OPTIONAL { ?item schema:description ?itemDescription  }
+# 	FILTER (!BOUND(?itemDescription))
+# 	?item wdt:P31 wd:Q5 .
+# 	SERVICE wikibase:label { bd:serviceParam wikibase:language "es"}
+# }
+# LIMIT 111

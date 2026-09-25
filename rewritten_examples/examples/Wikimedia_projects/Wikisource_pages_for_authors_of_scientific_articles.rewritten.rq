@@ -1,0 +1,57 @@
+# rewrite_status: rewritten
+#title: Wikisource pages for authors of scientific articles, ordered by Wikisource language
+#  NOTE - This scholarly query is written for use in WDQS-Main UI only  (query.wikidata.org).
+
+#added in 2017-09; updated 2025-08
+PREFIX  schema: <http://schema.org/>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+PREFIX  wikibase: <http://wikiba.se/ontology#>
+
+SELECT DISTINCT  ?author ?wikisourceSitelink ?wikisourceLanguage
+WHERE
+  { { SELECT DISTINCT  ?author ?wikisourceSitelink ?wikisourceLanguage
+      WHERE
+        { ?wikisourceSitelink
+                    schema:isPartOf     _:b0 .
+          _:b0      wikibase:wikiGroup  "wikisource" .
+          ?wikisourceSitelink
+                    schema:inLanguage   ?wikisourceLanguage ;
+                    schema:about        ?author
+        }
+      LIMIT   20000
+    }
+    SERVICE <https://query-scholarly-next.wikidata.org/sparql>
+      { SELECT  ?author
+        WHERE
+          { ?object  wdt:P31  wd:Q13442814 ;
+                     wdt:P50  ?author
+          }
+      }
+  }
+ORDER BY ?wikisourceLanguage
+
+# Original query:
+# #title: Wikisource pages for authors of scientific articles, ordered by Wikisource language
+# #  NOTE - This scholarly query is written for use in WDQS-Main UI only  (query.wikidata.org).
+#
+# #added in 2017-09; updated 2025-08
+# SELECT DISTINCT ?author ?wikisourceSitelink ?wikisourceLanguage WHERE {
+#   hint:Query hint:optimizer "None" .      
+#   {
+#     SELECT DISTINCT ?author ?wikisourceSitelink ?wikisourceLanguage WHERE {
+#       ?wikisourceSitelink schema:isPartOf [ wikibase:wikiGroup "wikisource" ];
+#                       schema:inLanguage ?wikisourceLanguage;
+#                       schema:about ?author.
+#     }
+#     LIMIT 20000
+#   }
+#  SERVICE wdsubgraph:scholarly_articles {
+#          SELECT ?author 
+#            WHERE {
+#               ?object wdt:P31 wd:Q13442814 ;
+#                       wdt:P50 ?author .     
+#          }
+#   }
+# }
+# ORDER BY ?wikisourceLanguage

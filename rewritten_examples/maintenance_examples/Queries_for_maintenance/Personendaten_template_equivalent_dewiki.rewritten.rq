@@ -1,0 +1,93 @@
+# rewrite_status: rewritten
+PREFIX wd: <http://www.wikidata.org/entity/>
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  schema: <http://schema.org/>
+PREFIX  skos: <http://www.w3.org/2004/02/skos/core#>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+WITH %SUBQUERY AS {
+?article schema:about ?item ; schema:isPartOf <https://de.wikipedia.org/> . ?item wdt:P31 wd:Q5 .
+}
+SELECT  ?item ?NAME (GROUP_CONCAT(DISTINCT ?ALTERNATIVNAMEN_ ; separator=';') AS ?ALTERNATIVNAMEN) (SAMPLE(?KURZBESCHREIBUNG_) AS ?KURZBESCHREIBUNG) (GROUP_CONCAT(DISTINCT ?GEBURTSDATUM_ ; separator=';') AS ?GEBURTSDATUM) (GROUP_CONCAT(DISTINCT ?GEBURTSORT_ ; separator=';') AS ?GEBURTSORT) (GROUP_CONCAT(DISTINCT ?STERBEDATUM_ ; separator=';') AS ?STERBEDATUM) (GROUP_CONCAT(DISTINCT ?STERBEORT_ ; separator=';') AS ?STERBEORT) ?article
+WHERE
+  { { SELECT ?item ?article WHERE { INCLUDE %SUBQUERY } LIMIT 200 }OPTIONAL
+      { ?item  skos:altLabel  ?ALTERNATIVNAMEN_
+        FILTER ( lang(?ALTERNATIVNAMEN_) = "de" )
+      }
+    OPTIONAL
+      { ?item  schema:description  ?KURZBESCHREIBUNG_
+        FILTER ( lang(?KURZBESCHREIBUNG_) = "de" )
+      }
+    OPTIONAL
+      { ?item  wdt:P569  ?GEBURTSDATUM_ }
+    OPTIONAL
+      { ?item  wdt:P19  ?pob }
+    OPTIONAL
+      { ?item  wdt:P570  ?STERBEDATUM_ }
+    OPTIONAL
+      { ?item  wdt:P20  ?pod }
+    BIND(if(bound(?item), ?item, "unbound") AS ?item__label_subject)
+    OPTIONAL
+      { ?item__label_subject
+                  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "de" )
+      }
+    OPTIONAL
+      { ?item__label_subject
+                  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "mul" )
+      }
+    BIND(if(bound(?item__label_value), ?item__label_value, if(( isURI(?item) && strstarts(str(?item), "http://www.wikidata.org/entity/") ), strafter(str(?item), "entity/"), str(?item))) AS ?NAME)
+    BIND(if(bound(?pob), ?pob, "unbound") AS ?pob__label_subject)
+    OPTIONAL
+      { ?pob__label_subject
+                  rdfs:label  ?pob__label_value
+        FILTER ( lang(?pob__label_value) = "de" )
+      }
+    OPTIONAL
+      { ?pob__label_subject
+                  rdfs:label  ?pob__label_value
+        FILTER ( lang(?pob__label_value) = "mul" )
+      }
+    BIND(if(bound(?pob__label_value), ?pob__label_value, if(( isURI(?pob) && strstarts(str(?pob), "http://www.wikidata.org/entity/") ), strafter(str(?pob), "entity/"), str(?pob))) AS ?GEBURTSORT_)
+    BIND(if(bound(?pod), ?pod, "unbound") AS ?pod__label_subject)
+    OPTIONAL
+      { ?pod__label_subject
+                  rdfs:label  ?pod__label_value
+        FILTER ( lang(?pod__label_value) = "de" )
+      }
+    OPTIONAL
+      { ?pod__label_subject
+                  rdfs:label  ?pod__label_value
+        FILTER ( lang(?pod__label_value) = "mul" )
+      }
+    BIND(if(bound(?pod__label_value), ?pod__label_value, if(( isURI(?pod) && strstarts(str(?pod), "http://www.wikidata.org/entity/") ), strafter(str(?pod), "entity/"), str(?pod))) AS ?STERBEORT_)
+  }
+GROUP BY ?item ?NAME ?article
+
+# Original query:
+# SELECT
+# ?item
+# ?NAME
+# (GROUP_CONCAT( DISTINCT ?ALTERNATIVNAMEN_; separator=";")    as ?ALTERNATIVNAMEN)
+# (SAMPLE ( ?KURZBESCHREIBUNG_)                                as ?KURZBESCHREIBUNG)
+# (GROUP_CONCAT( DISTINCT ?GEBURTSDATUM_; separator=";")       as ?GEBURTSDATUM)
+# (GROUP_CONCAT( DISTINCT ?GEBURTSORT_; separator=";")         as ?GEBURTSORT)
+# (GROUP_CONCAT( DISTINCT ?STERBEDATUM_; separator=";")        as ?STERBEDATUM)
+# (GROUP_CONCAT( DISTINCT ?STERBEORT_; separator=";")          as ?STERBEORT)
+# ?article
+# WITH { SELECT ?item ?article { ?article schema:about ?item ; schema:isPartOf <https://de.wikipedia.org/> . ?item wdt:P31 wd:Q5 . } LIMIT 200 } AS %SUBQUERY
+# {
+#   INCLUDE %SUBQUERY .
+#   OPTIONAL { ?item skos:altLabel ?ALTERNATIVNAMEN_ . FILTER(lang(?ALTERNATIVNAMEN_)="de")  }.
+#   OPTIONAL { ?item schema:description ?KURZBESCHREIBUNG_ . FILTER(lang(?KURZBESCHREIBUNG_)="de") } . 
+#   OPTIONAL { ?item wdt:P569 ?GEBURTSDATUM_ }	.
+#   OPTIONAL { ?item wdt:P19 ?pob } .
+#   OPTIONAL { ?item wdt:P570 ?STERBEDATUM_ } .
+#   OPTIONAL { ?item wdt:P20 ?pod } .
+#   SERVICE wikibase:label {bd:serviceParam wikibase:language "de" .
+#                           ?item rdfs:label ?NAME .
+#                           ?pob rdfs:label ?GEBURTSORT_ .
+#                           ?pod rdfs:label ?STERBEORT_  }
+# }
+# GROUP BY ?item ?NAME ?article

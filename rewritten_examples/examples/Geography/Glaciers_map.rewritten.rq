@@ -1,0 +1,62 @@
+# rewrite_status: rewritten
+#title: Glaciers map
+#author: Jura1, 2021-05-21
+#defaultView:Map{"hide":["?coor","?area_scale_km"], "layer": "?area_scale_km"}
+PREFIX  p:    <http://www.wikidata.org/prop/>
+PREFIX  psn:  <http://www.wikidata.org/prop/statement/value-normalized/>
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  schema: <http://schema.org/>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+PREFIX  wikibase: <http://wikiba.se/ontology#>
+
+SELECT  ?item ?itemLabel ?itemDescription ?coor ?area_sqkm ?area_scale_km
+WHERE
+  { ?item wdt:P31/(wdt:P279)* wd:Q35666
+    OPTIONAL
+      { ?item  wdt:P625  ?coor }
+    OPTIONAL
+      { ?item  p:P2046  _:b0 .
+        _:b0   a        wikibase:BestRank .
+        _:b0 psn:P2046/wikibase:quantityAmount ?area_sqm
+        BIND(( round(( ?area_sqm / 10000 )) / 100 ) AS ?area_sqkm)
+        BIND(strlen(str(round(( ?area_sqm / 1000000 )))) AS ?area_scale_km)
+      }
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "en" )
+      }
+    BIND(if(bound(?item__label_value), ?item__label_value, if(( isURI(?item) && strstarts(str(?item), "http://www.wikidata.org/entity/") ), strafter(str(?item), "entity/"), str(?item))) AS ?itemLabel)
+    OPTIONAL
+      { ?item  schema:description  ?item__description_value
+        FILTER ( lang(?item__description_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?item  schema:description  ?item__description_value
+        FILTER ( lang(?item__description_value) = "en" )
+      }
+    BIND(?item__description_value AS ?itemDescription)
+  }
+
+# Original query:
+# #title: Glaciers map
+# #author: Jura1, 2021-05-21
+# #defaultView:Map{"hide":["?coor","?area_scale_km"], "layer": "?area_scale_km"}
+# SELECT ?item ?itemLabel ?itemDescription ?coor ?area_sqkm ?area_scale_km
+# {
+#   ?item wdt:P31/wdt:P279* wd:Q35666 .
+#   OPTIONAL { ?item wdt:P625 ?coor }
+#   OPTIONAL { ?item p:P2046 [ a wikibase:BestRank; psn:P2046/wikibase:quantityAmount ?area_sqm ] .
+#     BIND( ROUND(?area_sqm/10000)/100 as ?area_sqkm)
+#     BIND( strlen(str(ROUND(?area_sqm/1000000))) as ?area_scale_km)
+#   }
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en". }
+# }

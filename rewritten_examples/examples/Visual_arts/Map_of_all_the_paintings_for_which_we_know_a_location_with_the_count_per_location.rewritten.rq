@@ -1,0 +1,38 @@
+# rewrite_status: rewritten
+#title: Map of all the paintings for which we know a location with the count per location
+
+#defaultView:Map
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?locationLabel ?coord (count(*) AS ?count)
+WHERE
+  { ?painting  wdt:P31  wd:Q3305213 ;
+              wdt:P276  ?location .
+    ?location  wdt:P625  ?coord
+    OPTIONAL
+      { ?location  rdfs:label  ?location__label_value
+        FILTER ( lang(?location__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?location  rdfs:label  ?location__label_value
+        FILTER ( lang(?location__label_value) = "mul" )
+      }
+    BIND(if(bound(?location__label_value), ?location__label_value, if(( isURI(?location) && strstarts(str(?location), "http://www.wikidata.org/entity/") ), strafter(str(?location), "entity/"), str(?location))) AS ?locationLabel)
+  }
+GROUP BY ?locationLabel ?coord
+
+# Original query:
+# #title: Map of all the paintings for which we know a location with the count per location
+#
+# #defaultView:Map
+# SELECT ?locationLabel ?coord (count(*) as ?count)
+# WHERE
+# {
+#     ?painting wdt:P31 wd:Q3305213 .
+#     ?painting wdt:P276 ?location .
+#   ?location wdt:P625 ?coord
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "en" }
+# }
+# GROUP BY ?locationLabel ?coord

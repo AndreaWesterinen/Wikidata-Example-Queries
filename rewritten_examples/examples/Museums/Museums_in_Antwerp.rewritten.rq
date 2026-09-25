@@ -1,0 +1,38 @@
+# rewrite_status: rewritten
+#title: Museums in Antwerp
+#defaultView:Map
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?item ?itemLabel ?coordinates
+WHERE
+  { ?item wdt:P31/(wdt:P279)* wd:Q33506 .
+    ?item  wdt:P131  wd:Q12892 ;
+           wdt:P625  ?coordinates
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "nl" )
+      }
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "mul" )
+      }
+    BIND(if(bound(?item__label_value), ?item__label_value, if(( isURI(?item) && strstarts(str(?item), "http://www.wikidata.org/entity/") ), strafter(str(?item), "entity/"), str(?item))) AS ?itemLabel)
+  }
+
+# Original query:
+# #title: Museums in Antwerp
+# #defaultView:Map
+# SELECT ?item ?itemLabel ?coordinates
+# WHERE
+# {
+#   ?item wdt:P31/wdt:P279* wd:Q33506 ;
+#         wdt:P131 wd:Q12892 ;
+#         wdt:P625 ?coordinates .
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "nl, en" }
+#   }

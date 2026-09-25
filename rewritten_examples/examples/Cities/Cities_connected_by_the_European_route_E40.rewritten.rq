@@ -1,0 +1,38 @@
+# rewrite_status: rewritten
+#title: Cities connected by the European route E40
+#defaultView:Map
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?city ?cityLabel ?coordinates
+WHERE
+  { VALUES ?highway { wd:Q327162 }
+    ?highway  wdt:P2789  ?city .
+    ?city     wdt:P625   ?coordinates
+    OPTIONAL
+      { ?city  rdfs:label  ?city__label_value
+        FILTER ( lang(?city__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?city  rdfs:label  ?city__label_value
+        FILTER ( lang(?city__label_value) = "mul" )
+      }
+    OPTIONAL
+      { ?city  rdfs:label  ?city__label_value
+        FILTER ( lang(?city__label_value) = "en" )
+      }
+    BIND(if(bound(?city__label_value), ?city__label_value, if(( isURI(?city) && strstarts(str(?city), "http://www.wikidata.org/entity/") ), strafter(str(?city), "entity/"), str(?city))) AS ?cityLabel)
+  }
+
+# Original query:
+# #title: Cities connected by the European route E40
+# #defaultView:Map
+# SELECT ?city ?cityLabel ?coordinates
+# WHERE
+# {
+#    VALUES ?highway {wd:Q327162 }
+#    ?highway wdt:P2789 ?city .
+#     ?city wdt:P625 ?coordinates .
+#    SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en". }
+# }

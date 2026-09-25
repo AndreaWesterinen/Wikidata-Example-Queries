@@ -1,0 +1,42 @@
+# rewrite_status: rewritten
+#title: Occupation: writer, language: Belarussian, died more than 50 years (so his books now in public domain)
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?writer ?writerLabel ?dateOfDeath
+WHERE
+  { ?writer  wdt:P31    wd:Q5 ;
+             wdt:P106   wd:Q36180 ;
+             wdt:P1412  wd:Q9091 ;
+             wdt:P570   ?dateOfDeath
+    FILTER ( year(?dateOfDeath) <= ( year(now()) - 50 ) )
+    OPTIONAL
+      { ?writer  rdfs:label  ?writer__label_value
+        FILTER ( lang(?writer__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?writer  rdfs:label  ?writer__label_value
+        FILTER ( lang(?writer__label_value) = "be" )
+      }
+    OPTIONAL
+      { ?writer  rdfs:label  ?writer__label_value
+        FILTER ( lang(?writer__label_value) = "mul" )
+      }
+    BIND(if(bound(?writer__label_value), ?writer__label_value, if(( isURI(?writer) && strstarts(str(?writer), "http://www.wikidata.org/entity/") ), strafter(str(?writer), "entity/"), str(?writer))) AS ?writerLabel)
+  }
+ORDER BY DESC(?dateOfDeath)
+
+# Original query:
+# #title: Occupation: writer, language: Belarussian, died more than 50 years (so his books now in public domain)
+# SELECT ?writer ?writerLabel ?dateOfDeath WHERE {
+#   ?writer wdt:P31 wd:Q5;          # Instance of human
+#           wdt:P106 wd:Q36180;     # Occupation writer
+#           wdt:P1412 wd:Q9091;     # Languages spoken or written Belarusian
+#           wdt:P570 ?dateOfDeath .
+#
+#   FILTER((YEAR(?dateOfDeath)) <= (YEAR(NOW()) - 50)) . # More than 50 years ago
+#   
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],be". }
+# }
+# ORDER BY DESC(?dateOfDeath)
