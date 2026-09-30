@@ -2,8 +2,9 @@ Advanced Examples (https://www.wikidata.org/wiki/Wikidata:SPARQL_query_service/q
 
 65 written; 19 could not be rewritten
 
-Blazegraph_error (1):
+Blazegraph_error but corrected for QLever (1):
     Sampling/Scientific_articles_without_any_description.rq (Error: Unknown error: Index: 0, Size: 0)
+	  But Sampling/Scientific_articles_without_any_description.rewritten.rq is produced and executes on QLever
 
 Parse_error (12):
   Reuse of at least one variable name from the query body in the projection variables - Invalid SPARQL:
@@ -27,4 +28,5 @@ Skipped_unsupported (6):
      Mediawiki_API/Find_statements_with_references_containing_external_links_to_wipoint.rq
      Mediawiki_API/Getting_pageviews_for_all_articles_in_a_category.rq
      Mediawiki_API/Using_mwapi_to_base_a_query_on_articles_in_a_Wikipedia_category.rq
-     Samples_with_coordinates_to_illustrate_maps/Map_of_newspapers_in_the_United_States_by_presence_of_Infobox_newspaper_in_their_English_Wikipedia_article.rq
+     Samples_with_coordinates_to_illustrate_maps/Map_of_newspapers_in_the_United_States_by_presence_of_Infobox_xxx.rq
+	   (Full file name: Map_of_newspapers_in_the_United_States_by_presence_of_Infobox_newspaper_in_their_English_Wikipedia_article.rq)

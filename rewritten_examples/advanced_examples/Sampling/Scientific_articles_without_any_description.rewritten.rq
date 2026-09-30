@@ -1,0 +1,49 @@
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  schema: <http://schema.org/>
+PREFIX  wd:   <http://www.wikidata.org/entity/>
+PREFIX  wdt:  <http://www.wikidata.org/prop/direct/>
+
+SELECT  ?item ?itemLabel
+WHERE
+  { { SELECT  ?item
+      WHERE
+        { ?item  wdt:P31  wd:Q13442814 }
+      ORDER BY rand()
+      LIMIT   100000
+    }
+    MINUS
+      { ?item  schema:description  _:b0 }
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "[AUTO_LANGUAGE]" )
+      }
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "en" )
+      }
+    OPTIONAL
+      { ?item  rdfs:label  ?item__label_value
+        FILTER ( lang(?item__label_value) = "mul" )
+      }
+    BIND(if(bound(?item__label_value), ?item__label_value, if(( isURI(?item) && strstarts(str(?item), "http://www.wikidata.org/entity/") ), strafter(str(?item), "entity/"), str(?item))) AS ?itemLabel)
+  }
+LIMIT   50
+
+# Original query:
+# # Sample of scientific articles missing description in any language
+# # by So9q inspired by Lucas Werkmeister
+# # 2021-04-18
+# # This query can be used with PetScan to work on items that are normally not queryable because of timeouts on query.wikidata.org.
+# SELECT ?item ?itemLabel
+# WHERE
+# {
+#   SERVICE bd:sample {
+#     ?item wdt:P31 wd:Q13442814.
+#     bd:serviceParam bd:sample.limit 100000
+#   }
+#   minus {
+#     ?item schema:description [].
+#   }
+#   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],en". }
+# }
+# limit 50
